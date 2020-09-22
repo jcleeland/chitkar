@@ -1,0 +1,317 @@
+<?php
+/* @var $this SiteController */
+
+$this->pageTitle=Yii::app()->name;
+$baseUrl=Yii::app()->baseUrl;
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/siteindex.js');
+
+$basedir=Yii::app()->basePath;
+$dbfail=$basedir."/../tmp/dbfailure.ctk";
+
+if(file_exists($dbfail) && !Yii::app()->user->isGuest) {
+    ?>
+    <div style='text-align: center; '>
+        <span style='color: red; font-size: 14pt'>--== Email Distribution Currently Suspended ==--</span><br />
+        Visit <?php echo CHtml::link('Admin', array('site/admin')) ?> to view reason and restart.
+    </div>
+    <?php
+}
+if(!Yii::app()->user->isGuest) {
+?>
+<div style="width: 18%; float: left; margin-right: 15px">
+  <div class="gbox-title">
+    <h1>My Chitkar</h1>
+    <div class="gbox" style='background-color: white'>
+        <p>
+            I have <?php echo count($userpending); ?> <?php echo CHtml::link('newsletters', array('newsletters/index', 'userId'=>Yii::app()->user->id)) ?> pending.
+        </p>
+        <p>I've sent out <?php echo count($usertoday); ?> <?php echo CHtml::link('newsletters', array('newsletters/index', 'userId'=>Yii::app()->user->id)) ?> today.</p>
+    <h1 style='margin-top: 8px'>My Recent</h1>
+        <div style='margin-left: 10px; font-size: 8pt'>
+        <?php
+        foreach($userlast10 as $userlast) {
+            echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ".CHtml::link($userlast->title, array('newsletters/view', 'id'=>$userlast->id))." ".date("dS M", strtotime($userlast->sendDate))." (".$userlast->recipientCount."&nbsp;recips)</p>\n";
+        }    
+        
+        ?>
+        </div>
+    </div>
+  </div>
+  <br />
+  <div class="gbox-title">
+    <h1>Top Chitkarers</h1>
+    <div class='gbox' style='background-color: white'>
+        <h1 style='margin-top: 8px'>Today</h1>
+        <div style='margin-left: 10px; font-size: 8pt'>
+        <?php
+            foreach($topchitter as $top) {
+                echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
+                echo CHtml::link($top->users->firstname." ".$top->users->lastname, array('newsletters/index', 'userId'=>$top->usersId));
+                echo ": ".$top->countNewsletters;
+                echo "</p>\n";
+            }
+        ?>
+        </div>
+        <h1 style='margin-top: 8px'>Last 7 days</h1>
+        <div style='margin-left: 10px; font-size: 8pt'>
+            <?php
+                foreach($topwchitter as $top) {
+                    echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
+                    echo CHtml::link($top->users->firstname." ".$top->users->lastname, array('newsletters/index', 'userId'=>$top->usersId));
+                    echo ": ".$top->countNewsletters;
+                    echo "</p>\n";
+                }        
+            ?>
+        </div>
+        <h1 style='margin-top: 8px'>Of all time</h1>
+        <div style='margin-left: 10px; font-size: 8pt'>
+            <?php
+                foreach($topfchitter as $top) {
+                    echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
+                    echo CHtml::link($top->users->firstname." ".$top->users->lastname, array('newsletters/index', 'userId'=>$top->usersId));
+                    echo ": ".$top->countNewsletters;
+                    echo "</p>\n";
+                }        
+            ?>
+        </div>
+    </div>
+    
+  </div>
+</div>
+<?php } else {
+    echo "<div style='width: 9%; float: left; margin-right: 15px'>&nbsp;</div>";
+    
+} ?>
+<div class="gbox-title" style="width: 80%; float: left">
+	<h1>Metrics</h1>
+	<div class="gbox" style='background-color: white'>
+
+        <div id="chart_div" style="width: 850px; height: 250px; margin-left: auto; margin-right: auto;"></div>
+        <div id="chart_stats"  style='width: 880px; margin-left: auto; margin-right: auto;'>
+            <div class="gbox-float-title">
+                <h3>Newsletters</h3>
+                <div class="gbox-float">
+                    <table>
+                        <tr>
+                            <td>Today :</td>
+                            <td><?php echo $statistics[date("Y-m-d")]['newsletters']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Week : </td>
+                            <td><?php echo $thisweek['newsletters']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Month : </td>
+                            <td><?php echo $thismonth['newsletters']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Total:</td>
+                            <td><?php echo $forever['newsletters']; ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'><b>Most Recent Newsletters:</b></td>
+                        </tr>
+                        <tr>
+                            <td style='vertical-align: top; font-size: 8pt; border-top: 1px solid #111; background-color: white; padding: 0' colspan='2'>
+                                <div class='recentlist'>
+                            <?php foreach($recentnews as $rn) {
+                                echo "<p>".CHtml::link($rn->title, array('newsletters/view', 'id'=>$rn->id)). " [".date("H:i, d M", strtotime($rn->created))."]</p>\n";
+                            }
+                            ?>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="gbox-float-title" id="queuedbox">
+                <?php echo CHtml::image($baseUrl.'/images/swap.png', '', array('style'=>'position: absolute; margin-left: -120px; cursor: pointer', 'id'=>'swapbutton3')); ?>
+                <h3>Emails Queued</h3>
+                <div class="gbox-float">
+                    <table>
+                        <tr>
+                            <td>Today :</td>
+                            <td><?php echo $statistics[date("Y-m-d")]['queued']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Week :</td>
+                            <td><?php echo $thisweek['queued']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Month :</td>
+                            <td><?php echo $thismonth['queued']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Total : </td>
+                            <td><?php echo $forever['queued']; ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'><b>Most Recently Published:</b></td>
+                        </tr>
+                        <tr>
+                            <td style='vertical-align: top; font-size: 8pt; border-top: 1px solid #111; background-color: white; padding: 0' colspan='2'>
+                                <div class='recentlist'>
+                            
+                            <?php foreach($recentpub as $rn) {
+                                echo "<p>".CHtml::link($rn->title, array('newsletters/view', 'id'=>$rn->id)). " [".date("H:i, d M", strtotime($rn->sendDate))."]</p>\n";
+                            }
+                            ?>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="gbox-float-title" id="sentbox" style='display: none'>
+                    <?php echo CHtml::image($baseUrl.'/images/swap.png', '', array('style'=>'position: absolute; margin-left: -120px; cursor: pointer', 'id'=>'swapbutton4')); ?>
+                    <h3>Emails Sent</h3>
+                <div class="gbox-float">
+                    <table>
+                        <tr>
+                            <td>Today :</td>
+                            <td><?php echo $statistics[date("Y-m-d")]['sent']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Week :</td>
+                            <td><?php echo $thisweek['sent']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Month :</td>
+                            <td><?php echo $thismonth['sent']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Total : </td>
+                            <td><?php echo $forever['sent']; ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'><b>Most Recently Published:</b></td>
+                        </tr>
+                        <tr>
+                            <td style='vertical-align: top; font-size: 8pt; border-top: 1px solid #111; background-color: white; padding: 0' colspan='2'>
+                                <div class='recentlist'>
+                            
+                            <?php foreach($recentpub as $rn) {
+                                echo "<p>".CHtml::link($rn->title, array('newsletters/view', 'id'=>$rn->id)). " [".date("H:i, d M", strtotime($rn->sendDate))."]</p>\n";
+                            }
+                            ?>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="gbox-float-title" id='readsbox'>
+                <?php echo CHtml::image($baseUrl.'/images/swap.png', '', array('style'=>'position: absolute; margin-left: -120px; cursor: pointer', 'id'=>'swapbutton1')); ?><h3>Reads</h3>
+                <div class="gbox-float">
+                    <table>
+                        <tr>
+                            <td>Today : </td>
+                            <td><?php echo $statistics[date("Y-m-d")]['read']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Week : </td>
+                            <td><?php echo $thisweek['read'] ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Month : </td>
+                            <td><?php echo $thismonth['read']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Total:</td>
+                            <td><?php echo $forever['read']; ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'><b>Most Recently Read:</b></td>
+                        </tr>
+                        <tr>
+                            <td style='vertical-align: top; font-size: 8pt; border-top: 1px solid #111; background-color: white; padding: 0' colspan='2'>
+                                <div class='recentlist'>
+                            <?php foreach($recentread as $rn) {
+                                echo "<p>".CHtml::link($rn->newsletters->title, array('newsletters/view', 'id'=>$rn->newslettersId)). " [".date("H:i, d M", strtotime($rn->readTime))."]</p>\n";
+                            }
+                            ?>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>        
+
+            <div class="gbox-float-title" style='display: none' id='linksbox'>
+                <?php echo CHtml::image($baseUrl.'/images/swap.png', '', array('style'=>'position: absolute; margin-left: -120px; cursor: pointer', 'id'=>'swapbutton2')); ?><h3>Links</h3>
+                <div class="gbox-float">
+                    <table>
+                        <tr>
+                            <td>Today : </td>
+                            <td><?php echo $statistics[date("Y-m-d")]['linkused']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Week : </td>
+                            <td><?php echo $thisweek['linkused'] ?></td>
+                        </tr>
+                        <tr>
+                            <td>This Month : </td>
+                            <td><?php echo $thismonth['linkused']; ?></td>
+                        </tr>
+                        <tr>
+                            <td>Total:</td>
+                            <td><?php echo $forever['linkused']; ?></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'><b>Most Recently Clicked:</b></td>
+                        </tr>
+                        <tr>
+                            <td style='vertical-align: top; font-size: 8pt; border-top: 1px solid #111; background-color: white; padding: 0' colspan='2'>
+                                <div class='recentlist'>
+                            <?php foreach($recentclick as $rn) {
+                                echo "<p>".CHtml::link($rn->newsletters->title, array('newsletters/view', 'id'=>$rn->newslettersId)). " [".date("H:i, d M", strtotime($rn->linkUsedTime))."]</p>\n";
+                            }
+                            ?>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div> 
+            
+        </div>
+                         
+    </div><!--.gbox-->
+</div>
+
+<!--.gbox-title-->
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript">
+          google.load("visualization", "1", {packages:["corechart"]});
+          google.setOnLoadCallback(drawChart);
+          function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+
+              ['Date', 'Emails', 'Reads', 'Links'],
+<?php
+    foreach($statistics as $key=>$stat) {
+        echo "['".date("jS M", strtotime($key))."', ".$stat['sent'].", ".$stat['read'].", ".$stat['linkused']."],\n";
+    }
+?>
+            ]);
+        
+            var options = {
+                /* hAxis: {title: 'Date'}, */
+                vAxis: {title: 'Emails'},
+                fontColor: 'white',
+                backgroundColor: 'none',
+                curveType: 'function',
+                pointSize: 6
+            };
+        
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+
+          }
+        </script>
+

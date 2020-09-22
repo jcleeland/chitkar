@@ -1,0 +1,20 @@
+Create a mysql database called "chitkar"
+Edit the main.php file located in /chitkar/protected/config/
+Scroll down in that file to the line 'db'=>array() and change the values for hostname, dbname, password and username to match your mysql settings
+Save changes
+Change the permissions in /chitkar/assets to writable for the web server (777)
+
+Edit /chitkar/protected/components/ExternalDb.php and set the odbc_dsn/user/pass information
+
+Login using the default user "admin" / "password"
+Click on the "Admin" menu, then choose "Users" 
+ - change the details (especially the password) for the admin user
+Click on the "Admin" menu, then choose "Settings"
+ - Modify ALL the settings to suit your local installation
+Click on the "Templates" menu and adjust the templates to suit. Note that "Default" is the default template, and you can change this in the settings.
+
+Copy all the "website" files up to the website
+
+Add entries to the crontab so that Chitkar sends queued newsletters every 5 minutes and checks for reads/links every 5 minutes
+
+Create the first newsletter to a test subject
