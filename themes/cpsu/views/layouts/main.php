@@ -1,11 +1,12 @@
 <?php /* @var $this Controller */ 
-$documentroot="/var/www";
-$webroot="http://web.cpsuvic.org:4443";
+$documentroot="/var/www/html/chitkar";
+$webroot="https://live02.cpsuvic.org:4445";
 $cssCoreUrl = Yii::app()->clientScript->getCoreScriptUrl();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
+    <link rel="icon" type="image/x-icon" href="<?php echo Yii::app()->theme->baseUrl;?>/images/favicon.ico" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="language" content="en" />
     <?php Yii::app()->clientScript->registerCoreScript('jquery'); ?>
@@ -13,7 +14,7 @@ $cssCoreUrl = Yii::app()->clientScript->getCoreScriptUrl();
     <?php Yii::app()->clientScript->registerCssFile($cssCoreUrl.'/jui/css/base/jquery-ui.css'); ?>
     
     <!-- global-nav -->
-	<link rel="stylesheet" href="<?php echo "$webroot"?>/global/css/main-global.css" type="text/css" media="screen" />
+	<!--<link rel="stylesheet" href="<?php echo "$webroot"?>/global/css/main-global.css" type="text/css" media="screen" />-->
 
 	<!-- blueprint CSS framework -->
 	<link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->theme->baseUrl;?>/css/screen.css" media="screen, projection" />

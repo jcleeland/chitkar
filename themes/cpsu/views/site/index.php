@@ -21,6 +21,7 @@ if(file_exists($dbfail) && !Yii::app()->user->isGuest) {
 
 if(!Yii::app()->user->isGuest) {
     $thetimer[13]=microtime();
+    flush(); ob_flush();
     ?>
 <!-- LEFT COLUMN -->
 <div style="width: 18%; float: left; margin-right: 15px">
@@ -49,22 +50,22 @@ if(!Yii::app()->user->isGuest) {
     <div class='gbox' style='background-color: white'>
         <h1 style='margin-top: 8px'>Today</h1>
         <div style='margin-left: 10px; font-size: 8pt'>
-        <?php
-            foreach($topchitter as $top) {
-                echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
-                echo CHtml::link($top->users->firstname." ".$top->users->lastname, array('newsletters/index', 'userId'=>$top->usersId));
-                echo ": ".$top->countNewsletters;
-                echo "</p>\n";
-            }
-        ?>
+            <?php
+                foreach($topchitter as $top) {
+                    echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
+                    echo CHtml::link($top['firstname']." ".$top['lastname'], array('newsletters/index', 'userId'=>$top['id']));
+                    echo ": ".$top['countNewsletters'];
+                    echo "</p>\n";
+                }
+            ?>
         </div>
         <h1 style='margin-top: 8px'>Last 7 days</h1>
         <div style='margin-left: 10px; font-size: 8pt'>
             <?php
                 foreach($topwchitter as $top) {
                     echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
-                    echo CHtml::link($top->users->firstname." ".$top->users->lastname, array('newsletters/index', 'userId'=>$top->usersId));
-                    echo ": ".$top->countNewsletters;
+                    echo CHtml::link($top['firstname']." ".$top['lastname'], array('newsletters/index', 'userId'=>$top['id']));
+                    echo ": ".$top['countNewsletters'];
                     echo "</p>\n";
                 }        
             ?>
@@ -74,8 +75,9 @@ if(!Yii::app()->user->isGuest) {
             <?php
                 foreach($topfchitter as $top) {
                     echo "<p style='margin-bottom: 8px; text-indent: -8px'>&#187; ";
-					echo CHtml::link($top->users->firstname." ".$top->users->lastname, array('newsletters/index', 'userId'=>$top->usersId));
-                    echo ": ".$top->countNewsletters;
+                    //print_r($top);
+					echo CHtml::link($top['firstname']." ".$top['lastname'], array('newsletters/index', 'userId'=>$top['id']));
+                    echo ": ".$top['countNewsletters'];
                     echo "</p>\n";
                 }        
             ?>
@@ -202,12 +204,25 @@ if(!Yii::app()->user->isGuest) {
                          
     </div><!--.gbox-->
 </div>
+
 <!-- SELECT title, count(*) as count 
 FROM outgoings, newsletters 
 WHERE outgoings.newslettersId=newsletters.id 
 AND readTime >='<?php echo date("Y-m-d H:i:s", $summarysince) ?>'
 GROUP BY title ORDER BY count DESC  -->
     <?php $thetimer[14]=microtime(); ?>
+    <!-- TIMINGS: \r\n
+    <?php 
+        $delay=0;
+        $lasttime=0;
+        foreach($thetimer as $key=>$thetime) {
+            list($microseconds, $seconds) = explode(' ', $thetime);
+            if($lasttime==0) {echo "ENTRY $key: START\r\n";} else {echo "ENTRY $key: ".($seconds-$lasttime)."\r\n";}
+            $lasttime=$seconds;
+            //echo "ENTRY $key - Seconds: ".$seconds.", Microseconds: ".$microseconds."\r\n";
+        }
+    ?>
+    -->
         <!--.gbox-title-->
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
         <script type="text/javascript">

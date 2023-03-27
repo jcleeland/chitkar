@@ -3,9 +3,9 @@
  * This file contains the CDbCommand class.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 /**
@@ -94,7 +94,7 @@ class CDbCommand extends CComponent
 	 * about valid property values. This feature has been available since version 1.1.6.
 	 *
 	 * Since 1.1.7 it is possible to use a specific mode of data fetching by setting
- 	 * {@link setFetchMode FetchMode}. See {@link http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php}
+ 	 * {@link setFetchMode FetchMode}. See {@link https://www.php.net/manual/en/function.PDOStatement-setFetchMode.php}
  	 * for more details.
 	 */
 	public function __construct(CDbConnection $connection,$query=null)
@@ -123,7 +123,7 @@ class CDbCommand extends CComponent
 	 * Set the default fetch mode for this statement
 	 * @param mixed $mode fetch mode
 	 * @return static
-	 * @see http://www.php.net/manual/en/function.PDOStatement-setFetchMode.php
+	 * @see https://www.php.net/manual/en/function.PDOStatement-setFetchMode.php
 	 * @since 1.1.7
 	 */
 	public function setFetchMode($mode)
@@ -240,7 +240,7 @@ class CDbCommand extends CComponent
 	 * @param integer $length length of the data type
 	 * @param mixed $driverOptions the driver-specific options (this is available since version 1.1.6)
 	 * @return static the current command being executed
-	 * @see http://www.php.net/manual/en/function.PDOStatement-bindParam.php
+	 * @see https://www.php.net/manual/en/function.PDOStatement-bindParam.php
 	 */
 	public function bindParam($name, &$value, $dataType=null, $length=null, $driverOptions=null)
 	{
@@ -266,7 +266,7 @@ class CDbCommand extends CComponent
 	 * @param mixed $value The value to bind to the parameter
 	 * @param integer $dataType SQL data type of the parameter. If null, the type is determined by the PHP type of the value.
 	 * @return static the current command being executed
-	 * @see http://www.php.net/manual/en/function.PDOStatement-bindValue.php
+	 * @see https://www.php.net/manual/en/function.PDOStatement-bindValue.php
 	 */
 	public function bindValue($name, $value, $dataType=null)
 	{
@@ -705,7 +705,7 @@ class CDbCommand extends CComponent
 			{
 				if(strpos($table,'(')===false)
 				{
-					if(preg_match('/^(.*?)(?i:\s+as\s+|\s+)(.*)$/',$table,$matches))  // with alias
+					if(preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/',$table,$matches))  // with alias
 						$tables[$i]=$this->_connection->quoteTableName($matches[1]).' '.$this->_connection->quoteTableName($matches[2]);
 					else
 						$tables[$i]=$this->_connection->quoteTableName($table);
@@ -956,6 +956,36 @@ class CDbCommand extends CComponent
 	public function naturalJoin($table)
 	{
 		return $this->joinInternal('natural join', $table);
+	}
+
+	/**
+	 * Appends a NATURAL LEFT JOIN part to the query.
+	 * Note that not all DBMS support NATURAL LEFT JOIN.
+	 * @param string $table the table to be joined.
+	 * Table name can contain schema prefix (e.g. 'public.tbl_user') and/or table alias (e.g. 'tbl_user u').
+	 * The method will automatically quote the table name unless it contains some parenthesis
+	 * (which means the table is given as a sub-query or DB expression).
+	 * @return CDbCommand the command object itself
+	 * @since 1.1.16
+	 */
+	public function naturalLeftJoin($table)
+	{
+		return $this->joinInternal('natural left join', $table);
+	}
+
+	/**
+	 * Appends a NATURAL RIGHT JOIN part to the query.
+	 * Note that not all DBMS support NATURAL RIGHT JOIN.
+	 * @param string $table the table to be joined.
+	 * Table name can contain schema prefix (e.g. 'public.tbl_user') and/or table alias (e.g. 'tbl_user u').
+	 * The method will automatically quote the table name unless it contains some parenthesis
+	 * (which means the table is given as a sub-query or DB expression).
+	 * @return CDbCommand the command object itself
+	 * @since 1.1.16
+	 */
+	public function naturalRightJoin($table)
+	{
+		return $this->joinInternal('natural right join', $table);
 	}
 
 	/**
@@ -1314,7 +1344,7 @@ class CDbCommand extends CComponent
 	 * @param string $table the name of the table to be created. The name will be properly quoted by the method.
 	 * @param array $columns the columns (name=>definition) in the new table.
 	 * @param string $options additional SQL fragment that will be appended to the generated SQL.
-	 * @return integer 0 is always returned. See {@link http://php.net/manual/en/pdostatement.rowcount.php} for more information.
+	 * @return integer 0 is always returned. See {@link https://php.net/manual/en/pdostatement.rowcount.php} for more information.
 	 * @since 1.1.6
 	 */
 	public function createTable($table, $columns, $options=null)
@@ -1326,7 +1356,7 @@ class CDbCommand extends CComponent
 	 * Builds and executes a SQL statement for renaming a DB table.
 	 * @param string $table the table to be renamed. The name will be properly quoted by the method.
 	 * @param string $newName the new table name. The name will be properly quoted by the method.
-	 * @return integer 0 is always returned. See {@link http://php.net/manual/en/pdostatement.rowcount.php} for more information.
+	 * @return integer 0 is always returned. See {@link https://php.net/manual/en/pdostatement.rowcount.php} for more information.
 	 * @since 1.1.6
 	 */
 	public function renameTable($table, $newName)
@@ -1337,7 +1367,7 @@ class CDbCommand extends CComponent
 	/**
 	 * Builds and executes a SQL statement for dropping a DB table.
 	 * @param string $table the table to be dropped. The name will be properly quoted by the method.
-	 * @return integer 0 is always returned. See {@link http://php.net/manual/en/pdostatement.rowcount.php} for more information.
+	 * @return integer 0 is always returned. See {@link https://php.net/manual/en/pdostatement.rowcount.php} for more information.
 	 * @since 1.1.6
 	 */
 	public function dropTable($table)
@@ -1561,7 +1591,7 @@ class CDbCommand extends CComponent
 	{
 		if(strpos($table,'(')===false)
 		{
-			if(preg_match('/^(.*?)(?i:\s+as\s+|\s+)(.*)$/',$table,$matches))  // with alias
+			if(preg_match('/^(.*?)(?i:\s+as|)\s+([^ ]+)$/',$table,$matches))  // with alias
 				$table=$this->_connection->quoteTableName($matches[1]).' '.$this->_connection->quoteTableName($matches[2]);
 			else
 				$table=$this->_connection->quoteTableName($table);

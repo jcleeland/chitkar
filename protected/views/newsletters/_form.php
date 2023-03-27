@@ -78,8 +78,10 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
             <div id='recipientListInfo'>
                 <div class="row">
                     <?php echo $form->labelEx($model,'recipientSql'); ?>
-                    <?php echo $form->textArea($model,'recipientSql',array('rows'=>6, 'cols'=>50)); ?>
+                    <?php echo $form->textArea($model,'recipientSql',array('rows'=>10, 'cols'=>80)); ?>
                     <?php echo $form->error($model,'recipientSql'); ?>
+                    <input type='button' style='font-size: 0.7em; padding: 1px !important;' id='copySQLbtn' value='Use as new' />
+
                 </div>
                 <div class="row">
                     <?php echo $form->labelEx($model,'recipientValues'); ?>
@@ -94,6 +96,7 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
 
     <div id='page4' class='page'>
         <p class='pageTitle'>Choose a template and create your newsletter</p>
+        <p class='pageExplain floatRight border' style='border: 1px solid #ccc; max-width: 280px' id='replacementFields'></p>
         <p class='pageExplain'>Enter the subject line, and then use the content field to create the actual contents of your email.</p> 
         <input type='button' value='<< Prev' class='prevBtn'>
         <input type='button' value='Next >>' class='nextBtn'>

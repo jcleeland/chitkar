@@ -3,9 +3,9 @@
  * CFileHelper class file.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 /**
@@ -66,22 +66,44 @@ class CFileHelper
 	/**
 	 * Removes a directory recursively.
 	 * @param string $directory to be deleted recursively.
+	 * @param array $options for the directory removal. Valid options are:
+	 * <ul>
+	 * <li>traverseSymlinks: boolean, whether symlinks to the directories should be traversed too.
+	 * Defaults to `false`, meaning that the content of the symlinked directory would not be deleted.
+	 * Only symlink would be removed in that default case.</li>
+	 * </ul>
+	 * Note, options parameter is available since 1.1.16
 	 * @since 1.1.14
 	 */
-	public static function removeDirectory($directory)
+	public static function removeDirectory($directory,$options=array())
 	{
-		$items=glob($directory.DIRECTORY_SEPARATOR.'{,.}*',GLOB_MARK | GLOB_BRACE);
+		if(!isset($options['traverseSymlinks']))
+			$options['traverseSymlinks']=false;
+		$items=array_merge(
+			glob($directory.DIRECTORY_SEPARATOR.'*',GLOB_MARK),
+			glob($directory.DIRECTORY_SEPARATOR.'.*',GLOB_MARK)
+		);
 		foreach($items as $item)
 		{
 			if(basename($item)=='.' || basename($item)=='..')
 				continue;
 			if(substr($item,-1)==DIRECTORY_SEPARATOR)
-				self::removeDirectory($item);
+			{
+				if(!$options['traverseSymlinks'] && is_link(rtrim($item,DIRECTORY_SEPARATOR)))
+					unlink(rtrim($item,DIRECTORY_SEPARATOR));
+				else
+					self::removeDirectory($item,$options);
+			}
 			else
 				unlink($item);
 		}
-		if(is_dir($directory))
-			rmdir($directory);
+		if(is_dir($directory=rtrim($directory,'\\/')))
+		{
+			if(is_link($directory))
+				unlink($directory);
+			else
+				rmdir($directory);
+		}
 	}
 
 	/**
@@ -134,6 +156,7 @@ class CFileHelper
 	 * @param array $options additional options. The following options are supported:
 	 * newDirMode - the permission to be set for newly copied directories (defaults to 0777);
 	 * newFileMode - the permission to be set for newly copied files (defaults to the current environment setting).
+	 * @throws Exception
 	 */
 	protected static function copyDirectoryRecursive($src,$dst,$base,$fileTypes,$exclude,$level,$options)
 	{
@@ -141,6 +164,8 @@ class CFileHelper
 			self::createDirectory($dst,isset($options['newDirMode'])?$options['newDirMode']:null,false);
 
 		$folder=opendir($src);
+		if($folder===false)
+			throw new Exception('Unable to open directory: ' . $src);
 		while(($file=readdir($folder))!==false)
 		{
 			if($file==='.' || $file==='..')
@@ -178,11 +203,14 @@ class CFileHelper
 	 * level N means searching for those directories that are within N levels.
 	 * @param boolean $absolutePaths whether to return absolute paths or relative ones
 	 * @return array files found under the directory.
+	 * @throws Exception
 	 */
 	protected static function findFilesRecursive($dir,$base,$fileTypes,$exclude,$level,$absolutePaths)
 	{
 		$list=array();
 		$handle=opendir($dir.$base);
+		if($handle===false)
+			throw new Exception('Unable to open directory: ' . $dir);
 		while(($file=readdir($handle))!==false)
 		{
 			if($file==='.' || $file==='..')
@@ -195,7 +223,7 @@ class CFileHelper
 				if($isFile)
 					$list[]=$absolutePaths?$fullPath:$path;
 				elseif($level)
-					$list=array_merge($list,self::findFilesRecursive($dir,$base.'/'.$file,$fileTypes,$exclude,$level-1,$absolutePaths));
+					$list=array_merge($list,self::findFilesRecursive($dir,$base.DIRECTORY_SEPARATOR.$file,$fileTypes,$exclude,$level-1,$absolutePaths));
 			}
 		}
 		closedir($handle);
@@ -223,7 +251,7 @@ class CFileHelper
 		}
 		if(!$isFile || empty($fileTypes))
 			return true;
-		if(($type=pathinfo($file,PATHINFO_EXTENSION))!=='')
+		if(($type=self::getExtension($file))!=='')
 			return in_array($type,$fileTypes);
 		else
 			return false;
@@ -239,8 +267,8 @@ class CFileHelper
 	 * </ol>
 	 * @param string $file the file name.
 	 * @param string $magicFile name of a magic database file, usually something like /path/to/magic.mime.
-	 * This will be passed as the second parameter to {@link http://php.net/manual/en/function.finfo-open.php finfo_open}.
-	 * Magic file format described in {@link http://linux.die.net/man/5/magic man 5 magic}, note that this file does not
+	 * This will be passed as the second parameter to {@link https://php.net/manual/en/function.finfo-open.php finfo_open}.
+	 * Magic file format described in {@link https://linux.die.net/man/5/magic man 5 magic}, note that this file does not
 	 * contain a standard PHP array as you might suppose. Specified magic file will be used only when fileinfo
 	 * PHP extension is available. This parameter has been available since version 1.1.3.
 	 * @param boolean $checkExtension whether to check the file extension in case the MIME type cannot be determined
@@ -280,13 +308,40 @@ class CFileHelper
 			$extensions=require(Yii::getPathOfAlias('system.utils.mimeTypes').'.php');
 		elseif($magicFile!==null && !isset($customExtensions[$magicFile]))
 			$customExtensions[$magicFile]=require($magicFile);
-		if(($ext=pathinfo($file,PATHINFO_EXTENSION))!=='')
+		if(($ext=self::getExtension($file))!=='')
 		{
 			$ext=strtolower($ext);
 			if($magicFile===null && isset($extensions[$ext]))
 				return $extensions[$ext];
 			elseif($magicFile!==null && isset($customExtensions[$magicFile][$ext]))
 				return $customExtensions[$magicFile][$ext];
+		}
+		return null;
+	}
+
+	/**
+	 * Determines the file extension name based on its MIME type.
+	 * This method will use a local map between MIME type and extension name.
+	 * @param string $file the file name.
+	 * @param string $magicFile the path of the file that contains all available extension information.
+	 * If this is not set, the default 'system.utils.fileExtensions' file will be used.
+	 * This parameter has been available since version 1.1.16.
+	 * @return string extension name. Null is returned if the extension cannot be determined.
+	 */
+	public static function getExtensionByMimeType($file,$magicFile=null)
+	{
+		static $mimeTypes,$customMimeTypes=array();
+		if($magicFile===null && $mimeTypes===null)
+			$mimeTypes=require(Yii::getPathOfAlias('system.utils.fileExtensions').'.php');
+		elseif($magicFile!==null && !isset($customMimeTypes[$magicFile]))
+			$customMimeTypes[$magicFile]=require($magicFile);
+		if(($mime=self::getMimeType($file))!==null)
+		{
+			$mime=strtolower($mime);
+			if($magicFile===null && isset($mimeTypes[$mime]))
+				return $mimeTypes[$mime];
+			elseif($magicFile!==null && isset($customMimeTypes[$magicFile][$mime]))
+				return $customMimeTypes[$magicFile][$mime];
 		}
 		return null;
 	}

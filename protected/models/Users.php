@@ -157,4 +157,26 @@ class Users extends CActiveRecord
             return CPasswordHelper::hashPassword($password);
         }
     }
+    
+    public function getNewslettersCountData($sendDate)
+    {
+        // Define the subquery to get the count of newsletters
+        $subquery = Yii::app()->db->createCommand()
+            ->select('usersId, COUNT(*) as countNewsletters')
+            ->from('newsletters')
+            ->where('sendDate > :sendDate', [':sendDate' => $sendDate])
+            ->group('usersId');
+
+        // Define the main query using the subquery
+        $sql = "SELECT u.lastname, u.firstname, u.id, n.countNewsletters
+                FROM ({$subquery->text}) as n
+                LEFT JOIN users u ON n.usersId = u.id
+                ORDER BY n.countNewsletters DESC";
+
+        // Execute the main query and fetch the results
+        $results = Yii::app()->db->createCommand($sql)
+            ->queryAll(true, $subquery->params);
+
+        return $results;
+    }    
 }

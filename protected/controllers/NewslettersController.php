@@ -279,7 +279,11 @@ class NewslettersController extends Controller
         $recentDataProvider=new CActiveDataProvider('Newsletters',
             array('criteria'=>$criteria)
         );
-        $recentDataProvider->sort->defaultOrder='senddate DESC';
+        if(isset($_GET['completed']) && $_GET['completed']=="sent") {
+            $recentDataProvider->sort->defaultOrder='senddate ASC';
+        } else {
+            $recentDataProvider->sort->defaultOrder='senddate DESC';
+        }
         
         //ARCHIVED NEWSLETTERS
         $criteria=new CDbCriteria();
@@ -292,15 +296,13 @@ class NewslettersController extends Controller
         $criteria->addSearchCondition('queued', '1');
         $criteria->addSearchCondition('completed', '1');
         $criteria->addSearchCondition('archive', '1'); //Don't show archived newsletters  
-        $criteria->with = array('users', 'templates', 'recipientLists');
+        $criteria->with = array('users', 'templates', 'recipientLists', 'archives');
 
         $archivedDataProvider=new CActiveDataProvider('Newsletters',
             array('criteria'=>$criteria)
         );
         $archivedDataProvider->sort->defaultOrder='senddate DESC';
         
-        
-            
         
         $userdetails=$userId ? Users::model()->find('id='.$userId) : null;
         if($userdetails) {$user=$userdetails->firstname." ".$userdetails->lastname;} else {$user="";}
@@ -331,11 +333,12 @@ class NewslettersController extends Controller
                                     'with'=>array('users', 'templates', 'recipientLists'),
                                    )
                                );
-		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Newsletters']))
-			$model->attributes=$_GET['Newsletters'];
-
-		$this->render('admin',array(
+		//$model->unsetAttributes();  // clear any default values
+        if(isset($_GET['Newsletters'])) {
+            $model->attributes=$_GET['Newsletters'];
+        }
+        //echo "<pre>"; print_r($_GET); die();
+        $this->render('admin',array(
 			'model'=>$model,
 		));
 	}
@@ -358,43 +361,59 @@ class NewslettersController extends Controller
 
     public function actionArchive($id) 
     {
-        $newsletter=Newsletters::model()->findByPk($id);
-        $totalSent=Outgoings::model()->count("sent = 1 AND newslettersId = :newslettersId", array(':newslettersId'=>$id));
-        $totalRead=Outgoings::model()->count("`read` = 1 AND newslettersId = :newslettersId", array(':newslettersId'=>$id));
-        $totalLinks=Outgoings::model()->count("linkUsed= 1 AND newslettersId = :newslettersId", array(':newslettersId'=>$id));
-        $dateArchived=date("Y-m-d", time());
-        $usercriteria=new CDbCriteria();
-        $usercriteria->select="email, recipientId";
-        $usercriteria->condition="newslettersId = ".$id;
-        $usercriteria->order="recipientId"; 
-        $outgoings=Outgoings::model()->findAll($usercriteria);
-        $emails=array();
-        $recipientIds=array();
-        foreach($outgoings as $row) {
-            $emails[]=$row->email;
-            $recipientIds[]=$row->recipientId;
-        } 
-        $emailList=implode("|", $emails);
-        $recipientList=implode("|",$recipientIds);
+        if(strpos($id, "|") > -1) {
+            $idlist=explode("|", $id);
+            $last=count($idlist)-1;
+            unset($idlist[$last]);
+            
+        } else {
+            $idlist[]=$id;
+        }
         
+        $content=array();
         
-        //Write the statistics to the archive table
-        $insert=new Archives;
-        $insert->newslettersId=$id;
-        $insert->totalSent=$totalSent;
-        $insert->totalRead=$totalRead;
-        $insert->totalLinks=$totalLinks;
-        $insert->dateArchived=$dateArchived;
-        $insert->recipientEmails=$emailList;
-        $insert->recipientIds=$recipientList;
-        $insert->save();
-        
-        $newsletter->archive=1;
-        $newsletter->update(array("archive"));
-        
-        Outgoings::model()->deleteAll("newslettersId = ".$id);
-        
-        $content=array("id"=>$id, "title"=>$newsletter->title, "sent"=>$totalSent, "read"=>$totalRead, "links"=>$totalLinks);
+        foreach($idlist as $id) {
+            
+            $newsletter=Newsletters::model()->findByPk($id);
+            $totalSent=Outgoings::model()->count("sent = 1 AND newslettersId = :newslettersId", array(':newslettersId'=>$id));
+            $totalRead=Outgoings::model()->count("`read` = 1 AND newslettersId = :newslettersId", array(':newslettersId'=>$id));
+            $totalLinks=Outgoings::model()->count("linkUsed= 1 AND newslettersId = :newslettersId", array(':newslettersId'=>$id));
+            $dateArchived=date("Y-m-d", time());
+            $usercriteria=new CDbCriteria();
+            $usercriteria->select="email, recipientId";
+            $usercriteria->condition="newslettersId = ".$id;
+            $usercriteria->order="recipientId"; 
+            $outgoings=Outgoings::model()->findAll($usercriteria);
+            $emails=array();
+            $recipientIds=array();
+            foreach($outgoings as $row) {
+                $emails[]=$row->email;
+                $recipientIds[]=$row->recipientId;
+            } 
+            $emailList=implode("|", $emails);
+            $recipientList=implode("|",$recipientIds);
+            
+            
+            //Write the statistics to the archive table
+            $insert=new Archives;
+            $insert->newslettersId=$id;
+            $insert->totalSent=$totalSent;
+            $insert->totalRead=$totalRead;
+            $insert->totalLinks=$totalLinks;
+            $insert->dateArchived=$dateArchived;
+            $insert->recipientEmails=$emailList;
+            $insert->recipientIds=$recipientList;
+            $insert->save();
+            
+            $newsletter->archive=1;
+            $newsletter->update(array("archive"));
+            
+            Outgoings::model()->deleteAll("newslettersId = ".$id);
+            
+            $content[]=array("id"=>$id, "title"=>$newsletter->title, "sent"=>$totalSent, "read"=>$totalRead, "links"=>$totalLinks);
+                        
+        }
+
         
         //echo "<pre>"; print_r($output); echo "</pre>";
         $this->render('archive', array('content'=>$content));
@@ -493,6 +512,9 @@ class NewslettersController extends Controller
             
             //Now $newdata should only have the unique entries from $data
             foreach($newdata as $recipient) {
+                //Prepare the data
+                $storedata=json_encode($recipient);
+                
                 $outgoings=new Outgoings();
                 $outgoings->newslettersId=$id;
                 $outgoings->recipientListsId=$model->recipientListsId;
@@ -505,6 +527,7 @@ class NewslettersController extends Controller
                 $outgoings->bounceText="";
                 $outgoings->read=0;
                 $outgoings->linkUsed=0;
+                $outgoings->data=$storedata;
                 $outgoings->insert();
             }
           

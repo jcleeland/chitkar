@@ -168,7 +168,7 @@ class SiteController extends Controller
         $starttime=strtotime('-6 hours', $nowhour);
         $nowhour=strtotime('+1 hour', $nowhour);
         $thetimer[2]=microtime();
-        $dbCommand = Yii::app()->db->createCommand("SELECT title, count(*) as count 
+        $dbCommand = Yii::app()->db->createCommand("SELECT title, count(title) as count 
                                                       FROM outgoings, newsletters 
                                                       WHERE outgoings.newslettersId=newsletters.id 
                                                       AND readTime >='".date("Y-m-d H:i:s", $starttime)."'
@@ -199,31 +199,41 @@ class SiteController extends Controller
         //TOP CHITKARER STATISTICS
         ///////////////////////////////////////////////////////////////////////////////////
         $thetimer[6]=microtime();
-        $tccriteria=new CDBCriteria();
-        $tccriteria->select = 'usersId, count(*) as countNewsletters';
+        
+        $userModel= new Users();
+        $sendDate=date('Y-m-d 00:00:00');
+        $topchitter=$userModel->getNewslettersCountData($sendDate);
+        /*$tccriteria=new CDBCriteria();
+        $tccriteria->select = 'usersId, count(t.id) as countNewsletters';
         $tccriteria->condition = "sendDate > '".date('Y-m-d 00:00:00')."'";
         $tccriteria->group='usersId';
-        $tccriteria->order='count(*) desc';
+        $tccriteria->order='count(t.id) desc';
         $tccriteria->with='users';
-        $topchitter=Newsletters::model()->findAll($tccriteria);
+        $topchitter=Newsletters::model()->findAll($tccriteria);   */
 
         $thetimer[7]=microtime();
-        $tccriteria=new CDBCriteria();
-        $tccriteria->select = 'usersId, count(*) as countNewsletters';
+        $userModel= new Users();
+        $sendDate=date('Y-m-d 00:00:00', time()-60*60*24*7);
+        $topwchitter=$userModel->getNewslettersCountData($sendDate);
+        /*$tccriteria=new CDBCriteria();
+        $tccriteria->select = 'usersId, count(t.id) as countNewsletters';
         $tccriteria->condition = "sendDate > '".date('Y-m-d 00:00:00', time()-60*60*24*7)."'";
-        $tccriteria->group='usersId';
+        $tccriteria->group='usersId, t.id, users.id, users.username, users.password, users.email, users.firstname, users.lastname, users.can_create, users.can_delete, users.can_control, users.can_admin, users.created, users.modified';
         $tccriteria->order='count(*) desc';
         $tccriteria->with='users';
-        $topwchitter=Newsletters::model()->findAll($tccriteria);
+        $topwchitter=Newsletters::model()->findAll($tccriteria);  */
 
-        $thetimer[8]=microtime();
-        $tccriteria=new CDBCriteria();
+        $thetimer[8]=microtime(); 
+        $userModel= new Users();
+        $sendDate='1900-01-01 00:00:00';
+        $topfchitter=$userModel->getNewslettersCountData($sendDate);
+        /*$tccriteria=new CDBCriteria();
         $tccriteria->select = 'usersId, count(*) as countNewsletters';
         $tccriteria->condition = "sendDate > '1900-01-01 00:00:00'";
-        $tccriteria->group='usersId';
+        $tccriteria->group='usersId, t.id, users.id, users.username, users.password, users.email, users.firstname, users.lastname, users.can_create, users.can_delete, users.can_control, users.can_admin, users.created, users.modified';
         $tccriteria->order='count(*) desc';
         $tccriteria->with='users';
-        $topfchitter=Newsletters::model()->findAll($tccriteria);
+        $topfchitter=Newsletters::model()->findAll($tccriteria); */
         
         
         
@@ -247,11 +257,15 @@ class SiteController extends Controller
         //For each entry in $hours, gather "Sent", "Reads" and "Links" for Google graph
         // on front page
         $thetimer[9]=microtime();
+        $i=90;
+        //THIS FUNCTION IS A TIME KILLER - 10 SECONDS!!!
         foreach($hours as $key=>$val) {
+            $thetimer[$i]=microtime();
             $hours[$key]['sent']=Statistics::model()->countSentByDates(date("Y-m-d H:i:s", $val['start']), date("Y-m-d H:i:s", $val['end']));
             $hours[$key]['read']=Statistics::model()->countReadByDates(date("Y-m-d H:i:s", $val['start']), date("Y-m-d H:i:s", $val['end']));
             $hours[$key]['legend']=date("g", ($val['start'])). "-".date("ga", ($val['end']));
             $hours[$key]['linkused']=Statistics::model()->countLinkUsedByDates(date("Y-m-d H:i:s", $val['start']), date("Y-m-d H:i:s", $val['end']));
+            $i++;
         }
         $hours=array_reverse($hours);
 
@@ -388,6 +402,13 @@ class SiteController extends Controller
             } else {
                 rename($dbfail, $basedir."/../tmp/dbfailure.".date("Ymdhi").".txt");
             }
+        }
+        if(isset($_GET['action']) && $_GET['action'] == "clearqueuelock") {
+            $basedir=Yii::app()->basePath;
+            $dbqueue=$basedir."/../tmp/queuelock.txt";
+            
+            //Set the queuelock file time to right now, allowing the next queue process to run
+            file_put_contents($dbqueue, time()-300);
         }
         $this->render('admin');    
     }

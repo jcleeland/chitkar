@@ -26,7 +26,7 @@ class ModelCode extends CCodeModel
 			array('connectionId', 'validateConnectionId', 'skipOnError'=>true),
 			array('tableName', 'validateTableName', 'skipOnError'=>true),
 			array('tablePrefix, modelClass', 'match', 'pattern'=>'/^[a-zA-Z_]\w*$/', 'message'=>'{attribute} should only contain word characters.'),
-		    array('baseClass', 'match', 'pattern'=>'/^[a-zA-Z_][\w\\\\]*$/', 'message'=>'{attribute} should only contain word characters and backslashes.'),
+		    array('baseClass', 'match', 'pattern'=>'/^[a-zA-Z_\\\\][\w\\\\]*$/', 'message'=>'{attribute} should only contain word characters and backslashes.'),
 			array('modelPath', 'validateModelPath', 'skipOnError'=>true),
 			array('baseClass, modelClass', 'validateReservedWord', 'skipOnError'=>true),
 			array('baseClass', 'validateBaseClass', 'skipOnError'=>true),
@@ -368,7 +368,8 @@ class ModelCode extends CCodeModel
 	protected function isRelationTable($table)
 	{
 		$pk=$table->primaryKey;
-		return (count($pk) === 2 // we want 2 columns
+        $count=is_array($pk) ? count($pk) : 1;
+        return ($count === 2 // we want 2 columns
 			&& isset($table->foreignKeys[$pk[0]]) // pk column 1 is also a foreign key
 			&& isset($table->foreignKeys[$pk[1]]) // pk column 2 is also a foriegn key
 			&& $table->foreignKeys[$pk[0]][0] !== $table->foreignKeys[$pk[1]][0]); // and the foreign keys point different tables
@@ -404,7 +405,7 @@ class ModelCode extends CCodeModel
 			$relationName=rtrim(substr($fkName, 0, -2),'_');
 		else
 			$relationName=$fkName;
-		$relationName[0]=strtolower($relationName);
+		$relationName[0]=strtolower($relationName[0]);
 
 		if($multiple)
 			$relationName=$this->pluralize($relationName);

@@ -8,7 +8,7 @@
 */
 
 class Globals {
-    function secondsToTime($seconds, $texttype="long") 
+    public static function secondsToTime($seconds, $texttype="long") 
     {
         $days = floor($seconds / 86400);
         $seconds -= ($days * 86400);
@@ -57,7 +57,7 @@ class Globals {
     * 
     * @param mixed $text - The text to search and linkify
     */
-    function linkify_links( $text )
+    public static function linkify_links( $text )
     {
         //Hyperlinks URLs that have not got a hyperlink already 
         $text = preg_replace('@(?!(?!.*?<a)[^<]*<\/a>)(?:(?:https?|ftp|file)://|www\.|ftp\.)[-A-‌​Z0-9+&#/%=~_|$?!:,.]*[A-Z0-9+&#/%=~_|$]@i','<a href="\0">\0</a>', $text );
@@ -65,7 +65,7 @@ class Globals {
     }
 
     
-    function calculate_median($arr) {
+    public static function calculate_median($arr) {
         sort($arr);
         $count = count($arr); //total numbers in array
         $middleval = floor(($count-1)/2); // find the middle value, or the lowest middle value
@@ -79,7 +79,7 @@ class Globals {
         return $median;
     }
     
-    function calculate_quartiles($arr) {
+    public static function calculate_quartiles($arr) {
         sort($arr);
         //print_r($arr); die();
         $count = count($arr);

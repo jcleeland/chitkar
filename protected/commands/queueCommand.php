@@ -1,6 +1,13 @@
 <?php
+require_once(Yii::getPathOfAlias('application.extensions.PHPMailer') . '/PHPMailer.php');
+require_once(Yii::getPathOfAlias('application.extensions.PHPMailer') . '/SMTP.php');
+require_once(Yii::getPathOfAlias('application.extensions.PHPMailer') . '/Exception.php');
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 class queueCommand extends CConsoleCommand{
-    public function run() {
+    public function run($args) {
         //die();
         /**
         * 
@@ -19,7 +26,7 @@ class queueCommand extends CConsoleCommand{
             $lockinfo="Locked until ".date("H:i:s", $locktime+60). " - current time ".date("H:i:s");
             $orderfile=fopen($basedir."/../tmp/outgoing_order.log", "a");
             fwrite($orderfile, "------------------------------------\r\n");
-            fwrite($orderfile, "Did not run - queuelock in place (".date("Y-m-d h:i:s", $queuelock).")");   
+            fwrite($orderfile, "Did not run - queuelock in place (".date("Y-m-d h:i:s", strtotime($queuelock)).")");   
             fclose($orderfile);
             die("Should not run! ($lockinfo)");
         }
@@ -43,23 +50,32 @@ class queueCommand extends CConsoleCommand{
         $fromemail=Yii::app()->dbConfig->getValue('email_from');
         $fromname=Yii::app()->dbConfig->getValue('email_fromname');
         $savelog=Yii::app()->dbConfig->getValue('email_logging');
-                
-        $mail = new YiiMailer();
+        
+
+        
+        $mail = new PHPMailer();
+        //$mail = new PHPMailer\PHPMailer();
         $mail->IsSMTP();
         $mail->Mailer = "smtp";
         $mail->Host=Yii::app()->dbConfig->getValue('smtp_server');
         //$mail->SMTPAuth = true;
         $mail->Username = Yii::app()->dbConfig->getValue('smtp_username');
         $mail->Password = Yii::app()->dbConfig->getValue('smtp_password');
-        $mail->clearLayout();
-        $mail->setFrom($fromemail, $fromname);
+
+        // ... (Set up new email properties and send the second email)
+    
         
+        
+        $mail->setFrom($fromemail, $fromname);
+        $mail->isHTML(true);
+        //$mail->SMTPDebug=2;
+            
         //Quit and notify admin if dbfail file exists
         if(file_exists($dbfail)) {   
             file_put_contents($queuelock, time()); //unlock the system
-            $mail->setTo("jcleeland@cpsuvic.org");
-            $mail->setSubject("URGENT ERROR:: Send failed due to dbFail file.");
-            $mail->setBody("The Chitkar queue processing is currently disabled due to the presence of a dbFail file. This could have been manually set, or caused by a database failure. You should visit Chitkar admin and investigate the cause. No emails are being sent.");
+            $mail->addAddress("jcleeland@cpsuvic.org");
+            $mail->Subject="URGENT ERROR:: Send failed due to dbFail file.";
+            $mail->Body="The Chitkar queue processing is currently disabled due to the presence of a dbFail file. This could have been manually set, or caused by a database failure. You should visit Chitkar admin and investigate the cause. No emails are being sent.";
             $mail->send();
             file_put_contents($log_file, "[".date("Y-m-d H:i:s")."]\nQueue process suspended due to presence of dbfail file.\n-------------------------------------", FILE_APPEND);
             die("Cannot run until $dbfail is removed.");
@@ -73,9 +89,24 @@ class queueCommand extends CConsoleCommand{
         $ii=0;
         foreach ($jobs as $job) {
             $ii++;
+
+            //Clear all the mail settings from the last email so you aren't repeating yourself!
+            //$mail->clearLayout();   //Old PHPMailer 5 command
+            // Clear recipients  // Clear attachments  // Clear reply-to addresses   // Clear custom headers  // Clear CC addresses  // Reset subject, body, and alternative body
+            $mail->clearAllRecipients();
+            $mail->clearAttachments();
+            $mail->clearReplyTos();
+            $mail->clearCustomHeaders();
+            $mail->clearCCs();
+            $mail->Subject = '';
+            $mail->Body = '';
+            $mail->AltBody = '';            
+            
             usleep($outgoingsemailthrottle);
+            //echo "Writing file";
             fwrite($orderfile, $ii."/".$maxoutgoings.": ".$job->newslettersId."->".$job->email."(".$job->id.") @ ".date("Y-m-d h:i:s")."\r\n");
             $data .= "\n   Sending new message to ".$job->email." ";
+            //echo "Getting newsletter";
             $newsletter=Newsletters::model()->find('id=:newslettersId', array(':newslettersId'=>$job->newslettersId));
             if($newsletter->trackReads==1) {
                 $emailcontent=str_replace("{RID}", $job->recipientId, $newsletter->completed_html);
@@ -85,13 +116,35 @@ class queueCommand extends CConsoleCommand{
             //Do personalisation stuff
             $emailcontent=str_replace("{MEMBER}", $job->recipientId, $emailcontent);
             //$emailcontent=str_replace("{FIRSTNAME}", $job->)
+            //echo "\r\n<br />THE DATA<br />\r\n";
+            //print_r($job);
+            if(!empty($job->data)) {
+                //echo "Doing personalisations";
+                $datadata=json_decode($job->data);
+                //Find the names of fields available
+                $dataarray=get_object_vars($datadata);
+                //print_r($dataarray);
+                
+                //Iterate through the fields available & replace the names with data
+                foreach($dataarray as $dkey=>$dvar) {
+                    //echo "Checking form fields for $dkey\r\n<br />";
+                    $emailcontent=str_replace("{".$dkey."}", $dvar, $emailcontent);    
+                }
+                
+            }
             
-            $mail->setSubject($newsletter->subject);
-            $mail->setBody($emailcontent);
+            //echo "Setting up mail message";
+            $mail->Subject=$newsletter->subject;
+            $mail->Body=$emailcontent;
             //$mail->setTo("jcleeland@cpsuvic.org");
             //$mail->setTo(array("jcleeland@cpsuvic.org"=>$job->email));
-            $mail->setTo($job->email);
+            $mail->addAddress($job->email);
+            //print_r($mail);
+            //echo "Sending mail";
+            //sleep(2);
+            
             if($mail->send()) {
+                //echo "Mail was sent";
                 $sentitems++;
                 $data .= "  - Success.";
                 $job->dateSent=$now;
@@ -112,6 +165,7 @@ class queueCommand extends CConsoleCommand{
                 }
                 
             } else {
+                //echo "It failed";
                 $faileditems++;
                 $smtperror=$mail->getError();
                 $data .= "  - Failure. [SMTP ERROR REPORT: ";
@@ -132,6 +186,17 @@ class queueCommand extends CConsoleCommand{
                 }
             } 
         }
+        //Clear all the mail settings from the last email so you aren't repeating yourself!
+        //$mail->clearLayout();   //Old PHPMailer 5 command
+        // Clear recipients  // Clear attachments  // Clear reply-to addresses   // Clear custom headers  // Clear CC addresses  // Reset subject, body, and alternative body
+        $mail->clearAllRecipients();
+        $mail->clearAttachments();
+        $mail->clearReplyTos();
+        $mail->clearCustomHeaders();
+        $mail->clearCCs();
+        $mail->Subject = '';
+        $mail->Body = '';
+        $mail->AltBody = '';  
         
         
         //Update completed newsletters
@@ -148,9 +213,9 @@ class queueCommand extends CConsoleCommand{
                     $notices=explode(";",$queue->notifications);
                     $mail->setFrom($fromemail, $fromname);
                     foreach($notices as $noticee) {
-                        $mail->setSubject("(NOTIFICATION) ".$queue->subject);
-                        $mail->setBody($queue->completed_html);
-                        $mail->setTo($noticee);
+                        $mail->Subject="(NOTIFICATION) ".$queue->subject;
+                        $mail->Body=$queue->completed_html;
+                        $mail->addAddress($noticee);
                         $mail->send();
                     }
                 }

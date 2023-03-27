@@ -26,6 +26,7 @@ if(file_exists($dbfail)) {
     <?php
 }
 ?>
+<input type='hidden' id='archiveIDlist' value='' />
 
 <h1>Newsletters
 <?php if($user) {
@@ -65,7 +66,9 @@ if(file_exists($dbfail)) {
 <br />
 <div class='listPage'>
     <p class='pageTitle'>Completed
-<?php
+    <button id='bulkArchiveButton' class='hidden' style='display: none; font-size: 1em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 80px; margin-right: -130px' onClick='bulkArchive()'>Bulk Archive</button>
+    <button id='checkAllArchiveButtons' class='hidden' style='display: ; font-size: 0.6em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 110px; margin-right: -130px' onClick='checkAllArchives()'>Check all</button>
+    <?php
 echo CHtml::beginForm(CHtml::normalizeUrl(array('Newsletters/index')), 
                       'get', 
                       array('id'=>'filter-form')
@@ -74,7 +77,7 @@ echo CHtml::beginForm(CHtml::normalizeUrl(array('Newsletters/index')),
     . "&nbsp;"
     . CHtml::endForm();        
 
-?> 
+?>
     <div class='pageContent'>
 <?php 
 

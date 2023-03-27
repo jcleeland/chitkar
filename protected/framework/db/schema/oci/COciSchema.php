@@ -3,9 +3,9 @@
  * COciSchema class file.
  *
  * @author Ricardo Grana <rickgrana@yahoo.com.br>
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 /**
@@ -95,7 +95,7 @@ class COciSchema extends CDbSchema
 		}
 
 		return $this->_defaultSchema;
-    }
+	}
 
 	/**
 	 * @param string $table table name with optional schema name prefix, uses default schema name prefix is not provided.
@@ -186,7 +186,7 @@ SELECT a.column_name, a.data_type ||
     com.comments as column_comment
 FROM ALL_TAB_COLUMNS A
 inner join ALL_OBJECTS B ON b.owner = a.owner and ltrim(B.OBJECT_NAME) = ltrim(A.TABLE_NAME)
-LEFT JOIN user_col_comments com ON (A.table_name = com.table_name AND A.column_name = com.column_name)
+LEFT JOIN all_col_comments com ON (A.owner = com.owner AND A.table_name = com.table_name AND A.column_name = com.column_name)
 WHERE
     a.owner = '{$schemaName}'
 	and (b.object_type = 'TABLE' or b.object_type = 'VIEW')
@@ -231,7 +231,7 @@ EOD;
 		$c->name=$column['COLUMN_NAME'];
 		$c->rawName=$this->quoteColumnName($c->name);
 		$c->allowNull=$column['NULLABLE']==='Y';
-		$c->isPrimaryKey=strpos($column['KEY'],'P')!==false;
+		$c->isPrimaryKey=strpos((string)$column['KEY'],'P')!==false;
 		$c->isForeignKey=false;
 		$c->init($column['DATA_TYPE'],$column['DATA_DEFAULT']);
 		$c->comment=$column['COLUMN_COMMENT']===null ? '' : $column['COLUMN_COMMENT'];

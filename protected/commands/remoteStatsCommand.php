@@ -1,6 +1,8 @@
 <?php
   class remoteStatsCommand extends CConsoleCommand{
-    public function run() {
+    public function run($args) {
+        //error_reporting(E_ALL);
+        echo "Running";
         //TODO: MOve these settings to config
         $ftp_server=Yii::app()->dbConfig->getValue('ftp_server');
         $ftp_user_name=Yii::app()->dbConfig->getValue('ftp_username');
@@ -18,7 +20,7 @@
         $statslock=$local_temp_location."/statslock.txt";
         if(file_exists($statslock) && file_get_contents($statslock) > (time() - 60)){
             $locktime=file_get_contents($statslock);
-            $lockinfo="Locked until ".date("H:i:s", $locktime+60). " - current time ".date("H:i:s");
+            $lockinfo="Locked until ".date("H:i:s", $locktime+60). " - current time ".date("H:i:s"). " and using ".date("H:i:s", (time()-60));
             die("Should not run! ($lockinfo)");
         }
         // This lock will be removed once the script has stopped running
@@ -31,7 +33,7 @@
         $errors="";
         $time=time();
         
-        
+        echo "Connecting to ftp ($ftp_server)";
         $conn_id=ftp_connect($ftp_server);
         if(!$conn_id) {
             $errors.= "FTP connection failed attempting to connect to $ftp_server at step 1";
@@ -41,7 +43,7 @@
             } else {
                 file_put_contents($statslock, time()+1800); //Lock the system for 30 minutes, to allow for very long processes. 
 
-                //echo "Downloading reads file ($ftp_file_location/$ftp_file_name)...<br />";
+                echo "\r\nDownloading reads file ($ftp_file_location/$ftp_file_name) to $local_file...<br />\r\n";
                 if(@$download=ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
                     //echo "Reads file is downloaded.<br />";
                     //Now read the file and process it
@@ -83,6 +85,7 @@
                     }            
                 } else {
                     $errors.="No remote file to download";
+                    //echo $errors;
                 }           
                 ftp_close($conn_id);
             }
@@ -127,59 +130,70 @@
         
         if(!$conn_id) {
             $errors.= "FTP connection failed attempting to connect to $ftp_server at step 2";
+            //echo $errors;
             
         } else if ($conn_id){
             $login_result=ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
             if(!$login_result) {
                 $errors.= "FTP login failed attempting to login as $ftp_user_name";
             } else {
-                //echo "Downloading Links file ($ftp_file_location/$ftp_file_name)...<br />";
-                if(@$download=ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
-                    //echo "Links file downloaded!<br />";
+                echo "\r\nDownloading Links file ($ftp_file_location/$ftp_file_name) to $local_file...<br />\r\n";
+                if(!@ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
+                    //echo "No remote file to download";
+                    $errors.="No remote file to download";
+                    //echo $errors;
+                } else {
+                    echo "Links file downloaded!<br />";
                     //Now read the file and process it
                     $handle=fopen($local_file, "r");
-                    $contents=fread($handle, filesize($local_file));
-                    fclose($handle);
-                    
-                    $reads=explode(";", $contents);
-                    $count=count($reads);
-                    foreach($reads as $record) {
-                        //echo "Doing record: ".$record."\n";
-                        if(!empty($record)) {
-                            //print_r($record);
-                            list($datestamp, $newsletterid, $recipientid, $url)=explode(":", $record);    
-                            $outgoing=Outgoings::model()->find("recipientId = :recipid AND newslettersId = :newsid", array(":recipid"=>$recipientid, ":newsid"=>$newsletterid));
-                            if($outgoing && $outgoing->linkUsed != 1) {
-                                $outgoing->linkUsed=1; //Mark this entry as read
-                                $outgoing->linkUsedTime=date("Y-m-d H:i:s", $datestamp); //Save the time
-                                $outgoing->link=$url;
-                                if($outgoing->read != 1) { //Obviously, the email has been read, so make sure it's marked as such
-                                    $outgoing->read = 1;
-                                    $outgoing->readTime = date("Y-m-d H:i:s", $datestamp);
-                                    $errors.="Read updated as well";
+                    if(filesize($local_file) > 0) {
+                        $contents=fread($handle, filesize($local_file));
+                        fclose($handle);
+                        $reads=explode(";", $contents);
+                        //print_r($reads);
+                        $count=count($reads);
+                        foreach($reads as $record) {
+                            //echo "Doing record: ".$record."\n";
+                            if(!empty($record)) {
+                                //print_r($record);
+                                $arr=array_pad(explode(':', $record), 4, null);
+                                list($datestamp, $newsletterid, $recipientid, $url)=$arr;    
+                                $outgoing=Outgoings::model()->find("recipientId = :recipid AND newslettersId = :newsid", array(":recipid"=>$recipientid, ":newsid"=>$newsletterid));
+                                if($outgoing && $outgoing->linkUsed != 1) {
+                                    $outgoing->linkUsed=1; //Mark this entry as read
+                                    $outgoing->linkUsedTime=date("Y-m-d H:i:s", $datestamp); //Save the time
+                                    $outgoing->link=$url;
+                                    if($outgoing->read != 1) { //Obviously, the email has been read, so make sure it's marked as such
+                                        $outgoing->read = 1;
+                                        $outgoing->readTime = date("Y-m-d H:i:s", $datestamp);
+                                        $errors.="Read updated as well";
+                                    }
+                                    $outgoing->save(); //Save the change
+                                    $success = 1;
+                                    $successlog.="[$newsletterid-$recipientid updated]";
+                                    $saves++;                    
+                                } else {
+                                    $discardlog.="[$newsletterid-$recipientid ignored]";
+                                    $discards++;
+                                    $success = 1;
                                 }
-                                $outgoing->save(); //Save the change
-                                $success = 1;
-                                $successlog.="[$newsletterid-$recipientid updated]";
-                                $saves++;                    
                             } else {
-                                $discardlog.="[$newsletterid-$recipientid ignored]";
                                 $discards++;
-                                $success = 1;
+                                $discardlog.="[Empty or unmatchable record]";
                             }
-                        } else {
-                            $discards++;
-                            $discardlog.="[Empty or unmatchable record]";
                         }
+                        
+                        
+                    } else {
+                        //File size was 0... all OK, proceed
+                        $success=1;
                     }
-                    
                     //Delete the file on the server
                     if($success==1) {
                         ftp_delete($conn_id, $ftp_file_location."/".$ftp_file_name);
-                        $errors.="[FILE DELETED]"; 
+                        $errors.="[FILE DELETED]";
+                        echo "Links.ctk File on server deleted"; 
                     }            
-                } else {
-                    $errors.="No remote file to download";
                 }           
                 ftp_close($conn_id);
             }

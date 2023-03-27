@@ -33,5 +33,6 @@ $this->menu=array(
 		'bounceText',
 		'read',
 		'linkUsed',
+        'data',
 	),
 )); ?>

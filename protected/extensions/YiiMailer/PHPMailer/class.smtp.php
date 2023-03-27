@@ -619,7 +619,7 @@ class SMTP {
 
     $max_line_length = 998; // used below; set here for ease in change
 
-    while(list(, $line) = @each($lines)) {
+    while(list(, $line) = @$this->legacy_each($lines)) {             //Jason replaced @each with $this->legacy_each 26 march 2023
       $lines_out = null;
       if($line == '' && $in_headers) {
         $in_headers = false;
@@ -648,7 +648,7 @@ class SMTP {
       $lines_out[] = $line;
 
       // send the lines to the server
-      while(list(, $line_out) = @each($lines_out)) {
+      while(list(, $line_out) = @$this->legacy_each($lines_out)) {        //Jason replaced @each with $this->legacy_each 26 march 2023
         if(strlen($line_out) > 0)
         {
           if(substr($line_out, 0, 1) == '.') {
@@ -1088,5 +1088,18 @@ class SMTP {
     }
     return $data;
   }
+  
+    function legacy_each($array){
+        $key = key($array);
+        $value = current($array);
+        $each = is_null($key) ? false : [
+            1        => $value,
+            'value'    => $value,
+            0        => $key,
+            'key'    => $key,
+        ];
+        next($array);
+        return $each;
+    }  
 
 }

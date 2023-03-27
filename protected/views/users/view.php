@@ -16,7 +16,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View User <?php echo $model->id; ?>: <?php echo $model->firstname ?> <? echo $model->lastname ?></h1>
+<h1>View User <?php echo $model->id; ?>: <?php echo $model->firstname ?> <?php echo $model->lastname ?></h1>
 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,

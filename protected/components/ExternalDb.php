@@ -5,9 +5,11 @@
   class ExternalDb {
     
     //This section is changed according to database
+    // If you need a "where" statement that combines results from two tables (ie: "table1.fieldname1 ILIKE 'YES' OR table2.fieldname2 ILIKE 'YES'"), then add the table & field names using "-_-" as the separator
+    //     ie: "fieldname"=>"field1-_-field2", "tablename"=>"table1-_-table2"
     public $fields=array(
-        array("fieldname"=>"group_name",
-              "tablename"=>"topEmployers",
+        array("fieldname"=>"group_name-_-group_name",
+              "tablename"=>"topEmployers-_-primaryEmployers",
               "displayname"=>"Top level employer",
               "join"=>"",
               "fieldjoins"=>"",
@@ -22,7 +24,7 @@
               "tablename"=>"worksites", 
               "displayname"=>"Worksite Code", 
               "join"=>"",
-              "fieldjoins"=>"INNER JOIN oms.associations AS worksiteAssociations ON oms.persons.person_id=worksiteAssociations.person_id INNER JOIN oms_employments.employment_worksites ON worksiteAssociations.association_id=employment_worksites.association_id INNER JOIN oms_employments.worksites ON worksites.address_id=employment_worksites.address_id INNER JOIN org.addresses AS worksiteAddresses ON worksites.address_id=worksiteAddresses.address_id"
+              "fieldjoins"=>"INNER JOIN oms.associations AS worksiteAssociations ON oms.persons.person_id=worksiteAssociations.person_id AND worksiteAssociations.association_from <= current_date AND (worksiteAssociations.association_to IS NULL OR worksiteAssociations.association_to >= current_date) INNER JOIN oms_employments.employment_worksites ON worksiteAssociations.association_id=employment_worksites.association_id INNER JOIN oms_employments.worksites ON worksites.address_id=employment_worksites.address_id INNER JOIN org.addresses AS worksiteAddresses ON worksites.address_id=worksiteAddresses.address_id"
               ),
         array("fieldname"=>"gender_id", 
               "tablename"=>"persons", 
@@ -92,7 +94,7 @@
     //Connection string to database
     
     function execute($sql) {
-        $dblink = pg_connect("host=192.9.200.16 port=6432 dbname=cpsuvic user=user password=password") or die("OMS Connection Failed");
+        $dblink = pg_connect("host=192.9.200.16 port=6432 dbname=cpsuvic user=cpsuvic password=yaaku4ceLah4") or die("OMS Connection Failed");
         //$dblink = pg_connect($this->odbc_dsn, $this->odbcuser, $this->odbcpass);
         @$result= pg_query($dblink, $sql);
         if($result===false) {

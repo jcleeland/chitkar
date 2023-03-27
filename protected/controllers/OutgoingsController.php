@@ -228,7 +228,7 @@ class OutgoingsController extends Controller
         
         if(isset($_GET['newsletterId'])) {
             //Filter by $_GET['newsletterId]
-            $criteria->addSearchCondition('newslettersId', $_GET{'newsletterId'}, true, 'OR');
+            $criteria->addSearchCondition('newslettersId', $_GET['newsletterId'], true, 'OR');
         }
         if(strlen($recipid)>0) {
             $criteria->addSearchCondition('recipientId', $recipid, true, 'AND');

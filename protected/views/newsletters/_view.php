@@ -23,6 +23,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     if($data->archive == 0 && strtotime($data->sendDate) < strtotime("60 days ago") ) {
         ?>
                 | <?php echo CHtml::link('Archive', array('archive', 'id'=>$data->id), array('title'=>'Archive this newsletter', 'onClick'=>'return confirm("Archiving saves basic statistics for this newsletter but deletes individual records. It cannot be undone. Are you sure you want to archive this newsletter?")')); ?>
+                <input type='checkbox' class='archivelist' id='archivelist_<?php echo $data->id ?>' onClick='addToArchiveList("<?php echo $data->id ?>")' />
         <?php
     }
 }
@@ -36,7 +37,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     </div>
         
         <?php
-        
+        //echo "<pre>"; print_r($data); echo "</pre>";
     }    
 ?>
     <div class='floatRight'>
@@ -54,7 +55,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     <span class="small-title"><?php echo CHtml::link(CHtml::encode($data->title), array('view', 'id'=>$data->id)); ?></span><br />
     <span class='small'><i><?php echo $data->recipientCount ?> recipients |
                            Owned by <?php echo $data->users->firstname; ?> <?php echo $data->users->lastname ?> | 
-                           <?php echo $data->templates->name; ?> Template 
+                           <?php if($data->templates) {echo $data->templates->name; } else {echo "Unknown";} ?> Template 
                            <?php if($data->recipientListsId && isset($data->recipientLists->name)) {echo " | ".$data->recipientLists->name. " Recipient List";} ?></i></span><br />
     <span class="small"><?php //echo CHtml::encode($data->getAttributeLabel('sendDate')); ?>
 	<?php if ($data->queued == 1 && $data->completed == 0) {

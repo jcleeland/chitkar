@@ -49,6 +49,10 @@ if(file_exists($queuelock)) {
     } else {
         echo "<div style='color: red; font-size: 10pt'>Lock file exists</div>";
         echo "Mail queue processing is locked until ".date("M d, h:i:s a", $locktime);
+        echo "";
+        ?>
+        <p><input type='button' value='Clear Lock' onClick='if(confirm("Are you sure you want to clear the lock? This will cause problems if the system is currently processing a mail queue")) {window.open("?r=site/admin&action=clearqueuelock", "_self");}'></p>
+        <?php
     }
 } else {
     echo "<div style='color: green; font-size: 10pt'>Next queue process within 5 minutes</div>";

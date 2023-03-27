@@ -3,9 +3,9 @@
  * CDataColumn class file.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 Yii::import('zii.widgets.grid.CGridColumn');
@@ -39,11 +39,17 @@ class CDataColumn extends CGridColumn
 	 * In this expression, you can use the following variables:
 	 * <ul>
 	 *   <li><code>$row</code> the row number (zero-based).</li>
-	 *   <li><code>$data</code> the data model for the row.</li>
+	 *   <li><code>$data</code> the value provided by grid view object for the row.</li>
 	 * 	 <li><code>$this</code> the column object.</li>
 	 * </ul>
+	 * Type of the <code>$data</code> depends on {@link IDataProvider data provider} which is passed to the 
+	 * {@link CGridView grid view object}. In case of {@link CActiveDataProvider}, <code>$data</code> will have
+	 * object type and its values are accessed like <code>$data->property</code>. In case of 
+	 * {@link CArrayDataProvider} or {@link CSqlDataProvider}, it will have array type and its values must be
+	 * accessed like <code>$data['property']</code>.
+	 * 
 	 * A PHP expression can be any PHP code that has a value. To learn more about what an expression is,
-	 * please refer to the {@link http://www.php.net/manual/en/language.expressions.php php manual}.
+	 * please refer to the {@link https://www.php.net/manual/en/language.expressions.php php manual}.
 	 */
 	public $value;
 	/**
@@ -90,7 +96,7 @@ class CDataColumn extends CGridColumn
 	 * If {@link filter} is an array, it is assumed to be a list of options, and a dropdown selector will be rendered.
 	 * Otherwise if {@link filter} is not false, a text field is rendered.
 	 * @return string the filter cell content
-	 * @since 1.1.15
+	 * @since 1.1.16
 	 */
 	public function getFilterCellContent()
 	{
@@ -111,7 +117,7 @@ class CDataColumn extends CGridColumn
 	 * Returns the header cell content.
 	 * This method will render a link that can trigger the sorting if the column is sortable.
 	 * @return string the header cell content.
-	 * @since 1.1.15
+	 * @since 1.1.16
 	 */
 	public function getHeaderCellContent()
 	{
@@ -133,7 +139,7 @@ class CDataColumn extends CGridColumn
 	 * This method evaluates {@link value} or {@link name} and renders the result.
 	 * @param integer $row the row number (zero-based)
 	 * @return string the data cell content.
-	 * @since 1.1.15
+	 * @since 1.1.16
 	 */
 	public function getDataCellContent($row)
 	{
@@ -142,6 +148,6 @@ class CDataColumn extends CGridColumn
 			$value=$this->evaluateExpression($this->value,array('data'=>$data,'row'=>$row));
 		elseif($this->name!==null)
 			$value=CHtml::value($data,$this->name);
-		echo $value===null ? $this->grid->nullDisplay : $this->grid->getFormatter()->format($value,$this->type);
+		return $value===null ? $this->grid->nullDisplay : $this->grid->getFormatter()->format($value,$this->type);
 	}
 }

@@ -3,16 +3,16 @@
  * CActiveRecord class file.
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 /**
  * CActiveRecord is the base class for classes representing relational data.
  *
  * It implements the active record design pattern, a popular Object-Relational Mapping (ORM) technique.
- * Please check {@link http://www.yiiframework.com/doc/guide/database.ar the Guide} for more details
+ * Please check {@link https://www.yiiframework.com/doc/guide/1.1/en/database.ar the Guide} for more details
  * about this class.
  *
  * @property CDbCriteria $dbCriteria The query criteria that is associated with this model.
@@ -150,6 +150,7 @@ abstract class CActiveRecord extends CModel
 	 * This method is overridden so that AR attributes can be accessed like properties.
 	 * @param string $name property name
 	 * @param mixed $value property value
+	 * @throws CException
 	 */
 	public function __set($name,$value)
 	{
@@ -188,6 +189,7 @@ abstract class CActiveRecord extends CModel
 	 * This method overrides the parent implementation by clearing
 	 * the specified attribute value.
 	 * @param string $name the property name or the event name
+	 * @throws CException
 	 */
 	public function __unset($name)
 	{
@@ -812,9 +814,10 @@ abstract class CActiveRecord extends CModel
 	}
 
 	/**
-	 * Returns if the current record is new.
+	 * Returns if the current record is new (was never saved to database)
 	 * @return boolean whether the record is new and should be inserted when calling {@link save}.
-	 * This property is automatically set in constructor and {@link populateRecord}.
+	 * This property is automatically set in constructor and {@link populateRecord} and is set
+	 * to false right after inserting record to database.
 	 * Defaults to false, but it will be set to true if the instance is created using
 	 * the new operator.
 	 */
@@ -1149,7 +1152,9 @@ abstract class CActiveRecord extends CModel
 	 * or an attribute value indexed by its name. If the latter, the record's
 	 * attribute will be changed accordingly before saving.
 	 * @throws CDbException if the record is new
-	 * @return boolean whether the update is successful
+	 * @return boolean whether the update is successful. Note that false is also returned if the saving
+	 * was successfull but no attributes had changed and the database driver returns 0 for the number
+	 * of updated records.
 	 */
 	public function saveAttributes($attributes)
 	{
@@ -1350,7 +1355,7 @@ abstract class CActiveRecord extends CModel
 		{
 			if(!$all)
 				$criteria->limit=1;
-			$command=$this->getCommandBuilder()->createFindCommand($this->getTableSchema(),$criteria,$this->getTableAlias());
+			$command=$this->getCommandBuilder()->createFindCommand($this->getTableSchema(),$criteria);
 			return $all ? $this->populateRecords($command->queryAll(), true, $criteria->index) : $this->populateRecord($command->queryRow());
 		}
 		else
@@ -1450,7 +1455,7 @@ abstract class CActiveRecord extends CModel
 	 * @param array $params parameters to be bound to an SQL statement.
 	 * This is only used when the first parameter is a string (query condition).
 	 * In other cases, please use {@link CDbCriteria::params} to set parameters.
-	 * @return static the record found. Null if no record is found.
+	 * @return static|null the record found. Null if no record is found.
 	 */
 	public function find($condition='',$params=array())
 	{
@@ -1479,7 +1484,7 @@ abstract class CActiveRecord extends CModel
 	 * @param mixed $pk primary key value(s). Use array for multiple primary keys. For composite key, each key value must be an array (column name=>column value).
 	 * @param mixed $condition query condition or criteria.
 	 * @param array $params parameters to be bound to an SQL statement.
-	 * @return static the record found. Null if none is found.
+	 * @return static|null the record found. Null if none is found.
 	 */
 	public function findByPk($pk,$condition='',$params=array())
 	{
@@ -1512,7 +1517,7 @@ abstract class CActiveRecord extends CModel
 	 * An attribute value can be an array which will be used to generate an IN condition.
 	 * @param mixed $condition query condition or criteria.
 	 * @param array $params parameters to be bound to an SQL statement.
-	 * @return static the record found. Null if none is found.
+	 * @return static|null the record found. Null if none is found.
 	 */
 	public function findByAttributes($attributes,$condition='',$params=array())
 	{
@@ -1543,7 +1548,7 @@ abstract class CActiveRecord extends CModel
 	 * Finds a single active record with the specified SQL statement.
 	 * @param string $sql the SQL statement
 	 * @param array $params parameters to be bound to the SQL statement
-	 * @return static the record found. Null if none is found.
+	 * @return static|null the record found. Null if none is found.
 	 */
 	public function findBySql($sql,$params=array())
 	{
@@ -1845,7 +1850,7 @@ abstract class CActiveRecord extends CModel
 	 * This method is internally used by the find methods.
 	 * @param array $attributes attribute values (column name=>column value)
 	 * @param boolean $callAfterFind whether to call {@link afterFind} after the record is populated.
-	 * @return static the newly created active record. The class of the object is the same as the model class.
+	 * @return static|null the newly created active record. The class of the object is the same as the model class.
 	 * Null is returned if the input data is false.
 	 */
 	public function populateRecord($attributes,$callAfterFind=true)
@@ -1921,6 +1926,7 @@ abstract class CActiveRecord extends CModel
 	 * @param mixed $offset the offset to check on
 	 * @return boolean
 	 */
+	#[ReturnTypeWillChange]
 	public function offsetExists($offset)
 	{
 		return $this->__isset($offset);
@@ -1975,6 +1981,14 @@ class CBaseActiveRelation extends CComponent
 	 */
 	public $join='';
 	/**
+	 * @var string|array property for setting post-JOIN operations such as USE INDEX.
+	 * String typed value can be used with JOINs for HAS_MANY and MANY_MANY relations, while array typed
+	 * value designed to be used only with MANY_MANY relations. First array element will be used for junction
+	 * table JOIN and second array element will be used for target table JOIN.
+	 * @since 1.1.16
+	 */
+	public $joinOptions='';
+	/**
 	 * @var string HAVING clause. For {@link CActiveRelation} descendant classes, column names
 	 * referenced in this property should be disambiguated with prefix 'relationName.'.
 	 */
@@ -2012,8 +2026,10 @@ class CBaseActiveRelation extends CComponent
 			$criteria=$criteria->toArray();
 		if(isset($criteria['select']) && $this->select!==$criteria['select'])
 		{
-			if($this->select==='*')
+			if($this->select==='*'||$this->select===false)
 				$this->select=$criteria['select'];
+			elseif($criteria['select']===false)
+				$this->select=false;
 			elseif($criteria['select']!=='*')
 			{
 				$select1=is_string($this->select)?preg_split('/\s*,\s*/',trim($this->select),-1,PREG_SPLIT_NO_EMPTY):$this->select;
@@ -2092,7 +2108,7 @@ class CStatRelation extends CBaseActiveRelation
 	 * <li>Single scope: 'scopes'=>'scopeName'.</li>
 	 * <li>Multiple scopes: 'scopes'=>array('scopeName1','scopeName2').</li>
 	 * </ul>
-	 * @since 1.1.15
+	 * @since 1.1.16
 	 */
 	public $scopes;
 
@@ -2374,9 +2390,10 @@ class CActiveRecordMetaData
 		if(($table=$model->getDbConnection()->getSchema()->getTable($tableName))===null)
 			throw new CDbException(Yii::t('yii','The table "{table}" for active record class "{class}" cannot be found in the database.',
 				array('{class}'=>$this->_modelClassName,'{table}'=>$tableName)));
-		if($table->primaryKey===null)
+				
+		if(($modelPk=$model->primaryKey())!==null || $table->primaryKey===null)
 		{
-			$table->primaryKey=$model->primaryKey();
+			$table->primaryKey=$modelPk;
 			if(is_string($table->primaryKey) && isset($table->columns[$table->primaryKey]))
 				$table->columns[$table->primaryKey]->isPrimaryKey=true;
 			elseif(is_array($table->primaryKey))

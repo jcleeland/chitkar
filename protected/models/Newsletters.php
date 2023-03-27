@@ -70,7 +70,8 @@ class Newsletters extends CActiveRecord
             'users'=>array(self::BELONGS_TO, 'Users', 'usersId' ),
             'recipientLists'=>array(self::BELONGS_TO, 'RecipientLists', 'recipientListsId'),
             'templates'=>array(self::BELONGS_TO, 'Templates', 'templatesId'), 
-            'outgoings'=>array(self::HAS_MANY, 'Outgoings', 'newslettersId'), 
+            'outgoings'=>array(self::HAS_MANY, 'Outgoings', 'newslettersId'),
+            'archives'=>array(self::BELONGS_TO, 'Archives', 'id'), 
 		);
 	}
 
@@ -100,7 +101,10 @@ class Newsletters extends CActiveRecord
 			'trackBounces' => 'Track Bounces',
 			'recipientCount' => 'Recipient Count',
 			'created' => 'Created',
-			'modified' => 'Modified',  
+			'modified' => 'Modified',
+            'totalSent' => 'Total Sent',
+            'totalRead' => 'Total Read',
+            'totalLinks' => 'Total Links'  
 		);
 	}
 

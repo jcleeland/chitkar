@@ -3,9 +3,9 @@
  * CFileCache class file
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright 2008-2013 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 /**
@@ -34,7 +34,7 @@ class CFileCache extends CCache
 	 * @var integer the permission to be set for directory to store cache files
 	 * This value will be used by PHP chmod function.
 	 * Defaults to 0777, meaning the directory can be read, written and executed by all users.
-	 * @since 1.1.15
+	 * @since 1.1.16
 	 */
 	public $cachePathMode=0777;
 	/**
@@ -45,7 +45,7 @@ class CFileCache extends CCache
 	 * @var integer the permission to be set for new cache files.
 	 * This value will be used by PHP chmod function.
 	 * Defaults to 0666, meaning the file is read-writable by all users.
-	 * @since 1.1.15
+	 * @since 1.1.16
 	 */
 	public $cacheFileMode=0666;
 	/**
@@ -130,7 +130,7 @@ class CFileCache extends CCache
 	{
 		$cacheFile=$this->getCacheFile($key);
 		if(($time=$this->filemtime($cacheFile))>time())
-			return @file_get_contents($cacheFile,false,null,$this->embedExpiry ? 10 : -1);
+			return @file_get_contents($cacheFile,false,null,$this->embedExpiry ? 10 : 0);
 		elseif($time>0)
 			@unlink($cacheFile);
 		return false;

@@ -41,7 +41,7 @@ class Outgoings extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, newslettersId, recipientListsId, recipientId, email, sendDate, dateSent, sent, bounce, bounceText, read, linkUsed', 'safe', 'on'=>'search'),
-		    array('email, queueDate, dateSent, sendFailures, sendFailureText, readTime, linkUsedTime, link', 'safe'),
+		    array('email, queueDate, dateSent, sendFailures, sendFailureText, readTime, linkUsedTime, link, data', 'safe'),
         );
 	}
 
@@ -80,6 +80,7 @@ class Outgoings extends CActiveRecord
             'readTime' => 'Time Read',
 			'linkUsedTime' => 'Link Used',
             'link' => 'Link',
+            'data' => 'Data'
 		);
 	}
     
@@ -114,6 +115,7 @@ class Outgoings extends CActiveRecord
 		$criteria->compare('bounceText',$this->bounceText,true);
 		$criteria->compare('read',$this->read);
 		$criteria->compare('linkUsed',$this->linkUsed);
+        $criteria->compare('data', $this->data);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
