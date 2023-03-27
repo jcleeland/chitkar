@@ -94,7 +94,14 @@
     //Connection string to database
     
     function execute($sql) {
-        $dblink = pg_connect("host=192.9.200.16 port=6432 dbname=cpsuvic user=cpsuvic password=yaaku4ceLah4") or die("OMS Connection Failed");
+        //Settings - external_db_ip, external_db_port, external_db_name, external_db_user, external_db_passw
+        $externaldbip=Yii::app()->dbConfig->getValue('external_db_ip');
+        $externaldbport=Yii::app()->dbConfig->getValue('external_db_port');
+        $externaldbname=Yii::app()->dbConfig->getValue('external_db_name');
+        $externaldbuser=Yii::app()->dbConfig->getValue('external_db_user');
+        $externaldbpass=Yii::app()->dbConfig->getValue('external_db_pass');
+
+        $dblink = pg_connect("host=".$externaldbip." port=".$externaldbport." dbname=".$externaldbname." user=".$externaldbuser." password=".$externaldbpass) or die("OMS Connection Failed");
         //$dblink = pg_connect($this->odbc_dsn, $this->odbcuser, $this->odbcpass);
         @$result= pg_query($dblink, $sql);
         if($result===false) {
