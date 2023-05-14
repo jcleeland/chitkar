@@ -9,7 +9,7 @@
 <div class='sqlTableCol1' style='width: 255px'><?php echo $item->email ?></div>
 <div class='sqlTableCol1small' style='width: 70px; background-color: white'><?php echo $item->recipientId ?></div>
 <div class='sqlTableCol1' style='width: 150px'><?php echo date("d/m/Y g:ia", strtotime($item->dateSent)); ?></div>
-<div class='sqlTableCol1' style='width: 150px'><?php if($item->readTime != "0000-00-00 00:00:00") echo date("d/m/Y g:ia", strtotime($item->readTime)); ?></div>
+<div class='sqlTableCol1' style='width: 150px'><?php if($item->readTime != "0000-00-00 00:00:00" && $item->readTime != "") echo date("d/m/Y g:ia", strtotime($item->readTime)); ?></div>
 <div style='clear: both'></div>
 <?php $csvoutput .= $item->email.", ".$item->recipientId.", ".$item->dateSent.", "; ?>
 <?php if($item->readTime != "0000-00-00 00:00:00") {

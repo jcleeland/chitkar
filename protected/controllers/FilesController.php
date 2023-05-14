@@ -32,7 +32,7 @@ class FilesController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','delete', 'admin', 'imagelist_json'),
+				'actions'=>array('create','update','delete', 'admin', 'imagelist_json', 'unused'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -49,13 +49,56 @@ class FilesController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($id)
-	{
-		$this->render('view',array(
-			'model'=>$this->loadModel($id),
-		));
-	}
+    public function actionView($id)
+    {
+        // Load the model
+        $model = $this->loadModel($id);
 
+        // Render the view with the model
+        $this->render('view', array(
+            'model' => $model, 
+        ));
+    }
+
+    /**
+    * Search for all files that are not attached to an active newsletter
+    * 
+    */
+    public function actionUnused() {
+        $query = "SELECT files.*
+        FROM files
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM file_links
+            INNER JOIN newsletters ON file_links.newslettersId = newsletters.id
+            WHERE files.id = file_links.filesId AND newsletters.archive = 0
+        )
+        ORDER BY description";
+
+        $command = Yii::app()->db->createCommand($query);
+        $result = $command->queryAll();
+        
+        $dataProvider = new CArrayDataProvider($result, array(
+            'id'=>'fileId',
+            'sort'=>array(
+                'attributes'=>array(
+                     'id',
+                     'description',
+                     'created',
+                     // other sortable attributes here
+                ),
+            ),
+            'pagination'=>array(
+                'pageSize'=>10,
+            ),
+        ));
+
+        $this->render('unused', array(
+            'dataProvider' => $dataProvider
+        ));  
+    }
+    
+    
 	/**
 	 * Creates a new model.
 	 * If creation is successful, the browser will be redirected to the 'view' page.
@@ -169,10 +212,28 @@ class FilesController extends Controller
         
         $errors=null;
         //CHECK TO SEE IF THE FILE IS BEING USED IN CURRENT NEWSLETTERS
-        if($filelink=FileLinks::model()->find('filesId='.$id)) {
-            $errors="This file is currently being used in a non-archived newsletter and cannot be deleted";
+        $filelink=FileLinks::model()->findAll('filesId=:filesId', array(':filesId'=>$id));
+        $livenewsletters=0;
+        if($filelink) {
+            foreach($filelink as $fl) {
+                print_r($fl->newsletter->archive);
+                if($fl->newsletter->archive != 1) {
+                    $livenewsletters++;
+                    
+                }    
+            }            
+        }
+        echo $livenewsletters." live newsletters using this";    
+        //die();
+        if($livenewsletters > 0) {
+            echo "There are $livenewsletters live newsletters connected to this file";
+            //echo "<pre>"; print_r($filelink); echo "</pre>"; die();
+            $errors="That file is currently being used in $livenewsletters non-archived newsletter(s) and cannot be deleted. [<u><a href='index.php?r=files/view&id=$id'>Return to file</a></u>]";
+            //https://live02.cpsuvic.org:4445/chitkar/index.php?r=newsletters/view&id=6625
+            //echo "<pre>"; print_r($filelink); echo "</pre>";
+            //die();
         } else {
-            //Delete the new file from the website
+            //Delete the new (or no longer used) file from the website
             $ftp_server=Yii::app()->dbConfig->getValue('ftp_server');
             $ftp_user_name=Yii::app()->dbConfig->getValue('ftp_username');
             $ftp_user_pass=Yii::app()->dbConfig->getValue('ftp_password');

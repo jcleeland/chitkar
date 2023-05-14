@@ -104,103 +104,103 @@ if(!Yii::app()->user->isGuest) {
 
 
         <!-- STATISTICAL SUMMARIES -->
-        <div id="chart_stats"  style='width: 880px; margin-left: auto; margin-right: auto;'>
-            <!-- NEWSLETTERS -->
-            <div class="gbox-float-title" id="newsletterbox" style='height: 285px'>
 
-                <h3>Newsletters</h3>
-                <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
-                <script type='text/javascript'>
-                    $(document).ready(function (){
-                        <?php
-                        echo (CHtml::ajax(array(
-                            'url'=>array('site/statsdisplay'),
-                            'data'=>'subset=newsletterbox',
-                            'update'=>'#newsletterbox',
-                        )));
-                        ?>
-                    });
-                </script>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <div id="chart_stats" style='width: 880px; margin-left: auto; margin-right: auto;'>
 
-            </div>
+    <script type='text/javascript'>
+        var xhrPool = [];
+        $(document).ready(function() {
+            //var boxes = ['newsletterbox', 'queuedbox', 'sentbox', 'readsbox', 'linksbox'];
+            var boxes=['newsletterbox', 'sentbox', 'readsbox'];
+            boxes.forEach(function(box) {
+                var xhr = $.ajax({
+                    url: '<?php echo Yii::app()->createUrl("site/statsdisplay"); ?>',
+                    data: {subset: box},
+                    success: function(data) {
+                        $('#' + box).html(data);
+                    }
+                });
 
-            <!-- QUEUED -->
-            <div class="gbox-float-title" id="queuedbox" style='display: none; height: 285px'>
+                xhrPool.push(xhr);
+            });
 
-                <h3>Queued</h3>
-                <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
-                <script type='text/javascript'>
-                    $(document).ready(function (){
-                        <?php
-                        echo (CHtml::ajax(array(
-                            'url'=>array('site/statsdisplay'),
-                            'data'=>'subset=queuedbox',
-                            'update'=>'#queuedbox',
-                        )));
-                        ?>
-                    });
-                </script>
+            //$('a').click(function() {
+            $(document).on('click', 'a', function() {
+                console.log('Aborting XHR');
+                xhrPool.forEach(function(xhr) {
+                    console.log('Aborting ');
+                    console.log(xhr);
+                    xhr.abort();
+                });
+            });
+        });
+    </script>
 
-            </div>
-            
-            <!-- SENT -->
-            <div class="gbox-float-title" id="sentbox" style='display: ; height: 285px'>
+    <!-- NEWSLETTERS -->
+    <div class="gbox-float-title" id="newsletterbox" style='height: 285px'>
+        <h3>Newsletters</h3>
+        <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
+    </div>
 
-                <h3>Sent</h3>
-                <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
-                <script type='text/javascript'>
-                    $(document).ready(function (){
-                        <?php
-                        echo (CHtml::ajax(array(
-                            'url'=>array('site/statsdisplay'),
-                            'data'=>'subset=sentbox',
-                            'update'=>'#sentbox',
-                        )));
-                        ?>
-                    });
-                </script>
-                
-            </div>
+    <!-- QUEUED -->
+    <div class="gbox-float-title" id="queuedbox" style='display: none; height: 285px'>
+        <h3>Queued</h3>
+        <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
+    </div>
+    
+    <!-- SENT -->
+    <div class="gbox-float-title" id="sentbox" style='display: ; height: 285px'>
+        <h3>Sent</h3>
+        <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
+    </div>
 
-            <!-- READS -->
-            <div class="gbox-float-title" id='readsbox' style='height: 285px'>
+    <!-- READS -->
+    <div class="gbox-float-title" id='readsbox' style='height: 285px'>
+        <h3>Reads</h3>
+        <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
+    </div>        
 
-                <h3>Reads</h3>
-                <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
-                <script type='text/javascript'>
-                    $(document).ready(function (){
-                        <?php
-                        echo (CHtml::ajax(array(
-                            'url'=>array('site/statsdisplay'),
-                            'data'=>'subset=readsbox',
-                            'update'=>'#readsbox',
-                        )));
-                        ?>
-                    });
-                </script>            
-            
-            </div>        
+    <!-- LINKS -->
+    <div class="gbox-float-title" style='display: none' id='linksbox' style='height: 285px'>
+        <h3>Links</h3>
+        <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
+    </div> 
+</div>
 
-            <!-- LINKS -->
-            <div class="gbox-float-title" style='display: none' id='linksbox' style='height: 285px'>
-
-                <h3>Links</h3>
-                <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
-                <script type='text/javascript'>
-                    $(document).ready(function (){
-                        <?php
-                        echo (CHtml::ajax(array(
-                            'url'=>array('site/statsdisplay'),
-                            'data'=>'subset=linksbox',
-                            'update'=>'#linksbox',
-                        )));
-                        ?>
-                    });
-                </script>
- 
-            </div> 
-            
-        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
                          
     </div><!--.gbox-->
 </div>

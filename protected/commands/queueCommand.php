@@ -30,14 +30,14 @@ class queueCommand extends CConsoleCommand{
             fclose($orderfile);
             die("Should not run! ($lockinfo)");
         }
-
+        
         $queuelocktime=Yii::app()->dbConfig->getValue('smtp_queuelock_time') ? Yii::app()->dbConfig->getValue('smtp_queuelock_time') : 10800;
         file_put_contents($queuelock, time()+$queuelocktime); //Lock the system for x hours, to allow for very long queues. This lock will be removed once the script has stopped running
         // 3 hours should be sufficient for 18000 emails sent at a relatively slow rate of 0.6 seconds per email
         /** STOP SCRIPT RUNNING TWICE **/
         $outgoingsemailthrottle=Yii::app()->dbConfig->getValue('smtp_outgoings_email_throttle') ? Yii::app()->dbConfig->getValue('smtp_outgoings_email_throttle') : 0;
         $maxoutgoings=($outgoingsemailthrottle > 0) ? intval(150/($outgoingsemailthrottle/1000000)) : 1000000;
-       
+        
         $jobs=Outgoings::model()->findAll('sendDate <:now AND sent != 1 AND sendFailures < 3 ORDER BY id ASC LIMIT '.$maxoutgoings, array(':now'=>$now));
 
         $log_file = Yii::app()->dbConfig->getValue('queue_log_file') ? Yii::app()->dbConfig->getValue('queue_log_file') : '/var/www/chitkar/tmp/queue.log';
@@ -61,11 +61,6 @@ class queueCommand extends CConsoleCommand{
         //$mail->SMTPAuth = true;
         $mail->Username = Yii::app()->dbConfig->getValue('smtp_username');
         $mail->Password = Yii::app()->dbConfig->getValue('smtp_password');
-
-        // ... (Set up new email properties and send the second email)
-    
-        
-        
         $mail->setFrom($fromemail, $fromname);
         $mail->isHTML(true);
         //$mail->SMTPDebug=2;
@@ -80,7 +75,6 @@ class queueCommand extends CConsoleCommand{
             file_put_contents($log_file, "[".date("Y-m-d H:i:s")."]\nQueue process suspended due to presence of dbfail file.\n-------------------------------------", FILE_APPEND);
             die("Cannot run until $dbfail is removed.");
         }
-        
         
         $currentnewsletter=null;
         $orderfile=fopen($basedir."/../tmp/outgoing_order.log", "a");
@@ -150,6 +144,7 @@ class queueCommand extends CConsoleCommand{
                 $job->dateSent=$now;
                 $job->sent = 1;
                 if(empty($job->recipientId)) $job->recipientId="F".substr(md5(uniqid(mt_rand(), true)), 0, 8); //Generate a random 8 character string
+                if(empty($job->recipientListsId)) $job->recipientListsId=0;
                 if ($job->save()) {
                     $data .= " Database updated.\n";
                 } else {
@@ -160,22 +155,23 @@ class queueCommand extends CConsoleCommand{
                     // TODO: Place halt on emailing, send notification to owner
                     // INCLUDE button to Enable/Disable outgoing emails
                     $databasefailure=1;
-                    $failuredata .= "Error saving db update to ".$job->email." for newsletter ".$job->newslettersId." with database error '".$dberrors."'.\n";
-                    
+                    $failuredata .= "Error saving db update to ".$job->email." for newsletter ".$job->newslettersId." with database error '".$dberrors."'.<br />\r\n";
+                    //$failuredata .= "JOB DATA: ";
+                    //$failuredata .= print_r($job, true);
                 }
                 
             } else {
                 //echo "It failed";
                 $faileditems++;
-                $smtperror=$mail->getError();
+                $smtperror=$mail->ErrorInfo;
                 $data .= "  - Failure. [SMTP ERROR REPORT: ";
                 $data .= "    ".$smtperror."]\n";
                 $job->sendFailures=$job->sendFailures + 1;
-                $job->sendFailureText=$mail->getError();
+                $job->sendFailureText=$mail->ErrorInfo;
                 if ($job->save()) {
                     $data .= "Database updated";
                 } else {
-                    $dberrors=print_r($job->getErrors(), 1);
+                    $dberrors=print_r($job->ErrorInfo, 1);
                     $databasefailure=1;
                     $failuredata .= "Error saving db update to ".$job->email." for newsletter ".$job->newslettersId." with database error '".$dberrors."''.\n";         
                     $data .= "Error saving db update for newsletter ".$job->newslettersId." with database error '".$dberrors."'.\n";

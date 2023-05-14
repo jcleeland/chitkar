@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    
+   
 
     $('.queueBtn').click(function(){
         queueDialog.dialog("open");
@@ -14,6 +16,7 @@ $(document).ready(function() {
         });
         return false;
     });
+   
 
     /**
     * The Queue Dialog Box
@@ -73,3 +76,46 @@ $(document).ready(function() {
         width: 850,
     });
 });
+
+function addToArchiveList(newsletterId) {
+    var checklistId="archivelist_"+newsletterId;
+    //if($('#'))
+    var archiveIDlist=$('#archiveIDlist').val();
+    
+    if($('#'+checklistId).is(':checked')) {
+        archiveIDlist += newsletterId+"|";        
+    } else {
+        archiveIDlist=archiveIDlist.replace(newsletterId+'|', '');
+        
+    }
+    console.log(archiveIDlist);
+    if(archiveIDlist=="") {
+        //Hide bulk archive button
+        $('#bulkArchiveButton').hide();
+        //$('#checkAllArchiveButtons').hide();
+    } else {
+        //Show bulk archive button
+        $('#bulkArchiveButton').show();
+        //$('#checkAllArchiveButtons').show();
+    }
+    $('#archiveIDlist').val(archiveIDlist);
+    
+}
+
+function bulkArchive() {
+    var archiveList=$('#archiveIDlist').val();
+    //alert('Archiving '+archiveList);
+    window.open('index.php?r=newsletters/archive&id='+archiveList, "_self");
+}
+
+function checkAllArchives() {
+    $('.archivelist').each(function(i, item) {
+        if($(this).is(':checked')) {
+            //do nothing
+        } else {
+            $(this).prop("checked", true);
+            $(this).click();
+            $(this).prop("checked", true);
+        }
+    })    
+}

@@ -16,8 +16,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Uploaded File #<?php echo $model->id; ?> (<?php echo $model->description ?>)</h1>
-
+<h1>View Uploaded File #<?php echo $model->id; ?> (<?php echo $model->description ?>)</h1> 
 <?php $this->widget('zii.widgets.CDetailView', array(
 	'data'=>$model,
 	'attributes'=>array(
@@ -30,5 +29,25 @@ $this->menu=array(
               ),
 		'created',
 		'modified',
+        array(
+            'label'=>'File Links',
+            'type'=>'raw',
+            'value'=>function($data) {
+                $items=array();
+                foreach($data->fileLinks as $filelink) {
+                    $url = Yii::app()->createUrl('newsletters/view', array('id' => $filelink->newsletter->id));
+                    
+                    if($filelink->newsletter->archive==1) {
+                        $title = '<span style="color: green">[ARCHIVED]</span> '.CHtml::encode($filelink->newsletter->title);
+                    } else {
+                        $title = '<span style="color: red">[ACTIVE]</span> '.CHtml::encode($filelink->newsletter->title);
+                    }
+                    //$title.="<br />";
+                    $items[]=CHtml::link($title, $url);
+                }
+                return implode("<br /> ", $items);
+            }
+        )
 	),
-)); ?>
+)); 
+?>

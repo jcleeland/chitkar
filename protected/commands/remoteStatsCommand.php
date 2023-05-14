@@ -20,7 +20,7 @@
         $statslock=$local_temp_location."/statslock.txt";
         if(file_exists($statslock) && file_get_contents($statslock) > (time() - 60)){
             $locktime=file_get_contents($statslock);
-            $lockinfo="Locked until ".date("H:i:s", $locktime+60). " - current time ".date("H:i:s"). " and using ".date("H:i:s", (time()-60));
+            $lockinfo="Locked with $statslock until ".date("H:i:s", $locktime+60). " - current time ".date("H:i:s"). " and using ".date("H:i:s", (time()-60));
             die("Should not run! ($lockinfo)");
         }
         // This lock will be removed once the script has stopped running
@@ -65,10 +65,10 @@
                                 $outgoing->readTime=date("Y-m-d H:i:s", $datestamp); //Save the time
                                 $outgoing->save(); //Save the change
                                 $success = 1;
-                                $successlog.="[$newsletterid-$recipientid updated]";
+                                $successlog.="[$newsletterid-$recipientid read updated] ";
                                 $saves++;                    
                             } else {
-                                $discardlog.="[$newsletterid-$recipientid ignored]";
+                                $discardlog.="[$newsletterid-$recipientid read ignored] ";
                                 $discards++;
                                 $success = 1;
                             }
@@ -91,7 +91,7 @@
             }
         }  
         $log_file = Yii::app()->dbConfig->getValue('stats_log_file') ? Yii::app()->dbConfig->getValue('stats_log_file') : $local_temp_location.'/remoteStats.log';
-        $data = "READS[".date("d/m/Y h:i:s")."] Records:$count Saves:$saves$successlog Discards:$discards$discardlog Errors:$errors\n";
+        $data = "READS[".date("d/m/Y h:i:s")."] Records:$count Saves:$saves\n$successlog\n Discards:$discards\n$discardlog\n Errors:$errors\n\n\n";
         file_put_contents($log_file, $data, FILE_APPEND);
         
 
@@ -138,10 +138,10 @@
                 $errors.= "FTP login failed attempting to login as $ftp_user_name";
             } else {
                 echo "\r\nDownloading Links file ($ftp_file_location/$ftp_file_name) to $local_file...<br />\r\n";
-                if(!@ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
+                if(!ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
                     //echo "No remote file to download";
                     $errors.="No remote file to download";
-                    //echo $errors;
+                    echo $errors;
                 } else {
                     echo "Links file downloaded!<br />";
                     //Now read the file and process it
@@ -153,30 +153,38 @@
                         //print_r($reads);
                         $count=count($reads);
                         foreach($reads as $record) {
-                            //echo "Doing record: ".$record."\n";
+                            //echo "Doing record: ".$record."\n"; die();
                             if(!empty($record)) {
                                 //print_r($record);
                                 $arr=array_pad(explode(':', $record), 4, null);
                                 list($datestamp, $newsletterid, $recipientid, $url)=$arr;    
-                                $outgoing=Outgoings::model()->find("recipientId = :recipid AND newslettersId = :newsid", array(":recipid"=>$recipientid, ":newsid"=>$newsletterid));
-                                if($outgoing && $outgoing->linkUsed != 1) {
-                                    $outgoing->linkUsed=1; //Mark this entry as read
-                                    $outgoing->linkUsedTime=date("Y-m-d H:i:s", $datestamp); //Save the time
-                                    $outgoing->link=$url;
-                                    if($outgoing->read != 1) { //Obviously, the email has been read, so make sure it's marked as such
-                                        $outgoing->read = 1;
-                                        $outgoing->readTime = date("Y-m-d H:i:s", $datestamp);
-                                        $errors.="Read updated as well";
-                                    }
-                                    $outgoing->save(); //Save the change
-                                    $success = 1;
-                                    $successlog.="[$newsletterid-$recipientid updated]";
-                                    $saves++;                    
+                                if(is_numeric($newsletterid) && is_numeric($recipientid)) {
+                                    $outgoing=Outgoings::model()->find("recipientId = :recipid AND newslettersId = :newsid", array(":recipid"=>$recipientid, ":newsid"=>$newsletterid));
+                                    if($outgoing && $outgoing->linkUsed != 1) {
+                                        $outgoing->linkUsed=1; //Mark this link as used
+                                        $outgoing->linkUsedTime=date("Y-m-d H:i:s", $datestamp); //Save the time
+                                        $outgoing->link=$url;
+                                        if($outgoing->read != 1) { //Obviously, if the link has been used, then the email has also been read, so make sure it's marked as such
+                                            $outgoing->read = 1;
+                                            $outgoing->readTime = date("Y-m-d H:i:s", $datestamp);
+                                            $errors.="Read updated as well";
+                                        }
+                                        $outgoing->save(); //Save the change
+                                        $success = 1;
+                                        $successlog.="[$newsletterid-$recipientid link updated]";
+                                        $saves++;                    
+                                    } else {
+                                        $discardlog.="[$newsletterid-$recipientid link ignored, already recorded]";
+                                        $discards++;
+                                        $success = 1;
+                                    }                                    
                                 } else {
-                                    $discardlog.="[$newsletterid-$recipientid ignored]";
+                                    //The values don't pass a sanity test. Ignore
+                                    $discardlog.="[".htmlspecialchars($newsletterid)."-".htmlspecialchars($recipientid)." link ignored, possibly injection attack, or maybe someone using the CC internal email] ";
                                     $discards++;
                                     $success = 1;
                                 }
+
                             } else {
                                 $discards++;
                                 $discardlog.="[Empty or unmatchable record]";
@@ -199,7 +207,7 @@
             }
         }      
         $log_file = Yii::app()->dbConfig->getValue('stats_log_file') ? Yii::app()->dbConfig->getValue('stats_log_file') : $local_temp_location.'/remoteStats.log';
-        $data = "LINKS[".date("d/m/Y h:i:s")."] Records:$count Saves:$saves$successlog Discards:$discards$discardlog Errors:$errors\n";
+        $data = "LINKS[".date("d/m/Y h:i:s")."] Records:$count Saves:$saves\n$successlog\n Discards:$discards\n$discardlog\n Errors:$errors\n\n\n";
         file_put_contents($log_file, $data, FILE_APPEND);         
         
         
@@ -270,8 +278,9 @@
             }
         }
         $log_file = Yii::app()->dbConfig->getValue('stats_log_file') ? Yii::app()->dbConfig->getValue('stats_log_file') : $local_temp_location.'/remoteStats.log';
-        $data = "UNSUBSCRIBES[".date("d/m/Y h:i:s")."] Records: $count Saves:$saves$successlog Errors:$errors\n";
+        $data = "UNSUBSCRIBES[".date("d/m/Y h:i:s")."] Records: $count Saves:$saves$successlog Errors:$errors\n\n\n";
         file_put_contents($log_file, $data, FILE_APPEND);
+        echo "Updated statslock with ".time();
         file_put_contents($statslock, time()); //unlock the system so script can run again
         
         echo $errors;

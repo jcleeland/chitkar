@@ -78,7 +78,25 @@ function generateSql() {
             if($('#'+inputId).val()) {
                 /* This field has a value */
                 console.log('OK. We`re working on this one ('+$('#'+inputId).val()+')');
-                edb_sql_wheres.unshift(edb_tables[index]+"."+value+" ILIKE '"+$('#'+inputId).val()+"'");  //ILIKE for 
+                /* Add this value to the top of the edb_sql_whers statement */
+                // If there's a "-_-" in the "value", then split it here
+                if(value.indexOf("-_-")) {
+                    values=value.split("-_-");
+                    var tbnames=edb_tables[index];
+                    tables=tbnames.split("-_-");
+                    var newstatement="(";
+                    var newlines=[]; 
+                    $.each(tables, function(x, tbname) {
+                        newlines.push(tbname+"."+values[x]+" ILIKE '"+$('#'+inputId).val()+"'");
+                    })
+                    newstatement+=newlines.join(" OR ");
+                    newstatement+=")";
+                    console.log(newstatement);
+                    edb_sql_wheres.unshift(newstatement);       
+                } else {
+                    edb_sql_wheres.unshift(edb_tables[index]+"."+value+" ILIKE '"+$('#'+inputId).val()+"'");  //ILIKE for
+                }
+                console.log(edb_sql_wheres); 
                 if(edb_sql_froms.indexOf(edb_tables[index]) < 0 && edb_joins[index] != "" && edb_fieldjoins[index] == "") {
                     edb_sql_froms.unshift(edb_tables[index]);
                 }

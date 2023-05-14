@@ -42,6 +42,26 @@ $(document).ready(function() {
             hideAll('page');
             var pagename='page'+thispage;
             $('#'+pagename).show();
+            if(thispage==4) {
+                var sqltext="";
+                sqltext=$('#Newsletters_recipientSql').val();
+                console.log(sqltext);
+                //Make it all lowercase
+                sqltext=sqltext.toLowerCase();
+                //Get the text between "select" and "from"
+                sqltext=sqltext.substring(sqltext.indexOf("select")+6, sqltext.indexOf("from oms"));
+                //split the text by commas
+                sqltext=sqltext.split(',');
+                //grab the last word (after space) in each one
+                var words='';
+                for (var i=0; i<sqltext.length; i++) {
+                    console.log(sqltext[i]);
+                    var y=sqltext[i];
+                    var x=y.split(" ");
+                    words+="{"+x[x.length -1]+"} ";
+                };
+                $('#replacementFields').html("The following replacement fields are available: <br />"+words);    
+            }
         }
     });
     $('.prevBtn').click(function(){
@@ -54,7 +74,22 @@ $(document).ready(function() {
     * END OF PAGE MANAGEMENT
     */
     
+    $('#copySQLbtn').click(function() {
+        var copyText=document.getElementById('Newsletters_recipientSql');
+        copyText.select();
+        copyText.setSelectionRange(0,99999); //For mobile devices
  
+        $('#Newsletters_recipientListsId').val("");
+        $('#Newsletters_recipientSql').val(copyText.value);
+        $('#Newsletters_recipientValues').val("");
+        $('#Newsletters_recipientSql').prop("disabled", false);
+        $('#Newsletters_recipientValues').prop("disabled", false);
+        $('#buildSQLbtn').show();
+ 
+        //navigator.clipboard.writeText(copyText.value);
+        //alert('SQL has been copied');   
+    })
+    
     if (!$('#Newsletters_recipientListsId').val()) {
         $('#Newsletters_recipientSql').prop("disabled", false);
         $('#Newsletters_recipientValues').prop("disabled", false);

@@ -71,7 +71,8 @@ class Newsletters extends CActiveRecord
             'recipientLists'=>array(self::BELONGS_TO, 'RecipientLists', 'recipientListsId'),
             'templates'=>array(self::BELONGS_TO, 'Templates', 'templatesId'), 
             'outgoings'=>array(self::HAS_MANY, 'Outgoings', 'newslettersId'),
-            'archives'=>array(self::BELONGS_TO, 'Archives', 'id'), 
+            'archives'=>array(self::BELONGS_TO, 'Archives', 'id'),
+            'fileLinks'=>array(self::HAS_MANY, 'FileLinks', 'newslettersId'), 
 		);
 	}
 

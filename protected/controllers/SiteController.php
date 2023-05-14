@@ -44,6 +44,7 @@ class SiteController extends Controller
         foreach($days as $day) {
             $datekey=date("Y-m-d", $day);
             if(date("Y-m-d") != $datekey) {
+                //echo "Doing $varname and date ".$datekey."<br />";
                 //Check the statistics database for records
                 $todaystats=Statistics::model()->find("`date` = '$datekey'");
                 if($todaystats) {

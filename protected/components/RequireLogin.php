@@ -12,7 +12,9 @@ class RequireLogin extends CBehavior
         if (Yii::app()->user->isGuest && 
             isset($_GET['r']) && 
             !in_array($_GET['r'],array('site/login' , 
-                                       'site/index'
+                                       'site/index',
+                                       'Api/NewsletterList',
+                                       'Api/Newsletter',
                                        ))
             )
         {

@@ -14,6 +14,7 @@ if(Yii::app()->user->hasFlash('error'))
 $this->menu=array(
 	array('label'=>'Upload a File', 'url'=>array('create')),
 	array('label'=>'Manage Uploaded Files', 'url'=>array('admin')),
+    array('label'=>'Find Unused Files', 'url'=>array('unused')),
 );
 ?>
 
