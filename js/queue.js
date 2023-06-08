@@ -78,13 +78,16 @@ $(document).ready(function() {
 });
 
 function addToArchiveList(newsletterId) {
+    console.log('Working with newsletter id '+newsletterId);
     var checklistId="archivelist_"+newsletterId;
     //if($('#'))
     var archiveIDlist=$('#archiveIDlist').val();
     
     if($('#'+checklistId).is(':checked')) {
-        archiveIDlist += newsletterId+"|";        
+        archiveIDlist += newsletterId+"|"; 
+        console.log('Adding it to the list');       
     } else {
+        console.log('Removing it from the list');
         archiveIDlist=archiveIDlist.replace(newsletterId+'|', '');
         
     }
@@ -113,9 +116,9 @@ function checkAllArchives() {
         if($(this).is(':checked')) {
             //do nothing
         } else {
-            $(this).prop("checked", true);
-            $(this).click();
-            $(this).prop("checked", true);
+            //$(this).prop("checked", true);
+            $(this).click();       
         }
-    })    
+    })
+       
 }

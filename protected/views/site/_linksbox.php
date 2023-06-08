@@ -19,11 +19,11 @@ $baseUrl=Yii::app()->baseUrl;
                             <td class='datatd'><?php echo number_format($statistics[date("Y-m-d")]['linkused']); ?></td>
                         </tr>
                         <tr>
-                            <td>This Week : </td>
+                            <td>Last 7 days : </td>
                             <td class='datatd'><?php echo number_format($thisweek['linkused']); ?></td>
                         </tr>
                         <tr>
-                            <td>This Month : </td>
+                            <td>Since 1st <?php echo date("M") ?> : </td>
                             <td class='datatd'><?php echo number_format($thismonth['linkused']); ?></td>
                         </tr>
                         <tr>

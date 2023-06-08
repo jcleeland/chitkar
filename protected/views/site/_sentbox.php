@@ -11,7 +11,6 @@ $baseUrl=Yii::app()->baseUrl;
 * $recentpub
 */
 ?>
-                    <?php echo CHtml::image($baseUrl.'/images/swap.png', '', array('style'=>'position: absolute; margin-left: -120px; cursor: pointer', 'id'=>'swapbutton4', 'onClick'=>'$("#sentbox").toggle();$("#queuedbox").fadeToggle("slow");', 'title'=>'View queued emails')); ?>
                     <h3>Emails Sent</h3>
                 <div class="gbox-float">
                     <table>
@@ -20,11 +19,11 @@ $baseUrl=Yii::app()->baseUrl;
                             <td class='datatd'><?php echo number_format($statistics[date("Y-m-d")]['sent']); ?></td>
                         </tr>
                         <tr>
-                            <td>This Week :</td>
+                            <td>Last 7 days :</td>
                             <td class='datatd'><?php echo number_format($thisweek['sent']); ?></td>
                         </tr>
                         <tr>
-                            <td>This Month :</td>
+                            <td>Since 1st <?php echo date("M") ?> :</td>
                             <td class='datatd'><?php echo number_format($thismonth['sent']); ?></td>
                         </tr>
                         <tr>

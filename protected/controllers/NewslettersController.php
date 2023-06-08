@@ -495,6 +495,17 @@ class NewslettersController extends Controller
             $data = $return['data'];
             $count=count($data);
             $model->recipientCount=$count;
+
+            // Check if any entries with the newslettersId already exist in the Outgoings table
+            $existingEntries = Outgoings::model()->find('newslettersId=:newslettersId', array(
+                ':newslettersId' => $id,
+            ));
+
+            if ($existingEntries !== null) {
+                // Entries already exist, abort the process
+                Yii::log("Entries with newslettersId {$id} already exist in the Outgoings table. Aborting process - contact your system administrator.", 'error');
+                return;
+            }
             
             /* Make sure there are no duplicates */
             $uniques=array();
@@ -509,6 +520,9 @@ class NewslettersController extends Controller
                     $duplicatecount++;
                 }                
             }
+            
+            //There should not be any entries in the outgoings table for this newsletter at all, so now check that
+            
             
             //Now $newdata should only have the unique entries from $data
             foreach($newdata as $recipient) {

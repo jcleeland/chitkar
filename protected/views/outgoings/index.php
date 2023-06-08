@@ -49,7 +49,7 @@ Filter by Email:
 
 
 <br />
-<div class='view' style='font-weight: bold; border-bottom: 0'>
+<!--<div class='view' style='font-weight: bold; border-bottom: 0'>
     <div class='sqlTableCol2 oddcol headcol' style='width: 10px'>
         &nbsp;
     </div>
@@ -77,20 +77,23 @@ Filter by Email:
     <div class='sqlTableCol2 oddcol headcol' style='width: 60px'>
         Link Used
     </div>
-</div>
+</div>-->
+
 <br /><br />     
-<?php 
+<?php   
 $this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
-	'itemView'=>'_view',
+	'itemView'=>'_view', 
     'sortableAttributes'=>array(
+        't.id',
         'newslettersId',
-        'email',
         'recipientId',
+        'email',
+        'queueDate',
         'dateSent',
         'readTime',
         'linkUsed',
         ),
-    'id'=>'ajaxListView',
+    'id'=>'ajaxListView',    
 )); 
 ?>

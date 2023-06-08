@@ -41,7 +41,7 @@ class Outgoings extends CActiveRecord
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, newslettersId, recipientListsId, recipientId, email, sendDate, dateSent, sent, bounce, bounceText, read, linkUsed', 'safe', 'on'=>'search'),
-		    array('email, queueDate, dateSent, sendFailures, sendFailureText, readTime, linkUsedTime, link, data', 'safe'),
+		    array('email, queueDate, dateSent, sendFailures, sendFailureText, readTime, linkUsedTime, link, data, linkUsed', 'safe'),
         );
 	}
 

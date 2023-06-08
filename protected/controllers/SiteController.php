@@ -23,7 +23,7 @@ class SiteController extends Controller
 
     
     public function actionStatsdisplay() {
-        
+        $starttime=time();
         $subset=isset($_GET['subset']) ? $_GET['subset'] : "newsletterbox";
         $varnames=array(
             "newsletterbox"=>"newsletters",
@@ -82,7 +82,6 @@ class SiteController extends Controller
                 if($varname=="newsletters") $statistics[$datekey]['newsletters']=Statistics::model()->countNewslettersByDate($day);        
             }
             
-            
             if(date("Y-m-d") != $datekey && isset($statistics[$datekey]) && !isset($todaystats)) {
                 //It's not for today, and there's no record in the statistics table
                 // so save the daily figures for future use
@@ -128,17 +127,19 @@ class SiteController extends Controller
             if($varname=="linkused") $forever[$varname]=Statistics::model()->countLinkUsedByDates($start, $finish);
             if($varname=="newsletters") $forever[$varname]=Statistics::model()->countNewslettersByDates($start, $finish);        
         }
+        
+        $recentnews=($subset=="newsletterbox") ? Newsletters::model()->findAll(array('limit'=>25, 'order'=>'created DESC')) : "";
+        $recentpub=($subset=="sentbox") ? Newsletters::model()->findAll(array('having'=>'queued=1', 'limit'=>25, 'order'=>'sendDate DESC', )) : "";
+        $recentread=($subset=="readsbox") ? $recentread=Outgoings::model()->with('newsletters')->findAll(array('having'=>"`read`=1", 'limit'=>25, 'order'=>'readTime DESC')) : "";
+        $recentclick=($subset=="linksbox") ? Outgoings::model()->with('newsletters')->findAll(array('having'=>'linkUsed=1', 'limit'=>25, 'order'=>'linkUsedTime DESC')) : "";
 
-        $recentnews=Newsletters::model()->findAll(array('limit'=>25, 'order'=>'created DESC'));
-        $recentpub=Newsletters::model()->findAll(array('having'=>'queued=1', 'limit'=>25, 'order'=>'sendDate DESC', ));
-        $recentread=Outgoings::model()->with('newsletters')->findAll(array('having'=>"`read`=1", 'limit'=>25, 'order'=>'readTime DESC'));
-        $recentclick=Outgoings::model()->with('newsletters')->findAll(array('having'=>'linkUsed=1', 'limit'=>25, 'order'=>'linkUsedTime DESC'));
-    
+        //echo "<pre style='font-size: 8pt'>"; print_r($recentnews); echo "</pre>";
         $this->renderPartial('_'.$subset, array(            
             'statistics'=>$statistics,
             'thisweek'=>$thisweek,
             'thismonth'=>$thismonth,
             'forever'=>$forever,
+            //'forever'=>"na",
             'recentnews'=>$recentnews,
             'recentpub'=>$recentpub,
             'recentread'=>$recentread,

@@ -244,7 +244,7 @@ class FilesController extends Controller
             if(!($conn_id) || !($login_result)) {
                 $errors = "FTP connection failed attempting to connect to $ftp_server for $ftp_user_name";    
             } else {
-                $download=ftp_delete($conn_id, $ftp_file_remote);
+                @$download=ftp_delete($conn_id, $ftp_file_remote);
             }                
             
             // DELETE THE FILE FROM THE DATABASE

@@ -220,7 +220,7 @@ class OutgoingsController extends Controller
 	public function actionIndex($recipid='',$recipemail='',$newslettersid='',$reciplistid='')
 	{
         $criteria=new CDbCriteria();
-        $criteria->order='t.id DESC';
+        //$criteria->order='t.id DESC';
         $newsletters=Newsletters::model()->findAll('queued=1');
 		
         $criteria->with=array('newsletters');
@@ -242,14 +242,20 @@ class OutgoingsController extends Controller
         if(strlen($reciplistid)>0) {
             $criteria->addSearchCondition('t.recipientListsId', $reciplistid, true, 'AND');
         }
+
+
         
         $dataProvider=new CActiveDataProvider('Outgoings', array(
             'criteria'=>$criteria,
+            'sort' => array(
+                'defaultOrder'=>'t.id DESC',
+            ),
             'pagination'=>array(
-                'pageSize'=>20,
+                'pageSize'=>50,
                 )           
             )
         );
+        
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
             'newsletters'=>$newsletters,

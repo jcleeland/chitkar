@@ -126,7 +126,7 @@ if(!Yii::app()->user->isGuest) {
         var xhrPool = [];
         $(document).ready(function() {
             //var boxes = ['newsletterbox', 'queuedbox', 'sentbox', 'readsbox', 'linksbox'];
-            var boxes=['newsletterbox', 'sentbox', 'readsbox'];
+            var boxes=['newsletterbox', 'sentbox', 'readsbox', 'linksbox'];
             boxes.forEach(function(box) {
                 var xhr = $.ajax({
                     url: '<?php echo Yii::app()->createUrl("site/statsdisplay"); ?>',
@@ -158,10 +158,10 @@ if(!Yii::app()->user->isGuest) {
     </div>
 
     <!-- QUEUED -->
-    <div class="gbox-float-title" id="queuedbox" style='display: none; height: 285px'>
+<!--    <div class="gbox-float-title" id="queuedbox" style='display: none; height: 285px'>
         <h3>Queued</h3>
         <img src='<?php echo $baseUrl ?>/images/ajax-loader-ongreen.gif' title='Loading...' style='margin-top: 100px' />
-    </div>
+    </div> -->
     
     <!-- SENT -->
     <div class="gbox-float-title" id="sentbox" style='display: ; height: 285px'>
