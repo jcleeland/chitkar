@@ -20,14 +20,18 @@ return array(
 	// preloading 'log' component
 	'preload'=>array('log'),
 
-	// autoloading model and component classes
-	'import'=>array(
+	// autoloading model and component classes       //Removed by jason when installing PHPMailer direct 26 Mar 2023
+/*	'import'=>array(
 		'application.models.*',
 		'application.components.*',
         'ext.YiiMailer.YiiMailer',
-	),
+	), */
+    'import' => array(
+        'application.models.*',
+        'application.components.*',    
+    ),
 
-	'modules'=>array(
+	'modules'=> array(
 		// uncomment the following to enable the Gii tool
 		
 		'gii'=>array(
@@ -46,17 +50,18 @@ return array(
 			'allowAutoLogin'=>true,
             'class' => 'WebUser',
 		),
+       
 		// uncomment the following to enable URLs in path-format
-		/*
-		'urlManager'=>array(
+		
+		/*'urlManager'=>array(
 			'urlFormat'=>'path',
 			'rules'=>array(
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
-		),
-		*/
+		),*/
+		
 		/* 'db'=>array(
 			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
 		),*/
@@ -68,6 +73,7 @@ return array(
 			'username' => 'username',
 			'password' => 'password',
 			'charset' => 'utf8',
+            'initSQLs'=>array("SET sql_mode=(SELECT REPLACE(@@sql_mode,'NO_ZERO_DATE',''));"),
 		),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
