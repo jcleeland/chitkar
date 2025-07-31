@@ -7,7 +7,9 @@
     // See class documentation of CActiveForm for details on this.
     'enableAjaxValidation'=>false,
 ));
-$newsletter->completed_html=$content;
+if($newsletter->completed_html=="") {
+    $newsletter->completed_html=$content;
+}
 
 ?>
 
@@ -22,9 +24,11 @@ $newsletter->completed_html=$content;
 
 
     <div id='page1' class='page'>
-        <p class='pageExplain'>Please ensure that the newsletter you see below is what you expect. 
-        Once you queue the newsletter, changes cannot be made to the email contents. If you are
-        not satisifed with the contents of the email, cancel this queue process and edit the newsletter.</p>
+        <p class='pageExplain'>
+            Please ensure that the newsletter you see below is what you expect. 
+            Once you queue the newsletter, changes cannot be made to the email contents. If you are
+            not satisifed with the contents of the email, cancel this queue process and edit the newsletter.
+        </p>
         <div style='width: 100%; text-align: center'>
             <div class='emailSurrounds' style='text-align: left; width: 780px; margin-left: auto; margin-right: auto'>
                 <div class='emailInner'>
@@ -46,7 +50,7 @@ $newsletter->completed_html=$content;
          </div>
          <!-- JASON
          <pre>
-         <?php echo $content; ?>
+         <?php //echo $content; ?>
          </pre>
          -->
          &nbsp;

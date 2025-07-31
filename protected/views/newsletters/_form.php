@@ -9,7 +9,7 @@
 $baseUrl=Yii::app()->baseUrl;
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/Newsletters.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/externalDb.js');
-Yii::app()->clientScript->registerScriptFile($baseUrl.'/ckeditor/ckeditor.js');
+Yii::app()->clientScript->registerScriptFile($baseUrl.'/ckeditor/ckeditor.js?v=17072025b');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/formPageProtect.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/chosen/chosen.jquery.js');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/js/chosen/chosen.css');
@@ -18,9 +18,11 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
 
 $icsContent = $model->icsContent ?? '';
 
+
+
 $dummyModel = new DummyModel(); //This is a dummy model to store the ICS file data if required
 
-// Check if icsContent is not empty and then parse it
+// Check if icsContent is not empty and then parse it for use later on
 if (!empty($icsContent)) {
     //echo "There is icsContent";
     //echo "<pre>".$icsContent."</pre>";
@@ -35,7 +37,9 @@ if (!empty($icsContent)) {
             $dummyModel->dtStamp = substr($line, 7);
         } elseif (strpos($line, 'DTSTART;TZID=Australia/Melbourne:') === 0) {
             $dummyModel->eventStart = convertICalDateToDateTime(substr($line, 33));
-        } elseif (strpos($line, 'UID:') === 0) {
+        } elseif (strpos($line, 'DTEND;TZID=Australia/Melbourne:') === 0) {
+            $dummyModel->eventEnd = convertICalDateToDateTime(substr($line, 31));
+        } elseif (strpos($line, 'UID:') === 0 && !isset($_GET['copyid'])) {
             $dummyModel->uid = substr($line, 4);
         } elseif (strpos($line, 'ORGANIZER;CN=') === 0) {
             // Extract the organizer's name and email
@@ -45,8 +49,6 @@ if (!empty($icsContent)) {
                 $dummyModel->eventOrganiserName = $parts[0];
                 $dummyModel->eventOrganiserEmail = $parts[1];
             }
-        } elseif (strpos($line, 'DTEND;TZID=Australia/Melbourne:') === 0) {
-            $dummyModel->eventEnd = convertICalDateToDateTime(substr($line, 31));
         } elseif (strpos($line, 'LOCATION:') === 0) {
             $dummyModel->eventLocation = substr($line, 9);
         } elseif (strpos($line, 'DESCRIPTION:') === 0) {
@@ -69,6 +71,8 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
 
 <div class="form">
 
+
+
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'newsletters-form',
 	// Please note: When you enable ajax validation, make sure the corresponding
@@ -77,6 +81,26 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
 	// See class documentation of CActiveForm for details on this.
 	'enableAjaxValidation'=>false,
 )); ?>
+
+<?php
+if($model->queued==1) {
+    $dateToSend=$model->sendDate;
+    //This is a problem - the newsletter has been queued, and editing the main content text won't change completed_html which
+    //was generated when the item was queued.
+    $dateTimeToSend = new DateTime($dateToSend);
+    $currentDateTime = new DateTime();
+    $optionsmessage="";
+    if ($dateTimeToSend < $currentDateTime) {
+        $optionsmessage=" Since emails have already started to be delivered, it is too late to make changes.";
+    } else {
+        $optionsmessage="<br /><br />Since it has not started being sent out yet, you can still make changes by unqueueing the newsletter and then editing it.<br /><br /><a href='?r=newsletters/unqueue&id=".$model->id."'>Click here</a> to un-queue the email.<br />";
+    }    
+    ?>
+    <center style='color: red; background-color: #a2e2dc; padding: 10px; margin: 10px; border-radius: 5px;'><b>WARNING:<br />Changes here won't change the actual outgoing newsletter.</b><br /><br />This is because the newsletter has already been queued to send. <?=$optionsmessage ?>.</center>
+    <?php
+}
+?>
+    <input type="hidden" id="chitkarUrlWrapper" value="<?= Yii::app()->dbConfig->getValue('public_web_url'); ?>" />
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
@@ -103,8 +127,8 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
     
     <div id='page1' class='page'>
         <p class='pageTitle'>Give your newsletter a reference name.</p>
-        <p class='pageExplain'>This will not appear in the newsletter, but is used as a reference name for this newsletter.</p>
         <input type='button' value='<< Prev' disabled='true'> <input type='button' value='Next >>' class='nextBtn'>
+        <p class='pageExplain'>This will not appear in the newsletter, but is used as a reference name for this newsletter.</p>
         
         <div class='pageContent'>
             <div class="row">
@@ -118,9 +142,9 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
     
     <div id='page2' class='page'>
         <p class='pageTitle'>Who is creating this newsletter?</p>
-        <p class='pageExplain'>Usually leave this as yourself.</p>
         <input type='button' value='<< Prev' class='prevBtn'>
         <input type='button' value='Next >>' class='nextBtn'>
+        <p class='pageExplain'>Usually leave this as yourself.</p>
         <div class='pageContent'>
 	        <div class="row">
                 <?php $currentuser=Yii::app()->user->id; ?>
@@ -134,46 +158,105 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
 
     <div id='page3' class='page'>
         <p class='pageTitle'>Select a recipient list, or create one</p>
-        <p class='pageExplain'>Use the dropdown menu to choose from pre-defined lists.</p>
         <input type='button' value='<< Prev' class='prevBtn'>
         <input type='button' value='Next >>' class='nextBtn'>
-        <div class='pageContent'>
-	        <div class="row">
-                <?php $recipientlist=CHtml::listData(RecipientLists::model()->findall(array("condition"=>"library='$library'", 'order'=>'name')), 'id', 'name'); ?>
-                <?php echo $form->labelEx($model,'recipientListsId'); ?>
-		        <?php echo $form->dropDownList($model, 'recipientListsId', 
-                                                $recipientlist, 
-                                                array('prompt'=>'Create my own',
-                                                      'class'=>'chosen-select',) 
-                                                ); ?>
-                <?php echo $form->error($model,'recipientListsId'); ?>
-	        </div>
-            <input type='button' id='buildSQLbtn' value='Build SQL' />
-            <div id='recipientListInfo'>
+
+        <?php
+        //If this is a nudge, we need to show the special recipient list, not the other normal options
+        //We know it's a 'nudge' if the $model->recipientValues starts with "nudge:"
+        // then we know which original newsletter it is by finding the newsletterId which comes after "nudge:"
+        
+        $recipientValues=$model->recipientValues;
+        $nudge=false;
+        if(substr($recipientValues, 0, 6)=="nudge:") {
+            $nudge=true;
+            $nudgeid=substr($recipientValues, 6);
+
+            //Gather the email addresses & other data from the outgoings table, where the newsletterId is the nudgeid
+            //$nudgeoutgoings=Outgoings::model()->findAll(array('condition'=>"newslettersId=$nudgeid  AND (`read`=0 AND `linkUsed`=0)"));
+            $nudgeoutgoings=Outgoings::model()->findAll('newslettersId=:newslettersId AND (`read`=0 AND `linkUsed`=0)' , array(':newslettersId'=>$nudgeid));
+            //count($nudgeoutgoings);
+            $nudgecount=count($nudgeoutgoings);
+            if($nudgecount==0) {
+                $nudge=false;                
+            }
+        }
+        if($nudge) { ?>
+            <p class='pageExplain' style='margin-bottom: 0 !important;'>👉 <b>This is a nudge</b>, based on Newsletter ID <?= $nudgeid ?> so the recipient list is pre-defined.</p>
+            <p class='pageExplain'>There are currently <?=$nudgecount ?> recipients who are not marked as having read the original newsletter (this will be recalculated at the time the newsletter is queued).</p>
+            <div class='pageContent'>
                 <div class="row">
-                    <?php echo $form->labelEx($model,'recipientSql'); ?>
-                    <?php echo $form->textArea($model,'recipientSql',array('rows'=>10, 'cols'=>80)); ?>
-                    <?php echo $form->error($model,'recipientSql'); ?>
-                    <input type='button' style='font-size: 0.7em; padding: 1px !important;' id='copySQLbtn' value='Use as new' />
+                    <table>
+                        <tr>
+                            <th>Recipient Id</th>
+                            <th>Email</th>
+                            <th>pref_name</th>
+                            <th>surname</th>
+                            <?php if(isset($nudgeoutgoings[0]) && isset($nudgeoutgoings[0]->department)) { ?>
+                                <th>department</th>
+                            <?php } ?>
+                        </tr>
+                        <?php foreach($nudgeoutgoings as $nudgeoutgoing) { 
+                            $data=json_decode($nudgeoutgoing->data);    
+                        ?>
+                            <tr>
+                                <td><?= $nudgeoutgoing->recipientId ?></td>
+                                <td><?= $nudgeoutgoing->email ?></td>
+                                <td><?= $data->pref_name ?></td>
+                                <td><?= $data->surname ?></td>
+                                <?php if(isset($data->department)) { ?>
+                                    <td><?= $data->department ?></td>
+                                <?php } ?>
+                            </tr>
+                        <?php } ?>
+                    </table>
 
                 </div>
-                <div class="row">
-                    <?php echo $form->labelEx($model,'recipientValues'); ?>
-                    <?php echo $form->textField($model,'recipientValues',array('size'=>60,'maxlength'=>256)); ?>
-                    <?php echo $form->error($model,'recipientValues'); ?>
-                </div>
             </div>
-            <input type='hidden' id='test_sql' />
-            <input type='button' value='Test SQL' id='testSQLbtn' /><br /><br />
-        </div>
+        <?php } else { ?>
+            <p class='pageExplain'>Use the dropdown menu to choose from pre-defined lists.</p>
+            <div class='pageContent'>
+                <div class="row">
+                    <?php $recipientlist=CHtml::listData(RecipientLists::model()->findall(array("condition"=>"library='$library'", 'order'=>'name')), 'id', 'name'); ?>
+                    <?php echo $form->labelEx($model,'recipientListsId'); ?>
+                    <?php echo $form->dropDownList($model, 'recipientListsId', 
+                                                    $recipientlist, 
+                                                    array('prompt'=>'Create my own',
+                                                        'class'=>'chosen-select',) 
+                                                    ); ?>
+                    <?php echo $form->error($model,'recipientListsId'); ?>
+                </div>
+                <input type='button' id='buildSQLbtn' value='Build SQL' />
+                <div id='recipientListInfo'>
+                    <div class="row">
+                        <?php echo $form->labelEx($model,'recipientSql'); ?>
+                        <?php echo $form->textArea($model,'recipientSql',array('rows'=>10, 'cols'=>80)); ?>
+                        <?php echo $form->error($model,'recipientSql'); ?>
+                        <input type='button' style='font-size: 0.7em; padding: 1px !important;' id='copySQLbtn' value='Use as new' />
+
+                    </div>
+                    <div class="row">
+                        <?php echo $form->labelEx($model,'recipientValues'); ?>
+                        <?php echo $form->textField($model,'recipientValues',array('size'=>60,'maxlength'=>256)); ?>
+                        <?php echo $form->error($model,'recipientValues'); ?>
+                    </div>
+                </div>
+                <input type='hidden' id='test_sql' />
+                <input type='button' value='Test SQL' id='testSQLbtn' /><br /><br />
+            </div>
+        <?php } ?>
     </div>
 
     <div id='page4' class='page'>
         <p class='pageTitle'>Choose a template and create your newsletter</p>
-        <p class='pageExplain floatRight border' style='border: 1px solid #ccc; max-width: 280px' id='replacementFields'></p>
-        <p class='pageExplain'>Enter the subject line, and then use the content field to create the actual contents of your email.</p> 
         <input type='button' value='<< Prev' class='prevBtn'>
         <input type='button' value='Next >>' class='nextBtn'>
+        <p class='pageExplain floatRight border' style='border: 1px solid #ccc; max-width: 280px' id='replacementFields'></p>
+        <p class='pageExplain' style='margin-bottom: 0 !important;'>Enter the subject line, and then use the content field to create the actual contents of your email.</p>
+        <?php if($nudge) { ?>
+            <p class='pageExplain' style='margin-bottom: 0 !important;'>👉 <b>This is a nudge</b>, so the content of the newsletter is a copy of the original newsletter.</p>
+            <p class='pageExplain'>The subject line has been changed by adding "Re: Did you miss this? -" to the beginning.</p>
+        <?php } ?>
         <div class='pageContent'>
 	        <div class="row">
                 <?php $templatelist=CHtml::listData(Templates::model()->findall(array('order'=>'name')), 'id', 'name'); ?>
@@ -208,9 +291,9 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
 
     <div id='page5' class='page'>
         <p class='pageTitle'>Add a Calendar Event (.ics File)</p>
-        <p class=''>Note: This function adds an "ics" attachment to the newsletter that allows recipients to automatically add the meeting into their digital calendar. You still need to have a newsletter, and you'll need to enter the details for the meeting below.</p>
         <input type='button' value='<< Prev' class='prevBtn'>
         <input type='button' value='Next >>' class='nextBtn'>
+        <p class='pageExplain'>Note: This function adds an "ics" attachment to the newsletter that allows recipients to automatically add the meeting into their digital calendar. You still need to have a newsletter, and you'll need to enter the details for the meeting below.</p>
         <div class='pageContent'>
             <div class="row">
                 <?php echo CHtml::label('Add a Calendar Event attachment?', 'addCalendarEvent', array('style'=>'font-size: 1.2em')); ?>
@@ -248,9 +331,10 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
                     </div>
                     <div style="display: flex; justify-content: space-between;">
                         <div class="row" style="flex: 1; padding-right: 10px;">
-                        <input type='hidden' name='defaultstartdate' id='defaultstartdate' value='<?php echo date('Y-m-d H:00:00', $nextDay) ?>' />
                             <?php if(empty($dummyModel->eventStart)) {
-                                $dummyModel->eventStart=date('Y-m-d H:00:00', $nextDay);
+                                $dummyModel->eventStart=date('Y-m-d H:00:00', $nextDay); ?>
+                                <input type='hidden' name='defaultstartdate' id='defaultstartdate' value='<?php echo date('Y-m-d H:00:00', $nextDay) ?>' />
+                            <?php
                             } ?>                    
                             <?php echo CHtml::label('Start Date and Time', 'eventStart'); ?>
                             <?php $this->widget('application.extensions.timepicker.timepicker', array(
@@ -262,9 +346,10 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
                             ?>
                         </div>
                         <div class="row" style="flex: 1; padding-left: 10px;">
-                            <input type='hidden' name='defaultenddate' id='defaultenddate' value='<?php echo date('Y-m-d H:00:00', $nextDay+3600) ?>' />
                             <?php if(empty($dummyModel->eventEnd)) {
-                                $dummyModel->eventEnd=date('Y-m-d H:00:00', $nextDay+3600);
+                                $dummyModel->eventEnd=date('Y-m-d H:00:00', $nextDay+3600); ?>
+                                <input type='hidden' name='defaultenddate' id='defaultenddate' value='<?php echo date('Y-m-d H:00:00', $nextDay+3600) ?>' />
+                            <?php
                             } ?>                       
                             <?php echo CHtml::label('End Date and Time', 'eventEnd'); ?>
                             <?php $this->widget('application.extensions.timepicker.timepicker', array(
@@ -317,12 +402,22 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
     
     <div id='page6' class='page'>
         <p class='pageTitle'>When should Chitkar start sending out your newsletter?</p>
-        <p class='pageExplain'>The default setting - now - or a time in the past means Chitkar will start sending as soon as this newsletter is queued.</p>
         <input type='button' value='<< Prev' class='prevBtn'>
         <input type='button' value='Next >>' class='nextBtn'>
+        <p class='pageExplain' style='margin-bottom: 0 !important;'>The default setting - now - or a time in the past means Chitkar will start sending as soon as this newsletter is queued.</p>
+        <?php if($nudge) { ?>
+            <div class='pageExplain' style='margin-bottom: 1rem !important;'>👉 <b>This is a nudge</b>, so there are a few things you should consider before setting the embargo time & date.<br /><br />
+            <ul>
+                <li style='margin-bottom: 1rem !important;'><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>It is recommended that you set the embargo time & date to be at least 5 days after the original newsletter was sent. Don't overwhelm people with the same newsletter</li>
+                <li style='margin-bottom: 1rem !important;'><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>The recipient list will be calculated when you <b>queue</b> the newsletter - so if someone reads the original between now and when you queue it, they won't be sent this nudge. However, if they read the newsletter between the time you queue it and the time it is sent out (set by this embargo date/time) then they will receive the newsletter twice.</li>
+                <li style='margin-bottom: 1rem !important;'><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>For that reason, we strongly recommend that you set the embargo date to be right now. That way the newsletter will be sent out almost immediately after you queue it.</li>
+            </ul>
+        </div>
+        <?php } ?>
+        
         <div class='pageContent'>
 	        <div class="row">
-            <?php if(empty($model->sendDate)) {
+            <?php if(empty($model->sendDate) || $nudge) {
                     $model->sendDate=date('Y-m-d H:i:00', time()+300);
             } ?>
 		        <label for="Newsletters_sendDate">Embargo until</label>
@@ -428,7 +523,7 @@ while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
         <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
         If you choose 'Change SQL', any manually created SQL modifications will be lost.</p>
         <p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
-        If you choose 'Use original SQL' any changes you've mode to the filters on this page will be ignored.</p>
+        If you choose 'Use original SQL' anything you've entered into fields on this page will be ignored.</p>
     </div>
     <div id='testsql' title='Test SQL'>
         <div id='testsql_results' class='testsql'>

@@ -2,7 +2,7 @@
 $sitename="Chitkar";
 $sitefooter="(c) Chitkar Development Team 2014";
 
-$options['didnotsubscribe']="I did not subscribe for your newsletters";
+$options['didnotsubscribe']="I don't want to receive CPSU newsletters";
 $options['offended']="I was offended by something in the newsletter";
 $options['toomany']="I receive too many newsletters from you";
 $options['notrelevant']="The newsletters are not relevant to me";
@@ -14,18 +14,18 @@ $email=filter_input(INPUT_GET, 'email', FILTER_SANITIZE_EMAIL);
 ?>
 <html>
 <head>
-    <title>Unsubscribe from <?php echo $sitename ?> Newsletters</title>
+    <title>Unsubscribe from CPSU Newsletters</title>
 
 </head>
 <body style='background-color: #ff9339; text-align: center; font-family: verdana, arial'>
 <div style='width: 600px; background-color: #FFAA64; margin: auto; margin-top: 150px; border-radius: 10px; border: 1px solid #111; text-align: keft'>
-   <h1 style='background-color: #FFAA64'><?php echo $sitename ?> Unsubscribe</h1>
+   <h1 style='background-color: #FFAA64'>CPSU Victoria Unsubscribe</h1>
 <?php
     if(!isset($_GET['unsubscribe'])) {
 ?>
-   <h2>Was it something I said?</h2>
+   <h2>Was it something we said?</h2>
    <div style='background-color: white; padding: 5px; font-size: 10pt'>
-       <p>Seriously though, we are sorry to see you leave us. Before you go, would you mind leaving us a little feedback?</p>
+       <p>We see that you want to unsubscribe from CPSU newsletters. Before you go, would you mind leaving us a little feedback?</p>
        <form>
          <table style='width: 80%; margin: auto; font-size: 10pt'>
          <?php
@@ -36,11 +36,12 @@ $email=filter_input(INPUT_GET, 'email', FILTER_SANITIZE_EMAIL);
            <tr><td><input type='checkbox' name='other' id='other'></td><td><label for='other'>Another reason</label>&nbsp;<input type='text' name='othertext' size='40'></td></tr>
            <tr><td colspan='2'>&nbsp;</td></tr>
             
-            <tr><td colspan='2'><label for='email'>Unsubscribe This Email:</label><br /><input type='text' size='80' name='email' value='<?php echo $email ?>'/></td></tr>
+            <tr><td colspan='2'><label for='email'>Unsubscribe This Email Address:</label><br /><input type='text' size='60' name='email' value='<?php echo $email ?>'/></td></tr>
          </table>
          <p><input type='submit' value='Unsubscribe Now' /></p>
          <input type='hidden' name='unsubscribe' value='yes' />
        </form>
+       <i>Note: You'll still receive emails from CPSU relating to your membership, such as membership renewal reminders, but you will not receive newsletters.</i>
    </div>
 
 <?php

@@ -56,7 +56,9 @@ class Newsletters extends CActiveRecord
 			array('id, usersId, recipientListsId, templatesId, title, subject, content, sendDate, completed, completed_html, recipientSql, recipientValues, archive, trackReads, trackLinks, trackBounces, recipientCount, created, modified', 'safe', 'on'=>'search'),
             
             //Make sure these fields have a rule, or else they won't save
-            array('recipientListsId,subject,content,icsContent,sendDate,queued,completed,completed_html,recipientSql,recipientValues,notifications,archive,trackReads,trackBounces,created,modified', 'safe'),
+            array('recipientListsId,subject,content,sendDate,queued,completed,completed_html,recipientSql,recipientValues,notifications,archive,trackReads,trackBounces,created,modified', 'safe'),
+
+			array('icsContent', 'type', 'type'=>'string'),
 		);
 	}
 
@@ -153,6 +155,41 @@ class Newsletters extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+
+
+    /**
+     * Magic getter to retrieve the template associated with this newsletter.
+     * If the template is not set, it will try to load the default template or the first available template.
+     */
+	protected function afterFind()
+	{
+		parent::afterFind();
+
+		// If the eager-loaded relation is null, we need to manually repair it
+		if (!empty($this->templatesId) && $this->templates === null) {
+			// Try default template first
+			$defaultTemplateId = Yii::app()->dbConfig->getValue('default_template');
+			$template = Templates::model()->findByPk($defaultTemplateId);
+
+			// If that fails, try first available template
+			if ($template === null) {
+				$template = Templates::model()->find(array('order' => 'id ASC'));
+			}
+
+			// Replace the relation manually by reassigning the ID
+			if ($template !== null) {
+				// Assign new ID so future saves are correct
+				$this->templatesId = $template->id;
+
+				// Use getRelated() with reload = true to assign it internally
+				// (this is a hack: setting templatesId and then calling getRelated reloads it)
+				$this->getRelated('templates', true);
+			}
+		}
+	}
+
+
+
 
 	/**
 	 * Returns the static model of the specified AR class.

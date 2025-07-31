@@ -27,6 +27,15 @@ class Outgoings extends CActiveRecord
 		return 'outgoings';
 	}
 
+    public function __get($name)
+    {
+        $value = parent::__get($name);
+        if ($name === 'email' && is_string($value)) {
+            return trim($value);
+        }
+        return $value;
+    }	
+
 	/**
 	 * @return array validation rules for model attributes.
 	 */

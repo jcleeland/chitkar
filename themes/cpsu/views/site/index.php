@@ -88,7 +88,13 @@ if(!Yii::app()->user->isGuest) {
 </div>
 <?php } else {
     echo "<div style='width: 9%; float: left; margin-right: 15px'>&nbsp;</div>";
-} ?>
+} 
+
+if(!Yii::app()->user->isGuest) {
+
+?>
+
+
 
 <!-- RIGHT COLUMN -->
 <div class="gbox-title" style="width: 80%; float: left">
@@ -182,7 +188,7 @@ if(!Yii::app()->user->isGuest) {
     </div> 
 </div>
 
-        
+<?php } ?> 
         
         
         

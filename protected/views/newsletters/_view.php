@@ -41,6 +41,35 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     }    
 ?>
     <div class='floatRight'>
+        <?php 
+        if($data->icsContent) {
+             $unfoldedContent = preg_replace("/\r\n[ \t]|[\n\r][ \t]/", " ", $data->icsContent);
+             $lineEnding = strpos($unfoldedContent, "\r\n") === false ? "\n" : "\r\n";
+             $lines = explode($lineEnding, $unfoldedContent);
+             $summary=""; $eventStart=""; $eventEnd=""; $eventOrganiserName="";$eventLocation="";$eventDescription="";
+             foreach ($lines as $line) {
+                if (strpos($line, 'SUMMARY:') === 0) {
+                    $summary = substr($line, 8);
+                } elseif (strpos($line, 'DTSTART;TZID=Australia/Melbourne:') === 0) {
+                    $eventStart = convertICalDateToDateTime(substr($line, 33));
+                } elseif (strpos($line, 'DTEND;TZID=Australia/Melbourne:') === 0) {
+                    $eventEnd = convertICalDateToDateTime(substr($line, 31));
+                } elseif (strpos($line, 'ORGANIZER;CN=') === 0) {
+                    // Extract the organizer's name and email
+                    $parts = explode(':mailto:', str_replace('ORGANIZER;CN=', '', $line));
+                    if (count($parts) == 2) {
+                        $eventOrganiserName = $parts[0]." (".$parts[1].")";
+                    }
+                } elseif (strpos($line, 'LOCATION:') === 0) {
+                    $eventLocation = substr($line, 9);
+                } elseif (strpos($line, 'DESCRIPTION:') === 0) {
+                    //$dummyModel->eventDescription = substr($line, 12);
+                    $eventDescription = str_replace("\\n", "\n", substr($line, 12));
+                }                
+             }
+            echo "<span style='cursor: pointer; font-size: 1.2rem' title='There is a calendar attachment to this newsletter:\r\n\r\nTitle: $summary\r\nStarts: $eventStart\r\nEnds: $eventEnd\r\nLocation: $eventLocation\r\nOrganiser: $eventOrganiserName'>&#x1F4C5;</span>";
+        }
+        ?>
         <?php if($data->queued == 0 && Yii::app()->user->can_queue) {
             ?>
                 <input type='button' value='Queue for Delivery' id='<?php echo $data->id ?>' class='queueBtn' />
@@ -72,50 +101,10 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     </span>
     <span class='small'><?php if(Yii::app()->user->can_create) echo CHtml::link('[Create new from this..]', array('create', 'copyid'=>$data->id)); ?></span>
     &nbsp;<br />
-    <?php /*
-    <b><?php echo CHtml::encode($data->getAttributeLabel('completed')); ?>:</b>
-    <?php echo Chtml::encode($data->completed) ?>
-	<b><?php echo CHtml::encode($data->getAttributeLabel('completed')); ?>:</b>
-	<?php echo CHtml::encode($data->completed); ?>
-	<br />
+    <?php 
+ 
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('recipientSql')); ?>:</b>
-	<?php echo CHtml::encode($data->recipientSql); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('recipientValues')); ?>:</b>
-	<?php echo CHtml::encode($data->recipientValues); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('archive')); ?>:</b>
-	<?php echo CHtml::encode($data->archive); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('trackReads')); ?>:</b>
-	<?php echo CHtml::encode($data->trackReads); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('trackLinks')); ?>:</b>
-	<?php echo CHtml::encode($data->trackLinks); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('trackBounces')); ?>:</b>
-	<?php echo CHtml::encode($data->trackBounces); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('recipientCount')); ?>:</b>
-	<?php echo CHtml::encode($data->recipientCount); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('created')); ?>:</b>
-	<?php echo CHtml::encode($data->created); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('modified')); ?>:</b>
-	<?php echo CHtml::encode($data->modified); ?>
-	<br />
-
-	*/ ?>
+    ?>
 
 </div>
 

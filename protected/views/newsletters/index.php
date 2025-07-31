@@ -67,7 +67,7 @@ if(file_exists($dbfail)) {
 <div class='listPage'>
     <p class='pageTitle'>Completed
     <button id='bulkArchiveButton' class='hidden' style='display: none; font-size: 1em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 80px; margin-right: -130px' onClick='bulkArchive()'>Bulk Archive</button>
-    <button id='checkAllArchiveButtons' class='hidden' style='display: ; font-size: 0.6em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 110px; margin-right: -130px' onClick='checkAllArchives()'>Check all</button>
+    <button id='checkAllArchiveButtons' class='hidden' style='font-size: 0.6em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 110px; margin-right: -130px' onClick='checkAllArchives()'>Check all</button>
     <?php
 echo CHtml::beginForm(CHtml::normalizeUrl(array('Newsletters/index')), 
                       'get', 
@@ -140,3 +140,27 @@ $this->widget('zii.widgets.CListView', array(
     <div id='queue_results'>
     </div>
 </div>
+
+<?php
+function convertICalDateToDateTime($icalDate) {
+    // Extract the components from the iCalendar date
+    $year = substr($icalDate, 0, 4);
+    $month = substr($icalDate, 4, 2);
+    $day = substr($icalDate, 6, 2);
+    $hour = substr($icalDate, 9, 2);
+    $minute = substr($icalDate, 11, 2);
+    $second = substr($icalDate, 13, 2);
+
+    // Construct a date string
+    $dateString = "{$year}-{$month}-{$day} {$hour}:{$minute}:{$second}";
+    // Convert to Unix timestamp and then to desired format
+    $timestamp = strtotime($dateString ); // Append ' UTC' to interpret as UTC time
+    if ($timestamp === false) {
+        error_log("Failed to convert icalDate to timestamp: $icalDate");
+        return $icalDate;
+    }
+    // Convert the timestamp to 'Y-m-d H:i:s' in the desired timezone
+    $convertedDate = date('Y-m-d H:i:s', $timestamp);
+    return $convertedDate;
+}  
+?>

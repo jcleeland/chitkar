@@ -138,13 +138,40 @@ class FilesController extends Controller
                 $ftp_file_remote=Yii::app()->dbConfig->getValue('ftp_read_file_location')."/images/".$model->file_name;
                 //Connect to the ftp server
                 $conn_id=ftp_connect($ftp_server);
-                $login_result=ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
-                if(!($conn_id) || !($login_result)) {
-                    $errors = "FTP connection failed attempting to connect to $ftp_server for $ftp_user_name";    
+                if(!$conn_id) {
+                    $errors = "FTP connection failed attempting to connect to $ftp_server for $ftp_user_name";
+                    Yii::log($errors, CLogger::LEVEL_ERROR);
                 } else {
-                    $download=ftp_put($conn_id, $ftp_file_remote, $file->tempName, FTP_BINARY);
-                    $permission=ftp_chmod($conn_id, 0644, $ftp_file_remote);
-                }                
+                    $login_result=ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+                    if(!($login_result)) {
+                        $errors = "FTP login failed for $ftp_user_name";
+                        Yii::log($errors, CLogger::LEVEL_ERROR);    
+                    } else {
+                        //Enable passive mode
+                        ftp_pasv($conn_id, true);
+                        
+                        if(!file_exists($file->tempName)) {
+                            $errors="File does not exist:".$file->tempName;
+                            Yii::log($errors, CLogger::LEVEL_ERROR);    
+                        } else {
+                            Yii::log("Starting FTP upload to $ftp_file_remote", CLogger::LEVEL_INFO);
+                            $download=ftp_put($conn_id, $ftp_file_remote, $file->tempName, FTP_BINARY);
+                            if(!$download) {
+                                $errors = "FTP upload failed for $ftp_file_remote";
+                                Yii::log($errors, CLogger::LEVEL_ERROR);                            
+                            } else {
+                                Yii::log("FTP upload successful for $ftp_file_remote", CLogger::LEVEL_INFO);
+                                $permission=ftp_chmod($conn_id, 0644, $ftp_file_remote);
+                                if(!$permission) {
+                                    $errors = "FTP permission change failed for $ftp_file_remote";
+                                    Yii::log($errors, CLogger::LEVEL_ERROR);                            
+                                } else {
+                                    Yii::log("FTP permission change successful for $ftp_file_remote", CLogger::LEVEL_INFO);
+                                }
+                            }
+                        }
+                    }   
+                }             
                 
                 
                 $this->redirect(array('view','id'=>$model->id));

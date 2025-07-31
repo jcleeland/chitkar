@@ -18,8 +18,8 @@ CKEDITOR.plugins.add('strinsert',
 		strings.push(['<a href="https://www.cpsuvic.org/rewards/">benefits of union membership</a>','Benefits of union membership', 'Benefits of union membership']);
 		strings.push(['<a href="http://www.cpsuvic.org/join/">join CPSU</a>', 'Join CPSU', 'Join CPSU']);
 		strings.push(['<h3><strong>TOGETHER WE DO BETTER!</strong></h3><p><a href="http://www.cpsuvic.org/public_docs/What-has-CPSU-ever-done-for-us.pdf">http://www.cpsuvic.org/public_docs/What-has-CPSU-ever-done-for-us.pdf</a></p><p><a href="http://www.cpsuvic.org/public_docs/memform.pdf">http://www.cpsuvic.org/public_docs/memform.pdf</a></p>', 'Together We Do Better Spiel', 'Together We Do Better Spiel']);
-		strings.push(['<p><strong>WAYNE TOWNSEND</strong><br />CPSU Victorian Assistant Branch Secretary</p>', 'Wayne Townsend', 'Wayne Townsend']);
-		strings.push(['<p><strong>KAREN BATT</strong><br />CPSU Victorian Branch Secretary / Federal Secretary</p>', 'Karen Batt', 'Karen Batt']);
+		strings.push(['<p><strong>WAYNE TOWNSEND</strong><br />CPSU Victorian Assistant Branch Secretary</p>', 'Mitch Vandewerdt-Holman', 'Mitch Vandewerdt-Holman']);
+		strings.push(['<p><strong>KAREN BATT</strong><br />CPSU Victorian Branch Secretary</p>', 'Jiselle Hanna', 'Jiselle Hanna']);
         /* strings.push(['@@CareerProfile::displayList()@@', 'Career Profiles', 'Career Profiles']);  */
 
 		// add the menu to the editor

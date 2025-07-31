@@ -61,7 +61,7 @@ class OutgoingsController extends Controller
                                             "condition"=>"newslettersId = $id", 
                                             "order"=>"`readTime` DESC",
                                             )
-                                            );
+                                        );
 
         $this->render('readlist', array(
             'model'=>$model,

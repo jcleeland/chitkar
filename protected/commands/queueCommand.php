@@ -133,7 +133,7 @@ class queueCommand extends CConsoleCommand{
                 $icsFileName = 'cpsu_event_' . $job->newslettersId . '.ics'; // Define the .ics file name
                 $icsContent=str_replace("attendee@email.com", trim($job->email), $newsletter->icsContent);
                 //$mail->addStringAttachment($icsContent, $icsFileName, 'base64', 'text/calendar; charset=utf-8; method=REQUEST'); // Attach the .ics content
-                $icsContent=str_replace("Attendee Name", trim($job->email), $newsletter->icsContent);
+                $icsContent=str_replace("Attendee Name", trim($job->email), $icsContent);
                 $mail->addStringAttachment($icsContent, $icsFileName, 'base64', 'text/calendar; charset=utf-8', 'inline'); // Attach the .ics content
 
                 //$mail->Ical = $newsletter->icsContent;

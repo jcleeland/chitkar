@@ -20,12 +20,29 @@ if($model->completed != 1) {
 $menuarray[]=array('label'=>'Delete this Newsletter', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Deleting a newsletter also deletes all the related outgoings records for this newsletter. Are you sure you want to delete this item?'), 'visible'=>Yii::app()->user->canDelete);
 $menuarray[]=array('label'=>'Manage Newsletters', 'url'=>array('admin'), 'visible'=>Yii::app()->user->canCreate);
 $menuarray[]=array('label'=>'Manage this Newsletter', 'url'=>array('newsletters/update', 'id'=>$model->id), 'visible'=>Yii::app()->user->canCreate);
+if($model->completed == 1 && $statistics['read'] < $statistics['total']) {
+    $unread=$statistics['total']-$statistics['read'];
+    $menuarray[]=array('label' => '👉 Nudge slackers', 'url'=>array('newsletters/nudge'), 'linkOptions'=>array('submit'=>array('nudge','id'=>$model->id),'title'=>'Resend to the '.$unread.' recipients who haven\'t opened this','style'=>'border: 1px solid #b0d4e5; background-color: #d9edf7; border-radius: 3px','confirm'=>'This will create a new newsletter with the same content as the original, for anyone on the original list who has not read this newsletter. Continue?'), 'visible'=>Yii::app()->user->canCreate);
+}
+
 
 
 
 $this->menu=$menuarray;
 
 ?>
+
+<?php if(Yii::app()->user->hasFlash('success')): ?>
+    <div class="alert alert-success">
+        <?php echo Yii::app()->user->getFlash('success'); ?>
+    </div>
+<?php endif; ?>
+
+<?php if(Yii::app()->user->hasFlash('info')): ?>
+    <div class="alert alert-info">
+        <?php echo Yii::app()->user->getFlash('info'); ?>
+    </div>
+<?php endif; ?>
 
 <h1><?php echo $model->title; ?> (<?php echo $model->id ?>)</h1>
 
@@ -59,6 +76,49 @@ $this->menu=$menuarray;
             <div style='clear: both; display: none' id='recipientlistclear'></div>
         </div>
         <?php
+        }
+        
+        if($model->icsContent) {
+            //extract relevent info:
+            $ICSstart="";
+            $ICSend="";
+            $ICSuid="";
+            $ICSsummary="";
+            $ICSorganiser="";
+            $ICSdescription="";
+            $ICSlocation="";
+            $unfoldedContent = preg_replace("/\r\n[ \t]|[\n\r][ \t]/", " ", $model->icsContent);
+            //echo "<hr /><pre>".$unfoldedContent."</pre>";
+            $lineEnding = strpos($unfoldedContent, "\r\n") === false ? "\n" : "\r\n";
+            $lines = explode($lineEnding, $unfoldedContent);
+            foreach ($lines as $line) {
+                if (strpos($line, 'SUMMARY:') === 0) {
+                    $ICSsummary = substr($line, 8);
+                } elseif (strpos($line, 'DTSTART;TZID=Australia/Melbourne:') === 0) {
+                    $ICSstart = convertICalDateToDateTime(substr($line, 33));
+                } elseif (strpos($line, 'DTEND;TZID=Australia/Melbourne:') === 0) {
+                    $ICSend = convertICalDateToDateTime(substr($line, 31));                } elseif (strpos($line, 'UID:') === 0) {
+                    $ICSuid = substr($line, 4);
+                } elseif (strpos($line, 'ORGANIZER;CN=') === 0) {
+                    // Extract the organizer's name and email
+                    $organizerInfo = str_replace('ORGANIZER;CN=', '', $line);
+                    $parts = explode(':mailto:', $organizerInfo);
+                    if (count($parts) == 2) {
+                        $ICSorganiser = $parts[0]." (".$parts[1].")";
+                    }
+                } elseif (strpos($line, 'LOCATION:') === 0) {
+                    $ICSlocation = substr($line, 9);
+                } elseif (strpos($line, 'DESCRIPTION:') === 0) {
+                    $ICSdescription = str_replace("\\n", "\n", substr($line, 12));
+                }
+            }
+            ?>
+        <div style='padding: 5px'>
+            <div class='emailHeadLeft'><b>Meeting File:</b></div>
+            <div class='emailHeadRight'>Starts <?= $ICSstart ?>, Ends <?= $ICSend ?>, Summary <?=$ICSsummary ?>, Organiser <?= $ICSorganiser ?></div>
+            <div style='clear: both'></div>
+        </div>
+            <?php
         }
         if($model->trackReads == 1 && $model->queued == 1) {
         ?>
@@ -177,5 +237,32 @@ $this->menu=$menuarray;
             $('#chart_div').html("Insufficient data");
         </script>
     <?php    
+    }
+    function convertICalDateToDateTime($icalDate) {
+        // Extract the components from the iCalendar date
+        $year = substr($icalDate, 0, 4);
+        $month = substr($icalDate, 4, 2);
+        $day = substr($icalDate, 6, 2);
+        $hour = substr($icalDate, 9, 2);
+        $minute = substr($icalDate, 11, 2);
+        $second = substr($icalDate, 13, 2);
+    
+        // Construct a date string
+        $dateString = "{$year}-{$month}-{$day} {$hour}:{$minute}:{$second}";
+        // Convert to Unix timestamp and then to desired format
+        $timestamp = strtotime($dateString ); // Append ' UTC' to interpret as UTC time
+        if ($timestamp === false) {
+            error_log("Failed to convert icalDate to timestamp: $icalDate");
+            return $icalDate;
+        }
+        // Convert the timestamp to 'Y-m-d H:i:s' in the desired timezone
+        $convertedDate = date('Y-m-d H:i:s', $timestamp);
+        return $convertedDate;
+    }
+    
+    function convertTimezone($dateString, $timezone) {
+        $date = new DateTime($dateString, new DateTimeZone('UTC'));
+        $date->setTimezone(new DateTimeZone($timezone));
+        return $date->format('Y-m-d H:i:s');
     }
     ?>

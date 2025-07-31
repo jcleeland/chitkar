@@ -13,12 +13,10 @@ $(document).ready(function() {
         $('#readreport').append('<div id="readlistspinner"><img src="/chitkar/images/ajax-loader.gif"></div>');
         if($('#readlist').is(':visible')) {
             jQuery.ajax({
-                async: false,
                 url:'index.php?r=outgoings/readlist&id='+$(this).attr('id'),
                 cache:false,
                 success:function(html){
                     $('#readreport').html(html);
-                    $('#readlistspinner').hide();
                 }
             });
         }
@@ -90,4 +88,21 @@ function downloadInnerHtml(filename, elId, mimeType) {
         link.setAttribute('href', 'data:' + mimeType  +  ';charset=utf-8,' + encodeURIComponent(elHtml));
         link.click(); 
     }
+}
+
+//When someone clicks on the "sort" button, we want to clear the #readreport div, and reload the readlist
+// sending the extra url parameter "sort" to the controller. The element with the class ".updatereadlist"
+// will also have a data-sortyby attribute, which will be used to determine the sort order.
+function updatereadlist(id, sortby) {
+    console.log('Updating readlist');
+    $('#readreport').html('<div id="readlistspinner"><img src="/chitkar/images/ajax-loader.gif"></div>');
+    console.log('Spinner should be visible');
+    jQuery.ajax({
+        url:'index.php?r=outgoings/readlist&id='+id+'&sort='+sortby,
+        cache:false,
+        success:function(html){
+            $('#readreport').html(html);
+        }
+    });
+    return false;
 }

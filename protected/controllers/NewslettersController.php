@@ -32,11 +32,11 @@ class NewslettersController extends Controller
 				'users'=>array(''),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create', 'update', 'preview', 'getsql', 'contentpreview', 'index', 'view', 'archive'),
+				'actions'=>array('create', 'update', 'preview', 'getsql', 'contentpreview', 'index', 'view', 'archive', 'nudge'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','queue'),
+				'actions'=>array('admin','delete','queue','unqueue'),
 				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
@@ -53,6 +53,9 @@ class NewslettersController extends Controller
 	{   
         $model=Newsletters::model()->with('users', 'recipientLists', 'templates')->findByPk($id);
         $template=$model->templates;
+
+
+
         $content=str_replace("{CONTENT}", $model->content, $template->html);
 
         $statistics=array("total"=>"NA", "sent"=>"NA", "read"=>"NA", "percentread"=>"NA");
@@ -156,6 +159,69 @@ class NewslettersController extends Controller
 		));
 	}
 
+    public function actionNudge($id) {
+        $originalNewsletter=Newsletters::model()->findByPk($id);
+        if(!$originalNewsletter) {
+            throw new CHttpException(404, 'The requested page does not exist.');
+        }
+
+        //Fetch the non-readers from the outgoings table
+        $nonReaders=Outgoings::model()->findAll('newslettersId=:newslettersId AND `read`=0', array(':newslettersId'=>$id));
+
+        if(empty($nonReaders)) {
+            Yii::app()->user->setFlash('info', 'All recipients have read this newsletter - so we cannot create a nudge newsletter.');
+            //echo "No non-readers found."; die();
+            $this->redirect(array('view', 'id'=>$id));
+            return;
+        }
+
+        //Clone the original newsletter for follow-up
+        $followUpNewsletter = new Newsletters();
+        $followUpNewsletter->attributes = $originalNewsletter->attributes;
+        $followUpNewsletter->title = 'NUDGE - ' . $originalNewsletter->title;
+        $followUpNewsletter->subject = 'Re: Did you miss this? - ' . $originalNewsletter->subject;
+        $followUpNewsletter->sendDate = new CDbExpression('NOW()');
+        $followUpNewsletter->queued = 0;  // Not queued yet
+        $followUpNewsletter->completed = 0;  // Not completed yet
+        $followUpNewsletter->recipientValues = 'nudge:' . $originalNewsletter->id;
+        $followUpNewsletter->recipientCount=0;
+        $followUpNewsletter->created = new CDbExpression('NOW()');
+        $followUpNewsletter->modified = new CDbExpression('NOW()');
+        $followUpNewsletter->usersId=Yii::app()->user->id;
+        $followUpNewsletter->recipientListsId=null;
+
+
+
+        $followUpNewsletter->save();
+        $newNewsletterId=$followUpNewsletter->id;
+
+        //Now load up the edit newsletter page using the new newsletter id
+        $this->redirect(array('update', 'id'=>$newNewsletterId));
+
+
+        
+        //Stop everything... this isn't complete yet
+        /* Yii::app()->user->setFlash('info', '❗The "Nudge slackers" feature is not yet complete. Come back when Jason has finished it. Give him chocolate if you want it done faster.');
+        $this->redirect(array('view', 'id'=>$id));
+        return;
+        
+        // Queue the follow-up for non-readers
+        foreach ($nonReaders as $recipient) {
+            $outgoing = new Outgoings();
+            $outgoing->attributes = $recipient->attributes;
+            $outgoing->newslettersId = $followUpNewsletter->id;
+            $outgoing->queueDate = new CDbExpression('NOW()');
+            $outgoing->save();
+        }
+
+        Yii::app()->user->setFlash('success', 'Nudge newsletter has been created and queued.');
+        echo $followUpNewsletter->id;
+        die();
+        $this->redirect(array('view', 'id' => $followUpNewsletter->id)); */
+
+
+    }
+
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
@@ -164,8 +230,8 @@ class NewslettersController extends Controller
 	public function actionUpdate($id)
 	{
 		$model=$this->loadModel($id);
-         $externaldb=new ExternalDb;
-        
+        $externaldb=new ExternalDb;
+
         $fieldnames=$externaldb->fields;
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -173,6 +239,7 @@ class NewslettersController extends Controller
 		if(isset($_POST['Newsletters']))
 		{
 			$model->attributes=$_POST['Newsletters'];
+            //Removal of some of the more annoying Microsoft Word characters
             $model->content = preg_replace('/[\x00-\x1F\x7F\xE2\x80\x8B]/u', '', $model->content);
             $model->content = str_replace("\xE2\x80\x8B", '', $model->content);
             
@@ -205,8 +272,9 @@ class NewslettersController extends Controller
                      }
                 }
 
-        
             $this->redirect(array('index'));
+
+
         }
 
 		$this->render('update',array(
@@ -447,17 +515,62 @@ class NewslettersController extends Controller
     }
     
     /**
+     * Unqueues an email for delivery - only if it hasn't already started sending out yet
+     */
+    public function actionUnqueue($id) {
+        $model=$this->loadModel($id);
+        $condition = 'newslettersId=:newslettersId AND sent=:sent';
+        $params = array(':newslettersId' => $id, ':sent' => 0);
+        //1: Delete all the items in the outgoings table
+        Outgoings::model()->deleteAll($condition, $params);
+
+        //2: Reset the newsletter table so that this newsletter is unqueued
+        $model->queued=0;
+        $model->completed_html="";
+        if($model->save())
+            $this->redirect(array('index'));
+
+
+
+    }
+    
+    /**
     * Queues an email for delivery, iterates it to the outgoings table
     * locks it from editing
     */
-    
     public function actionQueue($id) 
     {
-        ini_set('max_execution_time', '90');
+        ini_set('max_execution_time', '90'); //Set the maximum execution time to 90 seconds just in case
         $model=$this->loadModel($id);
         $newsletter=Newsletters::model()->findByPk($id);
-        $sql=$newsletter->recipientSql;
+        //$sql=$newsletter->recipientSql;
         $template=$newsletter->templates;
+        //Find out if the $newsletter->recipientValues starts with "nudge:"
+        $nudge=false;
+        if(substr($newsletter->recipientValues, 0, 6) == "nudge:") {
+            $nudge=true;
+            $originalNewsletterId=substr($newsletter->recipientValues, 6);
+            //Gather the non-readers from the original newsletter
+            $nudgees=Outgoings::model()->findAll('newslettersId=:newslettersId AND (`read`=0 AND `linkUsed`=0)' , array(':newslettersId'=>$originalNewsletterId));
+            $nudgeedata=array();
+            
+            foreach($nudgees as $nudgee) {
+                $thisdata=json_decode($nudgee->data);
+
+                // Initialize the array with required fields
+                $nudgeeEntry = array(
+                    'member' => $thisdata->member,
+                    'pref_name' => $thisdata->pref_name,
+                    'surname' => $thisdata->surname,
+                    'email' => $thisdata->email,
+                );
+                // Add 'department' only if it exists
+                if (isset($thisdata->department)) {
+                    $nudgeeEntry['department'] = $thisdata->department;
+                }        
+                $nudgeedata[]=$nudgeeEntry; 
+            }
+        }
         //$newsletterhtml=Globals::linkify_links($newsletter->content);
         $newsletterhtml=$newsletter->content;
         if($newsletter->trackReads == 1) {
@@ -465,42 +578,64 @@ class NewslettersController extends Controller
             $newsletterhtml .= "<img src='".$publicweburl."image.php?imgurl=chitkar.gif&nid=".$newsletter->id."&rid={RID}' width='1' height='1' />";
         }
         if($newsletter->trackLinks == 1) {
-            //Rewrite content of href's to go through link tracking script
-            //Jason's closest yet... still needs work. Test in https://www.debuggex.com/r/tCRqEsn6Ip2RML02 with
-            /*
-    <p>CPSU correspondence to department - <a href="http://cpsuvic.org/shortner/d8">VIEW</a></p>
+            $publicweburl = Yii::app()->dbConfig->getValue('public_web_url');
 
-<p>CPSU correspondence to department - <a href='http://cpsuvic.org/shortner/d8'>VIEW</a></p>
+            // Exclude Microsoft Teams meeting links from being rewritten
+            $newsletterhtml = preg_replace_callback(
+                "/<a([^>]+)href=(\'|\")https?\:\/\/([a-zA-Z0-9\-\.]+\.[a-z]{2,5}(\/[^\'|\"]*)?)(\'|\")/i",
+                function ($matches) use ($publicweburl, $newsletter) {
+                    $url = $matches[3];
 
-<p>CPSU correspondence to department - <a href="http://www.cpsuvic.org/shortner/d8">VIEW</a></p>
+                    // List of patterns to exclude
+                    $excludedPatterns = [
+                        'teams.microsoft.com',
+                        'teams.microsoft.com/dl/launcher/launcher.html',
+                        'teams.microsoft.com/l/meetup-join/',
+                        'teams.live.com/meet/',
+                        'outlook.office365.com/owa/'
+                    ];
 
-<p>CPSU correspondence to department - <a href='http://www.cpsuvic.org/shortner/d8'>VIEW</a></p>
-            */
+                    foreach ($excludedPatterns as $pattern) {
+                        if (strpos($url, $pattern) !== false) {
+                            return $matches[0]; // Return the original link unchanged
+                        }
+                    }
+
+                    // Rewrite the URL for tracking
+                    return "<a{$matches[1]}href=\"{$publicweburl}links.php?URL=$url&nid={$newsletter->id}&rid={RID}\"";
+                },
+                $newsletterhtml
+            );
+            //$newsletterhtml = preg_replace("/<a([^>]+)href=(\'|\")https?\:\/\/([a-zA-Z0-9\-\.]+\.[a-z]{2,5}(\/[^\'|\"]*)?)(\'|\")/i", "<a$1href=\"".$publicweburl."links.php?URL=$3&nid=".$newsletter->id."&rid={RID}\"", $newsletterhtml);
             
-            $newsletterhtml = preg_replace("/<a([^>]+)href=(\'|\")https?\:\/\/([a-zA-Z0-9\-\.]+\.[a-z]{2,5}(\/[^\'|\"]*)?)(\'|\")/i", "<a$1href=\"".$publicweburl."links.php?URL=$3&nid=".$newsletter->id."&rid={RID}\"", $newsletterhtml);
-            
-            //Changed Oct31, 2014 - added "5th group (\'|\")" to end of expression to ensure it doesn't include the closing quotations (single or double) in the replacement
-            //$newsletterhtml = preg_replace("/<a([^>]+)href=(\'|\")https?\:\/\/([a-zA-Z0-9\-\.]+\.[a-z]{2,5}(\/[^\'|\"]*)?)/i", "<a$1href=\"".$publicweburl."links.php?URL=$3&nid=".$newsletter->id."&rid={RID}\"", $newsletterhtml);
-            //Original - misses when no "www." at beginning, only gets inside double quotes
-            //$newsletterhtml = preg_replace("/<a([^>]+)href=\"http\:\/\/([a-z\d\-]+\.[a-z\d]+\.[a-z]{2,5}(\/[^\"]*)?)/i", "<a$1href=\"http://www.cpsuvic.org/chitkar/links.php?URL=$2&nid=".$newsletter->id."&rid={RID}", $newsletterhtml);
-            //Additional, same as original, but for single quotes
-            //$newsletterhtml = preg_replace("/<a([^>]+)href='http\:\/\/([a-z\d\-]+\.[a-z\d]+\.[a-z]{2,5}(\/[^']*)?)/i", "<a$1href=\"http://www.cpsuvic.org/chitkar/links.php?URL=$2&nid=".$newsletter->id."&rid={RID}", $newsletterhtml);
-        
-        
+       
         }
         $content=str_replace("{CONTENT}", $newsletterhtml, $template->html);
         $message="";
         if(isset($_POST['Newsletters']))
         {
-            $model->attributes=$_POST['Newsletters'];
-            $externalDb=new ExternalDb;
-            //Iterate into $outgoings
-            $return = $externalDb->execute($model->recipientSql);
-            $dataerror = $return['error'];
-            $data = $return['data'];
-            $count=count($data);
-            $model->recipientCount=$count;
+            
+            //Check if this is a nudge newsletter
+            if($nudge) {
 
+                //echo "<pre>"; print_r($model); echo "</pre>";
+                $model->attributes=$_POST['Newsletters'];
+                //echo "<pre>"; print_r($model); echo "</pre>"; die();
+                $externalDb=new ExternalDb;
+                $data = $nudgeedata;
+                $count=count($data);
+                $model->recipientCount=$count;
+
+            } else {
+                $model->attributes=$_POST['Newsletters'];
+                $externalDb=new ExternalDb;
+                //Iterate into $outgoings
+                $return = $externalDb->execute($model->recipientSql);
+                $dataerror = $return['error'];
+                $data = $return['data'];
+                $count=count($data);
+                $model->recipientCount=$count;
+            }
 
             //If the count of recipients is zero, then crash out and alert the user.
             if($count==0) {
@@ -548,16 +683,14 @@ class NewslettersController extends Controller
                     $duplicatecount++;
                 }                
             }
-            
-            //There should not be any entries in the outgoings table for this newsletter at all, so now check that
-            
+
             
             //Now $newdata should only have the unique entries from $data
             foreach($newdata as $recipient) {
-                //if(filter_var($recipient['email'], FILTER_VALIDATE_EMAIL)) { //Don't add any entries that do not meet basic email validation
-
+                if($recipient['email'] != "") { //Don't add any entries that do not meet basic email validation
                     //Prepare the data
                     $storedata=json_encode($recipient);
+
                     
                     $outgoings=new Outgoings();
                     $outgoings->newslettersId=$id;
@@ -573,7 +706,7 @@ class NewslettersController extends Controller
                     $outgoings->linkUsed=0;
                     $outgoings->data=$storedata;
                     $outgoings->insert();
-                //}
+                }
 
             }
           
@@ -607,6 +740,7 @@ class NewslettersController extends Controller
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
 	}
+
 
 	/**
 	 * Performs the AJAX validation.
