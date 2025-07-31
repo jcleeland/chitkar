@@ -104,6 +104,12 @@ $cssCoreUrl = Yii::app()->clientScript->getCoreScriptUrl();
 		)); ?><!-- breadcrumbs -->
 	<?php endif?>
 
+    <?php
+    if(Yii::app()->user->hasFlash('error')) {
+        echo '<div class="flash-error" style="text-align: center"><b>ERROR!</b><br /><br />' . Yii::app()->user->getFlash('error') . '</div>';
+    }
+    ?>
+
 	<?php echo $content; ?>
 
 	<div class="clear"></div>

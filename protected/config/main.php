@@ -70,8 +70,8 @@ return array(
 		'db'=>array(
 			'connectionString' => 'mysql:host=localhost;dbname=chitkar',
 			'emulatePrepare' => true,
-			'username' => 'username',
-			'password' => 'password',
+			'username' => 'root',
+			'password' => 'Maniac_xd250',
 			'charset' => 'utf8',
             'initSQLs'=>array("SET sql_mode=(SELECT REPLACE(@@sql_mode,'NO_ZERO_DATE',''));"),
 		),

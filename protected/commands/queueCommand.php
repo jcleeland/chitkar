@@ -107,6 +107,7 @@ class queueCommand extends CConsoleCommand{
             } else {
                 $emailcontent=$newsletter->completed_html;
             }
+
             //Do personalisation stuff
             $emailcontent=str_replace("{MEMBER}", $job->recipientId, $emailcontent);
             //$emailcontent=str_replace("{FIRSTNAME}", $job->)
@@ -127,6 +128,17 @@ class queueCommand extends CConsoleCommand{
                 
             }
             
+            // Check if there's icsContent and attach it directly as a string
+            if (!empty($newsletter->icsContent)) {
+                $icsFileName = 'cpsu_event_' . $job->newslettersId . '.ics'; // Define the .ics file name
+                $icsContent=str_replace("attendee@email.com", trim($job->email), $newsletter->icsContent);
+                //$mail->addStringAttachment($icsContent, $icsFileName, 'base64', 'text/calendar; charset=utf-8; method=REQUEST'); // Attach the .ics content
+                $icsContent=str_replace("Attendee Name", trim($job->email), $newsletter->icsContent);
+                $mail->addStringAttachment($icsContent, $icsFileName, 'base64', 'text/calendar; charset=utf-8', 'inline'); // Attach the .ics content
+
+                //$mail->Ical = $newsletter->icsContent;
+            }
+
             //echo "Setting up mail message";
             $mail->Subject=$newsletter->subject;
             $mail->Body=$emailcontent;
@@ -136,7 +148,7 @@ class queueCommand extends CConsoleCommand{
             //print_r($mail);
             //echo "Sending mail";
             //sleep(2);
-            
+
             if($mail->send()) {
                 //echo "Mail was sent";
                 $sentitems++;
@@ -163,15 +175,17 @@ class queueCommand extends CConsoleCommand{
             } else {
                 //echo "It failed";
                 $faileditems++;
+                //echo $mail->ErrorInfo;
                 $smtperror=$mail->ErrorInfo;
                 $data .= "  - Failure. [SMTP ERROR REPORT: ";
                 $data .= "    ".$smtperror."]\n";
+                //echo $data;
                 $job->sendFailures=$job->sendFailures + 1;
                 $job->sendFailureText=$mail->ErrorInfo;
                 if ($job->save()) {
                     $data .= "Database updated";
                 } else {
-                    $dberrors=print_r($job->ErrorInfo, 1);
+                    $dberrors=print_r($mail->ErrorInfo, 1);
                     $databasefailure=1;
                     $failuredata .= "Error saving db update to ".$job->email." for newsletter ".$job->newslettersId." with database error '".$dberrors."''.\n";         
                     $data .= "Error saving db update for newsletter ".$job->newslettersId." with database error '".$dberrors."'.\n";
@@ -211,8 +225,24 @@ class queueCommand extends CConsoleCommand{
                     foreach($notices as $noticee) {
                         $mail->Subject="(NOTIFICATION) ".$queue->subject;
                         $mail->Body=$queue->completed_html;
+                        // Check if there's icsContent and attach it directly as a string
+                        if (!empty($queue->icsContent)) {
+                            $icsFileName = 'cpsu_event_' . $queue->id . '.ics'; // Define the .ics file name
+                            $icsContent=str_replace("attendee@email.com", $noticee, $newsletter->icsContent);
+                            $icsContent=str_replace("Attendee Name", $noticee, $newsletter->icsContent);
+                            $mail->addStringAttachment($queue->icsContent, $icsFileName, 'base64', 'text/calendar; charset=utf-8', 'inline'); // Attach the .ics content
+                            //$mail->Ical = $queue->icsContent;
+                        }                        
                         $mail->addAddress($noticee);
                         $mail->send();
+                        $mail->clearAllRecipients();
+                        $mail->clearAttachments();
+                        $mail->clearReplytos();
+                        $mail->clearCustomHeaders();
+                        $mail->clearCCs();
+                        $mail->Subject='';
+                        $mail->Body='';
+                        $mail->AltBody='';
                     }
                 }
             }

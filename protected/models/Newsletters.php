@@ -10,6 +10,7 @@
  * @property integer $templatesId
  * @property string $title
  * @property string $content
+ * @property string $icsContent
  * @property string $sendDate
  * @property integer $completed
  * @property string $recipientSql
@@ -55,7 +56,7 @@ class Newsletters extends CActiveRecord
 			array('id, usersId, recipientListsId, templatesId, title, subject, content, sendDate, completed, completed_html, recipientSql, recipientValues, archive, trackReads, trackLinks, trackBounces, recipientCount, created, modified', 'safe', 'on'=>'search'),
             
             //Make sure these fields have a rule, or else they won't save
-            array('recipientListsId,subject,content,sendDate,queued,completed,completed_html,recipientSql,recipientValues,notifications,archive,trackReads,trackBounces,created,modified', 'safe'),
+            array('recipientListsId,subject,content,icsContent,sendDate,queued,completed,completed_html,recipientSql,recipientValues,notifications,archive,trackReads,trackBounces,created,modified', 'safe'),
 		);
 	}
 
@@ -89,6 +90,7 @@ class Newsletters extends CActiveRecord
 			'title' => 'Title',
             'subject' => 'Subject',
 			'content' => 'Content',
+			'icsContent' => 'ICS Content',
 			'sendDate' => 'Sent',
             'queued' => 'Queued',
 			'completed' => 'Completed',
@@ -134,6 +136,7 @@ class Newsletters extends CActiveRecord
 		$criteria->compare('title',$this->title,true);
         $criteria->compare('subject',$this->subject,true);
 		$criteria->compare('content',$this->content,true);
+		$criteria->compare('icsContent',$this->icsContent,true);
 		$criteria->compare('sendDate',$this->sendDate,true);
 		$criteria->compare('completed',$this->completed);
 		$criteria->compare('recipientSql',$this->recipientSql,true);

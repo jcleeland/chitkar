@@ -2,9 +2,11 @@
 	// Set the path to the image
 	$themepath = dirname(__FILE__);
 	$rootpath = $themepath . '/images/';
-	$imgpath = $rootpath . filter_input(INPUT_GET, 'imgurl', FILTER_SANITIZE_STRING);
+    $imgurl = filter_input(INPUT_GET, 'imgurl', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $imgpath = $rootpath . $imgurl;
+	//$imgpath = $rootpath . filter_input(INPUT_GET, 'imgurl', FILTER_SANITIZE_STRING);
     $datapath = $themepath."/reads.ctk";
-    ini_set('display_errors', "1");
+    //ini_set('display_errors', "1");
     // Get the mimetype for the file
 	if(function_exists('finfo_open')) {
         $finfo = finfo_open(FILEINFO_MIME);  // return mime type ala mimetype extension
@@ -151,7 +153,7 @@
 			
 			break;
         default: 
-            echo "Image not available. ($mime_type, $imgpath)";
+            echo "Image not available. ($mime_type, $imgurl)";
             break;
 	}
 	

@@ -21,8 +21,8 @@ return array(
         'db'=>array(
             'connectionString' => 'mysql:host=localhost;dbname=chitkar',
             'emulatePrepare' => true,
-            'username' => 'username',
-            'password' => 'password',
+            'username' => 'root',
+            'password' => 'Maniac_xd250',
             'charset' => 'utf8',
         ),
 		'log'=>array(

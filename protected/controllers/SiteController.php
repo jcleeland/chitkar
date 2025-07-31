@@ -89,7 +89,7 @@ class SiteController extends Controller
                 $stats->date=$datekey;
                 if($varname=="sent")   $stats->emailsSent=$statistics[$datekey]['sent'];
                 if($varname=="read")   $stats->emailsRead=$statistics[$datekey]['read'];
-                if($varname=="queued") $stats->emailsQueued=$statistics[$datakey]['queued'];
+                if($varname=="queued") $stats->emailsQueued=$statistics[$datekey]['queued'];
                 if($varname=="bounce") $stats->emailBounces=$statistics[$datekey]['bounce'];
                 if($varname=="linkused")   $stats->linksUsed=$statistics[$datekey]['linkused'];
                 if($varname=="newsletter") $stats->newslettersQueued=$statistics[$datekey]['newsletters'];
@@ -420,10 +420,23 @@ class SiteController extends Controller
         //Read the stats log
         $log_file = Yii::app()->dbConfig->getValue('stats_log_file') ? Yii::app()->dbConfig->getValue('stats_log_file') : '/var/www/chitkar/tmp/remoteStats.log';
         $statslog = file_get_contents($log_file, true);
-        $statslog=nl2br($statslog);
+        //echo substr_count($statslog, "\n");
+        //Automatically trim the stats log if it is over 50000 lines long
+        if(substr_count($statslog, "\n") > 50000) {
+            echo substr_count($statslog, "\n");
+            $this->actionTrimStatsLog(30000);
+            $statslog = file_get_contents($log_file, true);
+        }
+        $statslog=nl2br($statslog)."<br />Lines: ".substr_count($statslog, "\n");
         
         $log_file = Yii::app()->dbConfig->getValue('queue_log_file') ? Yii::app()->dbConfig->getValue('queue_log_file') : '/var/www/chitkar/tmp/queue.log';
         $queuelog = file_get_contents($log_file, true);
+        //echo substr_count($queuelog, "\n");
+        if(substr_count($queuelog, "\n") > 50000) {
+            $this->actionTrimQueueLog(30000);
+            $queuelog = file_get_contents($log_file, true);
+            $queuelog.="\n\nTrimmed Lines: ".substr_count($queuelog, "\n");
+        }
         $queuelog=nl2br($queuelog);
         
         $queuelock['started']=date("H:i:s, d M Y", filemtime('/var/www/html/chitkar/tmp/queuelock.txt'));

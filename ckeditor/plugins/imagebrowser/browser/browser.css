@@ -47,7 +47,9 @@ body {
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	overflow: hidden;
-	font-size: 0;
+	font-size: 0.8em;
+	text-align: center;
+	text-decoration: none;
 }
 
 .thumbnail:hover {

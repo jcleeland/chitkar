@@ -83,13 +83,14 @@ class FilesController extends Controller
             'sort'=>array(
                 'attributes'=>array(
                      'id',
+                     'file_name',
                      'description',
                      'created',
                      // other sortable attributes here
                 ),
             ),
             'pagination'=>array(
-                'pageSize'=>10,
+                'pageSize'=>20,
             ),
         ));
 

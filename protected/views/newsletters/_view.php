@@ -20,7 +20,7 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
                 <a href='' id='<?php echo $data->id ?>' class='previewBtn' title='View a preview of this newsletter'>Quick View</a> | 
                 <a href='' id='<?php echo $data->id ?>' class='previewStatusBtn' title='Get a quick summary of the status of this newsletter'>Status</a>
 <?php
-    if($data->archive == 0 && strtotime($data->sendDate) < strtotime("60 days ago") ) {
+    if($data->archive == 0 && strtotime($data->sendDate) < strtotime("30 days ago") ) {
         ?>
                 | <?php echo CHtml::link('Archive', array('archive', 'id'=>$data->id), array('title'=>'Archive this newsletter', 'onClick'=>'return confirm("Archiving saves basic statistics for this newsletter but deletes individual records. It cannot be undone. Are you sure you want to archive this newsletter?")')); ?>
                 <input type='checkbox' class='archivelist' id='archivelist_<?php echo $data->id ?>' onClick='addToArchiveList("<?php echo $data->id ?>")' />

@@ -2,7 +2,7 @@
   class remoteStatsCommand extends CConsoleCommand{
     public function run($args) {
         //error_reporting(E_ALL);
-        echo "Running";
+        echo "Running...\r\n";
         //TODO: MOve these settings to config
         $ftp_server=Yii::app()->dbConfig->getValue('ftp_server');
         $ftp_user_name=Yii::app()->dbConfig->getValue('ftp_username');
@@ -33,17 +33,18 @@
         $errors="";
         $time=time();
         
-        echo "Connecting to ftp ($ftp_server)";
+        echo "Connecting to ftp ($ftp_server)...";
         $conn_id=ftp_connect($ftp_server);
         if(!$conn_id) {
             $errors.= "FTP connection failed attempting to connect to $ftp_server at step 1";
         } else if($conn_id) {
+            echo "connected.\r\n\r\n";
             if(!$login_result=ftp_login($conn_id, $ftp_user_name, $ftp_user_pass)) {
                 $errors.= "FTP login failed attempting to login as $ftp_user_name";
             } else {
                 file_put_contents($statslock, time()+1800); //Lock the system for 30 minutes, to allow for very long processes. 
 
-                echo "\r\nDownloading reads file ($ftp_file_location/$ftp_file_name) to $local_file...<br />\r\n";
+                echo " - Downloading reads file ($ftp_file_location/$ftp_file_name) to $local_file...\r\n";
                 if(@$download=ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
                     //echo "Reads file is downloaded.<br />";
                     //Now read the file and process it
@@ -80,11 +81,12 @@
                     
                     //Delete the file on the server
                     if($success==1) {
+                        echo "Finished with the reads file successfully! Deleting from server.\r\n\r\n";
                         ftp_delete($conn_id, $ftp_file_location."/".$ftp_file_name);
                         $errors.="[FILE DELETED]"; 
                     }            
                 } else {
-                    $errors.="No remote file to download";
+                    $errors.="No remote file to download\r\n\r\n";
                     //echo $errors;
                 }           
                 ftp_close($conn_id);
@@ -125,24 +127,21 @@
         $errors="";
         $time=time();
         
-        
+        echo "Connecting to ftp server...";
         $conn_id=ftp_connect($ftp_server);
         
         if(!$conn_id) {
-            $errors.= "FTP connection failed attempting to connect to $ftp_server at step 2";
+            $errors.= "FTP connection failed attempting to connect to $ftp_server at step 2\r\n";
             //echo $errors;
             
         } else if ($conn_id){
             $login_result=ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
             if(!$login_result) {
-                $errors.= "FTP login failed attempting to login as $ftp_user_name";
+                $errors.= "FTP login failed attempting to login as $ftp_user_name \r\n\r\n";
             } else {
-                echo "\r\nDownloading Links file ($ftp_file_location/$ftp_file_name) to $local_file...<br />\r\n";
-                if(!ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
-                    //echo "No remote file to download";
-                    $errors.="No remote file to download";
-                    echo $errors;
-                } else {
+                echo "connected!\r\n\r\n";
+                echo "Downloading Links file ($ftp_file_location/$ftp_file_name) to $local_file...\r\n\r\n";
+                if(@$download=ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
                     echo "Links file downloaded!<br />";
                     //Now read the file and process it
                     $handle=fopen($local_file, "r");
@@ -202,7 +201,11 @@
                         $errors.="[FILE DELETED]";
                         echo "Links.ctk File on server deleted"; 
                     }            
-                }           
+                } else {
+                    //echo "No remote file to download";
+                    $errors.="No links file to download\r\n\r\n";
+                    echo $errors;
+                }
                 ftp_close($conn_id);
             }
         }      
@@ -228,6 +231,7 @@
         $errors="";
         $time=time();
         
+        echo "Connecting to $ftp_server...";
         $conn_id=ftp_connect($ftp_server);
         
         if(!$conn_id) {
@@ -237,7 +241,8 @@
             if(!$login_result) {
                 $errors .= "FTP Login failed attempting to login as $ftp_user_name  when collecting unsubscribe information.";
             } else {
-                //echo "Downloading unsubscribe file...<br />";
+                echo "connected!\r\n\r\n";
+                echo "Downloading unsubscribe file...\r\n\r\n";
                 if(@$download=ftp_get($conn_id, $local_file, $ftp_file_location."/".$ftp_file_name, FTP_ASCII)) {
                     //Now read the file and process it
                     $handle=fopen($local_file, "r");
@@ -272,7 +277,7 @@
                         $errors.="[FILE DELETED]";
                     }
                 } else {
-                    $errors .= "No remote file to download ($ftp_file_location/$ftp_file_name)";
+                    $errors .= "No remote file to download ($ftp_file_location/$ftp_file_name)\r\n\r\n";
                 }
                 ftp_close($conn_id);
             }

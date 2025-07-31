@@ -2,6 +2,10 @@
 /* @var $this NewslettersController */
 /* @var $model Newsletters */
 /* @var $form CActiveForm */
+
+
+
+
 $baseUrl=Yii::app()->baseUrl;
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/Newsletters.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/externalDb.js');
@@ -10,6 +14,57 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/formPageProtect.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/chosen/chosen.jquery.js');
 Yii::app()->clientScript->registerCssFile($baseUrl.'/js/chosen/chosen.css');
 $yesNo=array('0'=>'No', '1'=>'Yes');
+
+
+$icsContent = $model->icsContent ?? '';
+
+$dummyModel = new DummyModel(); //This is a dummy model to store the ICS file data if required
+
+// Check if icsContent is not empty and then parse it
+if (!empty($icsContent)) {
+    //echo "There is icsContent";
+    //echo "<pre>".$icsContent."</pre>";
+    $unfoldedContent = preg_replace("/\r\n[ \t]|[\n\r][ \t]/", " ", $icsContent);
+    //echo "<hr /><pre>".$unfoldedContent."</pre>";
+    $lineEnding = strpos($unfoldedContent, "\r\n") === false ? "\n" : "\r\n";
+    $lines = explode($lineEnding, $unfoldedContent);
+    foreach ($lines as $line) {
+        if (strpos($line, 'SUMMARY:') === 0) {
+            $dummyModel->eventTitle = substr($line, 8);
+        } elseif (strpos($line, 'DSTAMP:') === 0) {
+            $dummyModel->dtStamp = substr($line, 7);
+        } elseif (strpos($line, 'DTSTART;TZID=Australia/Melbourne:') === 0) {
+            $dummyModel->eventStart = convertICalDateToDateTime(substr($line, 33));
+        } elseif (strpos($line, 'UID:') === 0) {
+            $dummyModel->uid = substr($line, 4);
+        } elseif (strpos($line, 'ORGANIZER;CN=') === 0) {
+            // Extract the organizer's name and email
+            $organizerInfo = str_replace('ORGANIZER;CN=', '', $line);
+            $parts = explode(':mailto:', $organizerInfo);
+            if (count($parts) == 2) {
+                $dummyModel->eventOrganiserName = $parts[0];
+                $dummyModel->eventOrganiserEmail = $parts[1];
+            }
+        } elseif (strpos($line, 'DTEND;TZID=Australia/Melbourne:') === 0) {
+            $dummyModel->eventEnd = convertICalDateToDateTime(substr($line, 31));
+        } elseif (strpos($line, 'LOCATION:') === 0) {
+            $dummyModel->eventLocation = substr($line, 9);
+        } elseif (strpos($line, 'DESCRIPTION:') === 0) {
+            //$dummyModel->eventDescription = substr($line, 12);
+            $dummyModel->eventDescription = str_replace("\\n", "\n", substr($line, 12));
+        }
+    }
+}
+
+// Add one day to the current time
+$nextDay = strtotime("+1 day", time());
+
+// Check if the next day is a weekend (Saturday or Sunday)
+// and if so, add additional days to make it a weekday
+while (date('N', $nextDay) >= 6) { // 6 = Saturday, 7 = Sunday
+    $nextDay = strtotime("+1 day", $nextDay);
+}
+
 ?>
 
 <div class="form">
@@ -26,7 +81,26 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
 	<?php echo $form->errorSummary($model); ?>
+    <?php echo $form->hiddenField($model, 'icsContent', array('id'=>'modelIcsContent')); ?>
+    <?php echo $form->hiddenField($dummyModel, 'uid', array('id'=>'DummyModel_uid')); ?>
 
+    <?php
+        // Assuming $localDateTime is your local date and time in 'Y-m-d H:i:s' format
+        $localDateTime = '2024-01-23 20:00:00'; // For example, 20:00 in Melbourne time
+        // Create a DateTime object with the local time zone
+        $dateTime = new DateTime($localDateTime, new DateTimeZone('Australia/Melbourne'));
+        // Convert the time to UTC
+        $dateTime->setTimezone(new DateTimeZone('UTC'));
+        // Format the date and time for DTSTAMP in UTC
+        $dtstamp = $dateTime->format('Ymd\THis\Z');
+        if(!$dummyModel->dtStamp) {
+            $dummyModel->dtStamp=$dtstamp;
+        }
+        echo $form->hiddenField($dummyModel, 'dtStamp', array('id'=>'DummyModel_dtStamp'));
+    ?>
+
+    <?php //echo CHtml::activeHiddenField($model, 'icsContent', array('id' => 'modelIcsContent')); ?>
+    
     <div id='page1' class='page'>
         <p class='pageTitle'>Give your newsletter a reference name.</p>
         <p class='pageExplain'>This will not appear in the newsletter, but is used as a reference name for this newsletter.</p>
@@ -131,8 +205,117 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
             </script>
         </div>
     </div>
-    
+
     <div id='page5' class='page'>
+        <p class='pageTitle'>Add a Calendar Event (.ics File)</p>
+        <p class=''>Note: This function adds an "ics" attachment to the newsletter that allows recipients to automatically add the meeting into their digital calendar. You still need to have a newsletter, and you'll need to enter the details for the meeting below.</p>
+        <input type='button' value='<< Prev' class='prevBtn'>
+        <input type='button' value='Next >>' class='nextBtn'>
+        <div class='pageContent'>
+            <div class="row">
+                <?php echo CHtml::label('Add a Calendar Event attachment?', 'addCalendarEvent', array('style'=>'font-size: 1.2em')); ?>
+                <?php
+                $initialCalendarEventValue = !empty($model->icsContent) ? 'yes' : 'no';
+                ?>
+
+                <?php echo CHtml::dropDownList(
+                    'addCalendarEvent', 
+                    $initialCalendarEventValue, 
+                    array('no' => 'No', 'yes' => 'Yes'), 
+                    array(
+                        'id' => 'addCalendarEvent',
+                        'style' => 'font-size: 1.2em; min-width: 75px'
+                    ),
+                    array()
+                ); ?>
+
+            </div>
+            <div id="calendarEventFields" style="display: none; ">
+                <div style="flex: 1; padding-right: 20px;">
+                    <div class="row">
+                        <?php echo CHtml::label('Calander Invitation Type', 'eventAttachmentType'); ?>
+                        <?php echo CHtml::dropDownList(
+                            'eventAttachmentType',
+                            $dummyModel->eventAttachmentType,
+                            array('all'=>'All email clients (.ics file)', 'msoutlook'=>'Microsoft Outlook Only Clients (accept/reject)'),
+                            array('id'=>'DummyModel_eventAttachmentType'),
+                        );
+                        ?>
+                    </div>
+                    <div class="row">
+                        <?php echo CHtml::label('Event Title', 'eventTitle'); ?>
+                        <?php echo CHtml::activeTextField($dummyModel, 'eventTitle', array('size'=>'60')); ?>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="row" style="flex: 1; padding-right: 10px;">
+                        <input type='hidden' name='defaultstartdate' id='defaultstartdate' value='<?php echo date('Y-m-d H:00:00', $nextDay) ?>' />
+                            <?php if(empty($dummyModel->eventStart)) {
+                                $dummyModel->eventStart=date('Y-m-d H:00:00', $nextDay);
+                            } ?>                    
+                            <?php echo CHtml::label('Start Date and Time', 'eventStart'); ?>
+                            <?php $this->widget('application.extensions.timepicker.timepicker', array(
+                                'model'=>$dummyModel,
+                                'name'=>'eventStart',
+                                'id'=>'DummyModel_eventStart',
+                                'options'=>array('defaultValue'=> 'hi')
+                                ));
+                            ?>
+                        </div>
+                        <div class="row" style="flex: 1; padding-left: 10px;">
+                            <input type='hidden' name='defaultenddate' id='defaultenddate' value='<?php echo date('Y-m-d H:00:00', $nextDay+3600) ?>' />
+                            <?php if(empty($dummyModel->eventEnd)) {
+                                $dummyModel->eventEnd=date('Y-m-d H:00:00', $nextDay+3600);
+                            } ?>                       
+                            <?php echo CHtml::label('End Date and Time', 'eventEnd'); ?>
+                            <?php $this->widget('application.extensions.timepicker.timepicker', array(
+                                'model'=>$dummyModel,
+                                'name'=>'eventEnd',
+                                'id' =>'DummyModel_eventEnd',
+                                'options'=>array('defaultValue'=> 'hi'),
+                                ));
+                            ?>
+                        </div>
+                    </div>
+                    <div class="row" style="position: relative">
+                        <div id="datewarning" style="border: 1px solid black; position: absolute; background-color: orange; text-align: center; font-weight: bold; font-size: 16px; display: none; border-radius: 20px; color: white; padding: 10px; top: -20px">
+                            End date & time has been updated so that it it isn't BEFORE the start date and time.
+                        </div>
+                    </div>
+                    <div class="row">
+                        <?php echo CHtml::label('Event Organiser Name', 'eventOrganiserName'); ?>
+                        Replace this default value with the name of the Organiser
+                        <?php echo CHtml::activeTextField($dummyModel, 'eventOrganiserName', array('size'=>'60')); ?>
+                    </div>
+                    <div class="row">
+                        <?php echo CHtml::label('Event Organiser Email', 'eventOrganiserEmail'); ?>
+                        Replace this default value with the email of the Organiser
+                        <?php echo CHtml::activeTextField($dummyModel, 'eventOrganiserEmail', array('size'=>'60')); ?>
+                    </div> 
+                    <div class="row">
+                        <?php echo CHtml::label('Event Location', 'eventLocation'); ?>
+                        Write the physical (or virtual) location of the meeting. For an online meeting, paste the URL here.
+                        <?php echo CHtml::activeTextField($dummyModel, 'eventLocation', array('size'=>'60')); ?>
+                    </div>
+                    <div class="row">
+                        <?php echo CHtml::label('Event Description', 'eventDescription'); ?>
+                        Give a brief description about the meeting. You can also include a simple agenda here. Note that formatting is not available, this is text only.
+                        <?php echo CHtml::activeTextArea($dummyModel, 'eventDescription', array('rows'=>'6', 'cols'=>'80')); ?>
+                    </div>
+                </div>
+                <div style="flex: 1; max-width: 400px; padding-left: 20px; overflow-x: auto; max-height: 400px; overflow-y: auto;">
+                    <div id="icsPreview" style="width: 100%; max-width: 400px; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
+                    <h3>.ics File Preview:</h3>
+                    <pre style="font-size: 0.8em" id="icsPreviewContent"></pre>
+                    </div>
+                </div>                
+            </div>
+
+
+        </div>
+    </div>
+  
+    
+    <div id='page6' class='page'>
         <p class='pageTitle'>When should Chitkar start sending out your newsletter?</p>
         <p class='pageExplain'>The default setting - now - or a time in the past means Chitkar will start sending as soon as this newsletter is queued.</p>
         <input type='button' value='<< Prev' class='prevBtn'>
@@ -154,7 +337,7 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
         </div> 
     </div>
     
-    <div id='page6' class='page'>
+    <div id='page7' class='page'>
         <p class='pageTitle'>Enter notification emails</p>
         <p class='pageExplain'>A copy of the newsletter will be sent to the following email addresses once all outgoing messages have been sent.<br /><i>NOTE: seperate multiple emails with a semi-colon</i></p>
         <input type='button' value='<< Prev' class='prevBtn'>
@@ -175,7 +358,7 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
         </div>
     </div>
     
-    <div id='page7' class='page'>
+    <div id='page8' class='page'>
         <p class='pageTitle'>Choose your other settings</p>
         <p class='pageExplain'>Choose additional settings here, such as whether or not to archive the newsletter, whether to track how many people read it, how many times links within it are clicked and how many emails bounce.<br /><i>NOTE: Not all yet functional</i></p>
         <input type='button' value='<< Prev' class='prevBtn'>
@@ -299,3 +482,35 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
 <?php $this->endWidget(); ?>
 
 </div><!-- form -->
+
+<?php
+function convertICalDateToDateTime($icalDate) {
+    // Extract the components from the iCalendar date
+    $year = substr($icalDate, 0, 4);
+    $month = substr($icalDate, 4, 2);
+    $day = substr($icalDate, 6, 2);
+    $hour = substr($icalDate, 9, 2);
+    $minute = substr($icalDate, 11, 2);
+    $second = substr($icalDate, 13, 2);
+
+    // Construct a date string
+    $dateString = "{$year}-{$month}-{$day} {$hour}:{$minute}:{$second}";
+    // Convert to Unix timestamp and then to desired format
+    $timestamp = strtotime($dateString ); // Append ' UTC' to interpret as UTC time
+    if ($timestamp === false) {
+        error_log("Failed to convert icalDate to timestamp: $icalDate");
+        return $icalDate;
+    }
+    // Convert the timestamp to 'Y-m-d H:i:s' in the desired timezone
+    $convertedDate = date('Y-m-d H:i:s', $timestamp);
+    return $convertedDate;
+}
+
+function convertTimezone($dateString, $timezone) {
+    $date = new DateTime($dateString, new DateTimeZone('UTC'));
+    $date->setTimezone(new DateTimeZone($timezone));
+    return $date->format('Y-m-d H:i:s');
+}
+
+
+?>

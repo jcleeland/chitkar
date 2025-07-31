@@ -599,3 +599,15 @@ div.search-form
     border-bottom: 1px solid #c1e0e0;
     border-right: 1px solid #c1e0e0;
 }
+
+.flex-container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.view-column {
+    flex: 1 1 48%; /* Adjust the width as needed */
+	max-width: 48%;
+    margin-bottom: 20px;
+}

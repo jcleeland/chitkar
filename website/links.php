@@ -1,8 +1,9 @@
 <?php
     $themepath = dirname(__FILE__);
     $datapath = $themepath."/links.ctk";
-    //ini_set('display_errors', "1");
-    //error_reporting(E_ALL);
+
+    ini_set('display_errors', "1");
+    error_reporting(E_ALL);
     $url=$_GET['URL'];
     
     //Write file data

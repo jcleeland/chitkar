@@ -106,6 +106,8 @@ class NewslettersController extends Controller
 		if(isset($_POST['Newsletters']))
 		{
             $model->attributes=$_POST['Newsletters'];
+            $model->content = preg_replace('/[\x00-\x1F\x7F\xE2\x80\x8B]/u', '', $model->content);
+            $model->content = str_replace("\xE2\x80\x8B", '', $model->content);            
             
             if($model->save())
             {
@@ -171,6 +173,9 @@ class NewslettersController extends Controller
 		if(isset($_POST['Newsletters']))
 		{
 			$model->attributes=$_POST['Newsletters'];
+            $model->content = preg_replace('/[\x00-\x1F\x7F\xE2\x80\x8B]/u', '', $model->content);
+            $model->content = str_replace("\xE2\x80\x8B", '', $model->content);
+            
 			if($model->save())
                 //Delete file links before re-adding them
                 FileLinks::model()->deleteAll('newslettersId = ?', array($id));
@@ -496,6 +501,21 @@ class NewslettersController extends Controller
             $count=count($data);
             $model->recipientCount=$count;
 
+
+            //If the count of recipients is zero, then crash out and alert the user.
+            if($count==0) {
+                Yii::log("The definition/SQL for this newsletter returns zero recipients. Abortiong process - edit this newsletter so that it goes to someone!", 'error');
+                
+                // Set a flash message to notify the user
+                Yii::app()->user->setFlash('error', "The definition/SQL for the newsletter you just tried to queue returns zero recipients.<br /><br />It has NOT been queued.<br /><br />Please edit this newsletter to ensure it reaches someone.");
+    
+                // Redirect to a standard page, e.g., the dashboard or the newsletter list
+                $this->redirect(array('newsletters/index&id='.$id));
+                
+                // Prevent further execution to ensure the redirect happens
+                Yii::app()->end();
+            }
+
             // Check if any entries with the newslettersId already exist in the Outgoings table
             $existingEntries = Outgoings::model()->find('newslettersId=:newslettersId', array(
                 ':newslettersId' => $id,
@@ -504,7 +524,15 @@ class NewslettersController extends Controller
             if ($existingEntries !== null) {
                 // Entries already exist, abort the process
                 Yii::log("Entries with newslettersId {$id} already exist in the Outgoings table. Aborting process - contact your system administrator.", 'error');
-                return;
+                // Set a flash message to notify the user
+                Yii::app()->user->setFlash('error', "Entries with newslettersId {$id} already exist in the Outgoings table. Aborting process - contact your system administrator.<br /><br />The newsletter has NOT been queued.");
+    
+                // Redirect to a standard page, e.g., the dashboard or the newsletter list
+                $this->redirect(array('newsletters/index&id='.$id));
+                
+                // Prevent further execution to ensure the redirect happens
+                Yii::app()->end();
+                //return;
             }
             
             /* Make sure there are no duplicates */
@@ -526,23 +554,27 @@ class NewslettersController extends Controller
             
             //Now $newdata should only have the unique entries from $data
             foreach($newdata as $recipient) {
-                //Prepare the data
-                $storedata=json_encode($recipient);
-                
-                $outgoings=new Outgoings();
-                $outgoings->newslettersId=$id;
-                $outgoings->recipientListsId=$model->recipientListsId;
-                $outgoings->recipientId=isset($recipient['member']) ? $recipient['member'] : '';
-                $outgoings->email=$recipient['email'];
-                $outgoings->sendDate=$model->sendDate;
-                $outgoings->queueDate=date("Y-m-d H:i:s");
-                $outgoings->sent=0;
-                $outgoings->bounce=0;
-                $outgoings->bounceText="";
-                $outgoings->read=0;
-                $outgoings->linkUsed=0;
-                $outgoings->data=$storedata;
-                $outgoings->insert();
+                //if(filter_var($recipient['email'], FILTER_VALIDATE_EMAIL)) { //Don't add any entries that do not meet basic email validation
+
+                    //Prepare the data
+                    $storedata=json_encode($recipient);
+                    
+                    $outgoings=new Outgoings();
+                    $outgoings->newslettersId=$id;
+                    $outgoings->recipientListsId=$model->recipientListsId;
+                    $outgoings->recipientId=isset($recipient['member']) ? $recipient['member'] : '';
+                    $outgoings->email=$recipient['email'];
+                    $outgoings->sendDate=$model->sendDate;
+                    $outgoings->queueDate=date("Y-m-d H:i:s");
+                    $outgoings->sent=0;
+                    $outgoings->bounce=0;
+                    $outgoings->bounceText="";
+                    $outgoings->read=0;
+                    $outgoings->linkUsed=0;
+                    $outgoings->data=$storedata;
+                    $outgoings->insert();
+                //}
+
             }
           
 

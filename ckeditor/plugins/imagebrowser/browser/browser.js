@@ -65,9 +65,12 @@ CkEditorImageBrowser.addImage = function (folderName, imageUrl, thumbUrl) {
 		CkEditorImageBrowser.images[folderName] = [];
 	}
 
+	var fileName = imageUrl.substring(imageUrl.lastIndexOf('/')+1);
+	
 	CkEditorImageBrowser.images[folderName].push({
 		"imageUrl": imageUrl,
-		"thumbUrl": thumbUrl
+		"thumbUrl": thumbUrl,
+		"fileName": fileName //storing file name
 	});
 };
 
@@ -101,9 +104,11 @@ CkEditorImageBrowser.renderImagesForFolder = function (folderName) {
 	CkEditorImageBrowser.$imagesContainer.html('');
 
 	$.each(images, function (_idx, imageData) {
+		console.log(imageData);
 		var html = templateHtml;
 		html = html.replace('%imageUrl%', imageData.imageUrl);
 		html = html.replace('%thumbUrl%', imageData.thumbUrl);
+		html = html.replace(/%fileName%/g, imageData.fileName); //Insert file name into HTML
 
 		var $item = $($.parseHTML(html));
 

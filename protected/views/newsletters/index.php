@@ -88,6 +88,7 @@ $this->widget('zii.widgets.CListView', array(
     'sortableAttributes'=>array(
         'title',
         'sendDate',
+        'id',
     ),
     'id'=>'ajaxListView',
 )); ?>

@@ -17,7 +17,7 @@ if(!Yii::app()->user->isControl && !Yii::app()->user->isAdmin) {
 <div class='pageTitle'>Statistics Cron Log</div>
 <div class='pageExplain'>Regularly checks website for page view and link use data.</div>
 <div style='height: 200px; overflow: auto; font-size: 8pt; background-color: #fffff1' id='statslog'>
-    <?php echo htmlspecialchars($statslog); ?>
+    <?php echo str_replace('~', '<br />', htmlspecialchars(str_replace('<br />', '~', $statslog))); ?>
 </div>
 <b>Stats Log Management: (<?php echo substr_count($statslog, "\n"); ?> lines) </b>
 [<?php echo CHtml::link('Trim by half', array('site/trimStatsLog&lines=half'))?>]

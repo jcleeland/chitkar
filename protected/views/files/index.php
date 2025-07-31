@@ -29,12 +29,25 @@ echo CHtml::beginForm(CHtml::normalizeUrl(array('Files/index')), 'get', array('i
     . CHtml::endForm();
 ?>
 
-<?php $this->widget('zii.widgets.CListView', array(
+<?php
+// Custom function to render the pager
+function renderCustomPager($widget) {
+    $widget->renderPager();
+}
+$dataProvider->pagination = array('pageSize' => 20); 
+?>
+<!-- Flex Container Start -->
+<div class="flex-container">
+<?php
+$this->widget('zii.widgets.CListView', array(
 	'dataProvider'=>$dataProvider,
 	'itemView'=>'_view',
     'enableSorting'=>1,
     'sortableAttributes'=>array(
         'description'=>'File Description',
         'created'=>'Date uploaded',
-    )
+    ),
+    'template' => "{pager}\n{summary}\n{items}\n{pager}", // Include the pager at both top and bottom
+    'itemsCssClass' => 'flex-container', 
 )); ?>
+</div>
