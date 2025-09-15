@@ -308,13 +308,16 @@ class NewslettersController extends Controller
 	public function actionIndex($string='',$userId=null)
 	{
         $keyword = Yii::app()->request->getParam('keyword','');
-        
+        if(is_array($keyword)) {
+            $keyword = end($keyword); //or implode('', $keyword);
+        }
+                
         $criteria=new CDbCriteria();
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
         
         if(strlen($keyword) > 0) 
-            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
+            $criteria->addSearchCondition('t.keywords', $keyword, true, 'AND');
 
         $criteria->addSearchCondition('queued', '1', true, 'AND', 'NOT LIKE');
         $criteria->addSearchCondition('completed', '1', true, 'AND', 'NOT LIKE');
@@ -331,7 +334,7 @@ class NewslettersController extends Controller
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
 
         if(strlen($keyword) > 0) 
-            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
+            $criteria->addSearchCondition('t.keywords', $keyword, true, 'AND');
         
         $criteria->addSearchCondition('queued', '1', true, 'AND', 'LIKE');
         $criteria->addSearchCondition('completed', '1', true, 'AND', 'NOT LIKE');
@@ -349,7 +352,7 @@ class NewslettersController extends Controller
             $criteria->addSearchCondition('title', $string, true, 'AND');
 
         if(strlen($keyword) > 0) 
-            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
+            $criteria->addSearchCondition('t.keywords', $keyword, true, 'AND');
         
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
@@ -374,7 +377,7 @@ class NewslettersController extends Controller
             $criteria->addSearchCondition('title', $string, true, 'AND');
 
         if(strlen($keyword) > 0) 
-            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
+            $criteria->addSearchCondition('t.keywords', $keyword, true, 'AND');
         
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
@@ -406,9 +409,9 @@ class NewslettersController extends Controller
     {
         $term = Yii::app()->request->getParam('term','');
         $rows = Yii::app()->db->createCommand()
-            ->select('keywords')
+            ->select('t.keywords')
             ->from('newsletters')
-            ->where('keywords LIKE :term', array(':term'=>'%'.$term.'%'))
+            ->where('t.keywords LIKE :term', array(':term'=>'%'.$term.'%'))
             ->queryColumn();
 
         $all = array();

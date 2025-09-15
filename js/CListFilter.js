@@ -2,7 +2,7 @@
 $(document).ready(function() {
     var ajaxUpdateTimeout;
     var ajaxRequest;
-    $('input#string', 'input#keyword').keyup(function(){
+    $('input#string, input#keyword').keyup(function(){
         ajaxRequest = $(this).serialize();
         if($('#keyword').length && $('#keyword').val().length > 0) {
             ajaxRequest = ajaxRequest+'&keyword='+$('#keyword').val();
@@ -16,8 +16,10 @@ $(document).ready(function() {
                 'ajaxListView',
                 {data: ajaxRequest}
             );
+            if($('#ajaxListView2').length) {
+                $.fn.yiiListView.update('ajaxListView2', {data: ajaxRequest});
+            }
         },
-        // this is the delay
         300);
     });
     $('select#library').click(function() {

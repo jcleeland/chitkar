@@ -280,10 +280,18 @@ if($model->queued==1) {
                 <?php echo $form->error($model, 'subject'); ?>
             </div>
 
+
             <div class="row">
-                <?php echo $form->labelEx($model,'keywords'); ?>
-                <?php echo $form->textField($model, 'keywords', array('size'=>60)); ?>
-                <?php echo $form->error($model,'keywords'); ?>
+                <?php echo $form->labelEx($model, 'keywords'); ?>
+                <?php echo $form->textField(
+                    $model,
+                    'keywords',
+                    array(
+                        'size' => 60,
+                        'data-lookup-url' => $this->createUrl('keywordList')
+                    )
+                ); ?>
+                <?php echo $form->error($model, 'keywords'); ?>
             </div>
             
 	        <div class="row">

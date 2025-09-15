@@ -5,7 +5,7 @@
 $baseUrl=Yii::app()->baseUrl;
 Yii::app()->clientScript->registerCoreScript('jquery.ui');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/CListFilter.js');
-Yii::app()->clientScript->registerScript('keyword-autocomplete', "jQuery(function($){ $('#keyword').autocomplete({source: '".$this->createUrl('keywordList')."'});});");
+Yii::app()->clientScript->registerScript('keyword-autocomplete', "jQuery(function($){ $('#keyword').autocomplete({source: '".$this->createUrl('keywordList')."'}); });");
 
 $this->breadcrumbs=array(
 	'Newsletters',

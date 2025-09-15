@@ -145,7 +145,7 @@ class Newsletters extends CActiveRecord
 		$criteria->compare('completed',$this->completed);
 		$criteria->compare('recipientSql',$this->recipientSql,true);
 		$criteria->compare('recipientValues',$this->recipientValues,true);
-		$criteria->compare('keywords',$this->keywords,true);
+		$criteria->compare('t.keywords',$this->keywords,true);
 		$criteria->compare('archive',$this->archive);
 		$criteria->compare('trackReads',$this->trackReads);
 		$criteria->compare('trackLinks',$this->trackLinks);
