@@ -221,7 +221,11 @@ class OutgoingsController extends Controller
 	{
         $criteria=new CDbCriteria();
         //$criteria->order='t.id DESC';
-        $newsletters=Newsletters::model()->findAll('queued=1');
+		//ini_set('display_errors', 1);
+		//ini_set('display_startup_errors', 1);
+		//error_reporting(E_ALL);
+		ini_set('memory_limit', '2048M');
+        $newsletters=Newsletters::model()->findAll(['condition'=>'queued=1'] );
 		
         $criteria->with=array('newsletters');
         //die("-->".$recipid);

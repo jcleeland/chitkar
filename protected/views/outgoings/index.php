@@ -4,6 +4,7 @@
 $baseUrl=Yii::app()->baseUrl;
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/CListFilter.js');
 
+
 $this->breadcrumbs=array(
 	'Outgoings',
 );

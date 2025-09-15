@@ -264,7 +264,9 @@ if($model->queued==1) {
 		        <?php 
                     $templateoptions=array();
                 
-                    if(Yii::app()->dbConfig->getValue('default_template')) {$templateoptions=array(Yii::app()->dbConfig->getValue('default_template')=>array('selected'=>true));} 
+                    if($model->isNewRecord && Yii::app()->dbConfig->getValue('default_template')) {
+                        $templateoptions=array(Yii::app()->dbConfig->getValue('default_template')=>array('selected'=>true));
+                    }
                 ?>
                 <?php echo $form->dropDownList($model, 'templatesId', $templatelist, array('prompt'=>'Please choose...', 'options'=>$templateoptions)); ?>
                 <?php echo $form->error($model,'templatesId'); ?>

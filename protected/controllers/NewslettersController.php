@@ -575,7 +575,7 @@ class NewslettersController extends Controller
         $newsletterhtml=$newsletter->content;
         if($newsletter->trackReads == 1) {
             $publicweburl=Yii::app()->dbConfig->getValue('public_web_url');
-            $newsletterhtml .= "<img src='".$publicweburl."image.php?imgurl=chitkar.gif&nid=".$newsletter->id."&rid={RID}' width='1' height='1' />";
+            $newsletterhtml .= "<img src='".$publicweburl."image.php?imgurl=chitkar.gif&nid=".$newsletter->id."&rid={RID}' width='1' height='1' alt='' />";
         }
         if($newsletter->trackLinks == 1) {
             $publicweburl = Yii::app()->dbConfig->getValue('public_web_url');

@@ -35,9 +35,17 @@ class queueCommand extends CConsoleCommand{
         file_put_contents($queuelock, time()+$queuelocktime); //Lock the system for x hours, to allow for very long queues. This lock will be removed once the script has stopped running
         // 3 hours should be sufficient for 18000 emails sent at a relatively slow rate of 0.6 seconds per email
         /** STOP SCRIPT RUNNING TWICE **/
+        
         $outgoingsemailthrottle=Yii::app()->dbConfig->getValue('smtp_outgoings_email_throttle') ? Yii::app()->dbConfig->getValue('smtp_outgoings_email_throttle') : 0;
         $maxoutgoings=($outgoingsemailthrottle > 0) ? intval(150/($outgoingsemailthrottle/1000000)) : 1000000;
-        
+
+        //Rampup throttle settings
+        $outgoingsemailrampupminimum=Yii::app()->dbConfig->getValue('smtp_outgoings_email_throttle') ? Yii::app()->dbConfig->getValue('smtp_outgoings_email_throttle') : 1000;
+
+        $outgoingsemailrampupmultiplier = Yii::app()->dbConfig->getValue('smtp_outgoing_rampup_startmultiplier') 
+            ? Yii::app()->dbConfig->getValue('smtp_outgoing_rampup_startmultiplier') 
+            : 2.0; // default: 2x throttle at start
+
         $jobs=Outgoings::model()->findAll('sendDate <:now AND sent != 1 AND sendFailures < 3 ORDER BY id ASC LIMIT '.$maxoutgoings, array(':now'=>$now));
 
         $log_file = Yii::app()->dbConfig->getValue('queue_log_file') ? Yii::app()->dbConfig->getValue('queue_log_file') : '/var/www/chitkar/tmp/queue.log';
@@ -58,11 +66,14 @@ class queueCommand extends CConsoleCommand{
         $mail->IsSMTP();
         $mail->Mailer = "smtp";
         $mail->Host=Yii::app()->dbConfig->getValue('smtp_server');
+        //Set the phpmailer SMTP port (set to 25 if setting doesn't exist)
+        $mail->Port = Yii::app()->dbConfig->getValue('smtp_port') ? Yii::app()->dbConfig->getValue('smtp_port') : 25;
         //$mail->SMTPAuth = true;
         $mail->Username = Yii::app()->dbConfig->getValue('smtp_username');
         $mail->Password = Yii::app()->dbConfig->getValue('smtp_password');
         $mail->setFrom($fromemail, $fromname);
         $mail->isHTML(true);
+
         //$mail->SMTPDebug=2;
             
         //Quit and notify admin if dbfail file exists
@@ -75,14 +86,26 @@ class queueCommand extends CConsoleCommand{
             file_put_contents($log_file, "[".date("Y-m-d H:i:s")."]\nQueue process suspended due to presence of dbfail file.\n-------------------------------------", FILE_APPEND);
             die("Cannot run until $dbfail is removed.");
         }
+
+
+
         
         $currentnewsletter=null;
         $orderfile=fopen($basedir."/../tmp/outgoing_order.log", "a");
         fwrite($orderfile, "------------------------------------\r\n");   
         fwrite($orderfile, "Sending maximum $maxoutgoings emails\r\n"); 
+
+        $totalJobs = count($jobs);
+
         $ii=0;
         foreach ($jobs as $job) {
             $ii++;
+
+            //Gmail requires this header:
+            /**
+             * List-Unsubscribe: <mailto:unsubscribe@cpsuvic.org>, <https://cpsuvic.org/chitkar/unsubscribe>
+             * List-Unsubscribe-Post: List-Unsubscribe=One-Click
+             */
 
             //Clear all the mail settings from the last email so you aren't repeating yourself!
             //$mail->clearLayout();   //Old PHPMailer 5 command
@@ -94,9 +117,26 @@ class queueCommand extends CConsoleCommand{
             $mail->clearCCs();
             $mail->Subject = '';
             $mail->Body = '';
-            $mail->AltBody = '';            
-            
-            usleep($outgoingsemailthrottle);
+            $mail->AltBody = '';      
+
+            //Add the unsubscribe headers
+            $mail->addCustomHeader('List-Unsubscribe', '<mailto:unsubscribe@cpsuvic.org?subject='.rawurlencode('Unsubscribe from CPSU Newsletters').'>, <https://cpsuvic.org/chitkar/unsubscribe.php?rid='.rawurlencode($job->recipientId).'&email='.rawurlencode($job->email).'>');
+            $mail->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+
+            $delay = $outgoingsemailthrottle; // default
+
+            if ($totalJobs >= $outgoingsemailrampupminimum && $outgoingsemailrampupmultiplier > 1) {
+                // Ramp-up fraction: 0 → start, 1 → end
+                $progress = $ii / $totalJobs;
+                if($outgoingsemailthrottle < 100000) $outgoingsemailthrottle = 100000; // Minimum throttle of 0.1 seconds
+                // Start at 2x throttle, reduce linearly toward 1x throttle
+                $delay = (int)($outgoingsemailthrottle * ($outgoingsemailrampupmultiplier - ($outgoingsemailrampupmultiplier - 1) * $progress));
+            }
+
+            usleep($delay);
+
+
+
             //echo "Writing file";
             fwrite($orderfile, $ii."/".$maxoutgoings.": ".$job->newslettersId."->".$job->email."(".$job->id.") @ ".date("Y-m-d h:i:s")."\r\n");
             $data .= "\n   Sending new message to ".$job->email." ";
@@ -150,6 +190,10 @@ class queueCommand extends CConsoleCommand{
             //sleep(2);
 
             if($mail->send()) {
+                echo "|";
+                //If $ii is a multiple of 50, add a line break
+                if($ii % 50 == 0) echo "[$ii]\r\n";
+
                 //echo "Mail was sent";
                 $sentitems++;
                 $data .= "  - Success.";
@@ -174,6 +218,8 @@ class queueCommand extends CConsoleCommand{
                 
             } else {
                 //echo "It failed";
+                echo "x";
+                if($ii % 50 == 0) echo "[$ii]\r\n";
                 $faileditems++;
                 //echo $mail->ErrorInfo;
                 $smtperror=$mail->ErrorInfo;
