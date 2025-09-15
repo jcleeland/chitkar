@@ -32,7 +32,7 @@ class NewslettersController extends Controller
 				'users'=>array(''),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create', 'update', 'preview', 'getsql', 'contentpreview', 'index', 'view', 'archive', 'nudge'),
+				'actions'=>array('create', 'update', 'preview', 'getsql', 'contentpreview', 'index', 'view', 'archive', 'nudge', 'keywordList'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -307,11 +307,15 @@ class NewslettersController extends Controller
 	 */
 	public function actionIndex($string='',$userId=null)
 	{
-
+        $keyword = Yii::app()->request->getParam('keyword','');
+        
         $criteria=new CDbCriteria();
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
         
+        if(strlen($keyword) > 0) 
+            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
+
         $criteria->addSearchCondition('queued', '1', true, 'AND', 'NOT LIKE');
         $criteria->addSearchCondition('completed', '1', true, 'AND', 'NOT LIKE');
         
@@ -325,6 +329,9 @@ class NewslettersController extends Controller
         $criteria=new CDbCriteria();
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
+
+        if(strlen($keyword) > 0) 
+            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
         
         $criteria->addSearchCondition('queued', '1', true, 'AND', 'LIKE');
         $criteria->addSearchCondition('completed', '1', true, 'AND', 'NOT LIKE');
@@ -340,13 +347,16 @@ class NewslettersController extends Controller
         $criteria=new CDbCriteria();
         if(strlen($string) > 0) 
             $criteria->addSearchCondition('title', $string, true, 'AND');
+
+        if(strlen($keyword) > 0) 
+            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
         
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
         
         $criteria->addSearchCondition('queued', '1');
         $criteria->addSearchCondition('completed', '1');
-        $criteria->addSearchCondition('archive', '0'); //Don't show archived newsletters  
+        $criteria->addSearchCondition('archive', '0'); //Don't show archived newsletters
         $criteria->with = array('users', 'templates', 'recipientLists');
 
         $recentDataProvider=new CActiveDataProvider('Newsletters',
@@ -360,15 +370,18 @@ class NewslettersController extends Controller
         
         //ARCHIVED NEWSLETTERS
         $criteria=new CDbCriteria();
-        if(strlen($string) > 0) 
+        if(strlen($string) > 0)
             $criteria->addSearchCondition('title', $string, true, 'AND');
+
+        if(strlen($keyword) > 0) 
+            $criteria->addSearchCondition('keywords', $keyword, true, 'AND');
         
         if($userId)
             $criteria->addSearchCondition('usersId', $userId, true, 'AND');
 
         $criteria->addSearchCondition('queued', '1');
         $criteria->addSearchCondition('completed', '1');
-        $criteria->addSearchCondition('archive', '1'); //Don't show archived newsletters  
+        $criteria->addSearchCondition('archive', '1'); //Don't show archived newsletters
         $criteria->with = array('users', 'templates', 'recipientLists', 'archives');
 
         $archivedDataProvider=new CActiveDataProvider('Newsletters',
@@ -381,13 +394,35 @@ class NewslettersController extends Controller
         if($userdetails) {$user=$userdetails->firstname." ".$userdetails->lastname;} else {$user="";}
         
         $this->render('index',array(
-			'dataProvider'=>$dataProvider,
+            'dataProvider'=>$dataProvider,
             'queuedDataProvider'=>$queuedDataProvider,
             'recentDataProvider'=>$recentDataProvider,
             'archivedDataProvider'=>$archivedDataProvider,
             'user'=>$user,
 		));
 	}
+
+    public function actionKeywordList($term = '')
+    {
+        $term = Yii::app()->request->getParam('term','');
+        $rows = Yii::app()->db->createCommand()
+            ->select('keywords')
+            ->from('newsletters')
+            ->where('keywords LIKE :term', array(':term'=>'%'.$term.'%'))
+            ->queryColumn();
+
+        $all = array();
+        foreach ($rows as $row) {
+            $parts = preg_split('/\s+/', $row, -1, PREG_SPLIT_NO_EMPTY);
+            foreach ($parts as $kw) {
+                if (stripos($kw, $term) !== false) {
+                    $all[$kw] = $kw;
+                }
+            }
+        }
+        echo CJSON::encode(array_values($all));
+        Yii::app()->end();
+    }
 
 	/**
 	 * Manages all models.

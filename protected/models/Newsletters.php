@@ -10,6 +10,7 @@
  * @property integer $templatesId
  * @property string $title
  * @property string $content
+ * @property string $keywords
  * @property string $icsContent
  * @property string $sendDate
  * @property integer $completed
@@ -53,10 +54,10 @@ class Newsletters extends CActiveRecord
 			array('recipientValues', 'length', 'max'=>256),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, usersId, recipientListsId, templatesId, title, subject, content, sendDate, completed, completed_html, recipientSql, recipientValues, archive, trackReads, trackLinks, trackBounces, recipientCount, created, modified', 'safe', 'on'=>'search'),
+			array('id, usersId, recipientListsId, templatesId, title, subject, content, keywords,sendDate, completed, completed_html, recipientSql, recipientValues, archive, trackReads, trackLinks, trackBounces, recipientCount, created, modified', 'safe', 'on'=>'search'),
             
             //Make sure these fields have a rule, or else they won't save
-            array('recipientListsId,subject,content,sendDate,queued,completed,completed_html,recipientSql,recipientValues,notifications,archive,trackReads,trackBounces,created,modified', 'safe'),
+            array('recipientListsId,subject,content,keywords,sendDate,queued,completed,completed_html,recipientSql,recipientValues,notifications,archive,trackReads,trackBounces,created,modified', 'safe'),
 
 			array('icsContent', 'type', 'type'=>'string'),
 		);
@@ -92,6 +93,7 @@ class Newsletters extends CActiveRecord
 			'title' => 'Title',
             'subject' => 'Subject',
 			'content' => 'Content',
+			'keywords' => 'Keywords',
 			'icsContent' => 'ICS Content',
 			'sendDate' => 'Sent',
             'queued' => 'Queued',
@@ -143,6 +145,7 @@ class Newsletters extends CActiveRecord
 		$criteria->compare('completed',$this->completed);
 		$criteria->compare('recipientSql',$this->recipientSql,true);
 		$criteria->compare('recipientValues',$this->recipientValues,true);
+		$criteria->compare('keywords',$this->keywords,true);
 		$criteria->compare('archive',$this->archive);
 		$criteria->compare('trackReads',$this->trackReads);
 		$criteria->compare('trackLinks',$this->trackLinks);

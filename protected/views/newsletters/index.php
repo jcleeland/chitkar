@@ -3,7 +3,9 @@
 /* @var $dataProvider CActiveDataProvider */
 
 $baseUrl=Yii::app()->baseUrl;
+Yii::app()->clientScript->registerCoreScript('jquery.ui');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/CListFilter.js');
+Yii::app()->clientScript->registerScript('keyword-autocomplete', "jQuery(function($){ $('#keyword').autocomplete({source: '".$this->createUrl('keywordList')."'});});");
 
 $this->breadcrumbs=array(
 	'Newsletters',
@@ -69,13 +71,26 @@ if(file_exists($dbfail)) {
     <button id='bulkArchiveButton' class='hidden' style='display: none; font-size: 1em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 80px; margin-right: -130px' onClick='bulkArchive()'>Bulk Archive</button>
     <button id='checkAllArchiveButtons' class='hidden' style='font-size: 0.6em; border-radius: 5px; color: #009999; background-color: #a2e2dc; float: right; margin-top: 110px; margin-right: -130px' onClick='checkAllArchives()'>Check all</button>
     <?php
-echo CHtml::beginForm(CHtml::normalizeUrl(array('Newsletters/index')), 
-                      'get', 
-                      array('id'=>'filter-form')
-                      )
-    . CHtml::textField('string', (isset($_GET['string'])) ? $_GET['string'] : '', array('id'=>'string', 'style'=>'width: 250px'))
+echo CHtml::beginForm(
+        CHtml::normalizeUrl(
+            array('Newsletters/index')
+        ),
+        'get',
+        array('id'=>'filter-form')
+    )
+    . CHtml::textField(
+        'keyword', 
+        (isset($_GET['keyword'])) ? $_GET['keyword'] : '', 
+        array('id'=>'keyword', 'style'=>'width: 150px', 'placeholder'=>'Filter by keyword')
+    )
     . "&nbsp;"
-    . CHtml::endForm();        
+    . CHtml::textField(
+        'string', 
+        (isset($_GET['string'])) ? $_GET['string'] : '', 
+        array('id'=>'string', 'style'=>'width: 250px', 'placeholder'=>'Filter by title or content')
+    )
+    . "&nbsp;"
+    . CHtml::endForm();
 
 ?>
     <div class='pageContent'>

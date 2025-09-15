@@ -7,6 +7,7 @@
 
 
 $baseUrl=Yii::app()->baseUrl;
+Yii::app()->clientScript->registerCoreScript('jquery.ui');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/Newsletters.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/externalDb.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/ckeditor/ckeditor.js?v=17072025b');
@@ -101,6 +102,7 @@ if($model->queued==1) {
 }
 ?>
     <input type="hidden" id="chitkarUrlWrapper" value="<?= Yii::app()->dbConfig->getValue('public_web_url'); ?>" />
+    <input type="hidden" id="keywordLiikupUrl" value="<?= $this->createUrl('keywordList'); ?>" />
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
 
@@ -277,12 +279,19 @@ if($model->queued==1) {
                 <?php echo $form->textField($model, 'subject', array('size'=>60,'maxlength'=>255)); ?>
                 <?php echo $form->error($model, 'subject'); ?>
             </div>
+
+            <div class="row">
+                <?php echo $form->labelEx($model,'keywords'); ?>
+                <?php echo $form->textField($model, 'keywords', array('size'=>60)); ?>
+                <?php echo $form->error($model,'keywords'); ?>
+            </div>
             
 	        <div class="row">
 		        <?php echo $form->labelEx($model,'content'); ?>
 		        <?php echo $form->textArea($model,'content',array('rows'=>6, 'cols'=>90)); ?>
 		        <?php echo $form->error($model,'content'); ?>
 	        </div>
+
             <script type="text/javascript">
             CKEDITOR.replace( 'Newsletters_content', {
                 "imageBrowser_listUrl": "<?php echo $baseUrl ?>/?r=files/imagelist_json"

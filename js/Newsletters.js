@@ -1,6 +1,33 @@
 //Newsletter jQuery page management
 $(document).ready(function() {
 
+    var keywordUrl = $('#keywordLookupUrl').val();
+    function splitKeywords(val) {
+        return val.split(/\s+/);
+    }
+    function extractLast(term) {
+        return splitKeywords(term).pop();
+    }
+    $('#Newsletters_keywords').autocomplete({
+        source: function(request, response) {
+            $.getJSON(keywordUrl, {term: extractLast(request.term)}, response);
+        },
+        search: function() {
+            var term = extractLast(this.value);
+            if (term.length < 1) { return false; }
+        },
+        focus: function() { return false; },
+        select: function(event, ui) {
+            var terms = splitKeywords(this.value);
+            terms.pop();
+            terms.push(ui.item.value);
+            terms.push('');
+            this.value = terms.join(' ');
+            return false;
+        }
+    });
+
+
     /**
      * If any of the calendar event form elements change, update a hidden field called "icsPreviewContent" and "modelIcsContent"
      * with the updated .ics content. The "modelIcsContent" hidden field is used to save the .ics text content

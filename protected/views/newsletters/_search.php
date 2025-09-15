@@ -42,6 +42,11 @@
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'keywords'); ?>
+		<?php echo $form->textField($model,'keywords'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'sendDate'); ?>
 		<?php echo $form->textField($model,'sendDate'); ?>
 	</div>
