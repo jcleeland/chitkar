@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `newsletters` (
   `title` text NOT NULL,
   `subject` text NOT NULL,
   `content` text NOT NULL,
+  `keywords` text NOT NULL,
   `sendDate` datetime NOT NULL,
   `queued` int(11) NOT NULL DEFAULT '0',
   `completed` int(11) NOT NULL DEFAULT '0',

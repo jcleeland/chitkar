@@ -410,7 +410,7 @@ class NewslettersController extends Controller
         $term = Yii::app()->request->getParam('term','');
         $rows = Yii::app()->db->createCommand()
             ->select('t.keywords')
-            ->from('newsletters')
+            ->from('newsletters t')
             ->where('t.keywords LIKE :term', array(':term'=>'%'.$term.'%'))
             ->queryColumn();
 

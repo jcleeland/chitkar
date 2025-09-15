@@ -80,7 +80,7 @@ echo CHtml::beginForm(
     )
     . CHtml::textField(
         'keyword', 
-        (isset($_GET['keyword'])) ? $_GET['keyword'] : '', 
+        (isset($_GET['keyword'])) ? (is_array($_GET['keyword']) ? end($_GET['keyword']) : $_GET['keyword']) : '',
         array('id'=>'keyword', 'style'=>'width: 150px', 'placeholder'=>'Filter by keyword')
     )
     . "&nbsp;"
