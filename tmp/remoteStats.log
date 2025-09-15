@@ -47361,3 +47361,209 @@ LINKS[15/09/2025 11:08:02] Records:17 Saves:7
 UNSUBSCRIBES[15/09/2025 11:08:02] Records: 379 Saves:0 Errors:
 
 
+READS[15/09/2025 11:10:02] Records:5 Saves:1
+[9386-1527387 read updated] 
+ Discards:4
+[9367-1517518 read ignored] [9365-1524245 read ignored] [9367-1516521 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:10:02] Records:6 Saves:3
+[9386-1521921 link updated][9386-1508717 link updated][9386-1524483 link updated]
+ Discards:3
+[9386-1508717 link ignored, already recorded][9386-1524483 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:10:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:12:02] Records:10 Saves:1
+[9386-1436562 read updated] 
+ Discards:9
+[9386-1515513 read ignored] [9331-1520726 read ignored] [9367-1516521 read ignored] [9367-1516521 read ignored] [9260-1520726 read ignored] [9349-1520726 read ignored] [9360-1523959 read ignored] [9367-1418316 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:12:02] Records:8 Saves:3
+[9386-1506778 link updated][9331-1520726 link updated][9386-1524956 link updated]
+ Discards:5
+[9386-1506778 link ignored, already recorded][9331-1520726 link ignored, already recorded][9331-1520726 link ignored, already recorded][9386-1524956 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:12:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:14:02] Records:6 Saves:0
+
+ Discards:6
+[9283-1503266 read ignored] [9355-1503266 read ignored] [9355-1503266 read ignored] [9371-1506588 read ignored] [9300-1521438 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:14:02] Records:10 Saves:3
+[9386-1420225 link updated][9386-1509020 link updated][9386-1520468 link updated]
+ Discards:7
+[9386-1510051 link ignored, already recorded][9386-1510051 link ignored, already recorded][9386-1420225 link ignored, already recorded][9386-1509020 link ignored, already recorded][9386-1509020 link ignored, already recorded][9386-1520468 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:14:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:16:01] Records:10 Saves:3
+[9386-1401569 read updated] [9386-1522736 read updated] [9352-1415552 read updated] 
+ Discards:7
+[9249-1521281 read ignored] [9381-1522266 read ignored] [9367-1521438 read ignored] [9367-1521438 read ignored] [9386-1525053 read ignored] [9386-1515513 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:16:01] Records:8 Saves:4
+[9385-1509020 link updated][9386-1401569 link updated][9386-1525053 link updated][9386-1522736 link updated]
+ Discards:4
+[9385-1509020 link ignored, already recorded][9385-1509020 link ignored, already recorded][9386-1525053 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:16:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:18:01] Records:5 Saves:0
+
+ Discards:5
+[9367-1516521 read ignored] [9383-1523718 read ignored] [9174-1515607 read ignored] [9385-1508452 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:18:01] Records:3 Saves:1
+[9386-1511988 link updated]
+ Discards:2
+[9386-1511988 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:18:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:20:01] Records:6 Saves:2
+[9386-1402236 read updated] [9300-1517059 read updated] 
+ Discards:4
+[9385-1434681 read ignored] [9386-1434681 read ignored] [9230-1515277 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:20:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[15/09/2025 11:20:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:22:01] Records:10 Saves:2
+[9386-1526751 read updated] [9386-1428277 read updated] 
+ Discards:8
+[9212-1515277 read ignored] [9367-1524258 read ignored] [9230-1515277 read ignored] [9386-1401569 read ignored] [9367-1524258 read ignored] [9365-1510226 read ignored] [9386-1517899 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:22:01] Records:6 Saves:2
+[9386-1436292 link updated][9386-1407175 link updated]
+ Discards:4
+[9385-1506212 link ignored, already recorded][9386-1436292 link ignored, already recorded][9386-1407175 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:22:01] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:24:06] Records:5 Saves:1
+[9374-1432337 read updated] 
+ Discards:4
+[9367-1524258 read ignored] [9385-1526420 read ignored] [9385-1526420 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:24:07] Records:7 Saves:2
+[9386-1521011 link updated][9386-1525533 link updated]
+ Discards:5
+[9386-1521011 link ignored, already recorded][9386-1521011 link ignored, already recorded][9386-1525533 link ignored, already recorded][9386-1521011 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:24:07] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:26:02] Records:9 Saves:1
+[9385-1520472 read updated] 
+ Discards:8
+[9386-1526420 read ignored] [9386-1526420 read ignored] [9385-1526420 read ignored] [9385-1526420 read ignored] [9386-1526420 read ignored] [9386-1526420 read ignored] [9385-1520472 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:26:02] Records:8 Saves:2
+[9386-1526420 link updated][9386-1516683 link updated]
+ Discards:6
+[9385-1516683 link ignored, already recorded][9386-1526420 link ignored, already recorded][9386-1516683 link ignored, already recorded][9385-1521780 link ignored, already recorded][9385-1521780 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:26:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:28:02] Records:8 Saves:1
+[9386-1520472 read updated] 
+ Discards:7
+[9299-1404033 read ignored] [9367-1518121 read ignored] [9385-1520472 read ignored] [9386-1520472 read ignored] [9352-1415552 read ignored] [9386-1525053 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:28:02] Records:2 Saves:0
+
+ Discards:2
+[9385-1521780 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:28:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 11:30:01] Records:9 Saves:1
+[9386-1525336 read updated] 
+ Discards:8
+[9385-1520472 read ignored] [9386-1520472 read ignored] [9386-1517899 read ignored] [9385-1505670 read ignored] [9386-1523675 read ignored] [9385-1505670 read ignored] [9386-1505670 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 11:30:02] Records:10 Saves:4
+[9386-1520472 link updated][9386-1517899 link updated][9386-1523675 link updated][9386-1519310 link updated]
+ Discards:6
+[9386-1520472 link ignored, already recorded][9386-1517899 link ignored, already recorded][9386-1517899 link ignored, already recorded][9386-1519310 link ignored, already recorded][9386-1519310 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 11:30:02] Records: 379 Saves:0 Errors:
+
+
+READS[15/09/2025 12:04:01] Records:56 Saves:18
+[9365-1520264 read updated] [9300-1520264 read updated] [9386-1526554 read updated] [9283-1505576 read updated] [9386-1520900 read updated] [9385-1509720 read updated] [9386-1521493 read updated] [9385-1422847 read updated] [9386-1422847 read updated] [9296-1517059 read updated] [9386-1424991 read updated] [9324-1526525 read updated] [9386-1510954 read updated] [9358-1379124 read updated] [9386-1506212 read updated] [9386-1506229 read updated] [9385-1507757 read updated] [9283-1424351 read updated] 
+ Discards:38
+[9362-1520865 read ignored] [9367-1517518 read ignored] [9365-1520264 read ignored] [9385-1520472 read ignored] [9386-1520472 read ignored] [9386-1404033 read ignored] [9300-1520264 read ignored] [9367-1524258 read ignored] [9331-1520726 read ignored] [9283-1520726 read ignored] [9366-1520619 read ignored] [9385-1404033 read ignored] [9367-1524258 read ignored] [9386-1500201 read ignored] [9174-1515607 read ignored] [9365-1431508 read ignored] [9299-1520472 read ignored] [9386-1520472 read ignored] [9296-1517059 read ignored] [9386-1520780 read ignored] [9385-1520780 read ignored] [8436-1508634 read ignored] [9367-1516521 read ignored] [9367-1516521 read ignored] [9300-1526525 read ignored] [9249-1521281 read ignored] [9367-1516521 read ignored] [9367-1516521 read ignored] [9385-1413557 read ignored] [9385-1413557 read ignored] [9386-1526554 read ignored] [9386-1500201 read ignored] [9369-1419910 read ignored] [9386-1500201 read ignored] [9365-1508241 read ignored] [9386-1502607 read ignored] [9376-1501067 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[15/09/2025 12:04:02] Records:47 Saves:13
+[9386-1505670 link updated][9386-1526664 link updated][9386-1503231 link updated][9385-1435376 link updated][9386-1425207 link updated][9386-1404033 link updated][9386-1526554 link updated][9386-1527385 link updated][9367-1506333 link updated][9386-1520780 link updated][9386-1523460 link updated][9249-1521281 link updated][9386-1502607 link updated]
+ Discards:34
+[9386-1519310 link ignored, already recorded][9386-1519310 link ignored, already recorded][9386-1526664 link ignored, already recorded][9386-1526664 link ignored, already recorded][9386-1503231 link ignored, already recorded][9385-1435376 link ignored, already recorded][9386-1503231 link ignored, already recorded][9385-1435376 link ignored, already recorded][9386-1425207 link ignored, already recorded][9386-1425207 link ignored, already recorded][9386-1404033 link ignored, already recorded][9386-1404033 link ignored, already recorded][9385-1527287 link ignored, already recorded][9385-1527287 link ignored, already recorded][9385-1527287 link ignored, already recorded][9283-1520726 link ignored, already recorded][9283-1520726 link ignored, already recorded][9283-1520726 link ignored, already recorded][9386-1527385 link ignored, already recorded][9386-1516683 link ignored, already recorded][9386-1516683 link ignored, already recorded][9386-1527385 link ignored, already recorded][9386-1516683 link ignored, already recorded][9367-1506333 link ignored, already recorded][9367-1506333 link ignored, already recorded][9386-1520472 link ignored, already recorded][9386-1520472 link ignored, already recorded][9386-1520472 link ignored, already recorded][9386-1523460 link ignored, already recorded][9386-1523460 link ignored, already recorded][9386-1521011 link ignored, already recorded][9386-1521011 link ignored, already recorded][9386-1521011 link ignored, already recorded][Empty or unmatchable record]
+ Errors:Read updated as well[FILE DELETED]
+
+
+UNSUBSCRIBES[15/09/2025 12:04:02] Records: 379 Saves:0 Errors:
+
+

@@ -4101,3 +4101,19 @@ Stack trace:
 #3 /var/www/html/chitkar/protected/framework/base/CApplication.php(185): CConsoleApplication->processRequest()
 #4 /var/www/html/chitkar/cron.php(6): CConsoleApplication->run()
 
+2025/09/15 11:32:01 [error] [php] ftp_get(): /reads.ctk: No such file or directory (/var/www/html/chitkar/protected/commands/remoteStatsCommand.php:75)
+Stack trace:
+#0 /var/www/html/chitkar/protected/commands/remoteStatsCommand.php(75): ftp_get()
+#1 /var/www/html/chitkar/protected/framework/console/CConsoleCommandRunner.php(71): remoteStatsCommand->run()
+#2 /var/www/html/chitkar/protected/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /var/www/html/chitkar/protected/framework/base/CApplication.php(185): CConsoleApplication->processRequest()
+#4 /var/www/html/chitkar/cron.php(6): CConsoleApplication->run()
+
+2025/09/15 12:06:01 [error] [php] ftp_get(): /reads.ctk: No such file or directory (/var/www/html/chitkar/protected/commands/remoteStatsCommand.php:75)
+Stack trace:
+#0 /var/www/html/chitkar/protected/commands/remoteStatsCommand.php(75): ftp_get()
+#1 /var/www/html/chitkar/protected/framework/console/CConsoleCommandRunner.php(71): remoteStatsCommand->run()
+#2 /var/www/html/chitkar/protected/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /var/www/html/chitkar/protected/framework/base/CApplication.php(185): CConsoleApplication->processRequest()
+#4 /var/www/html/chitkar/cron.php(6): CConsoleApplication->run()
+
