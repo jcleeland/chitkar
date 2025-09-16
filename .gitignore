@@ -12,4 +12,4 @@ tmp/queuelock.txt
 tmp/remoteStats.log
 tmp/statslock.txt
 tmp/unsubscribe.ctk
-tmpreads_temp.ctk
+tmp/reads_temp.ctk
