@@ -5,6 +5,22 @@ $baseUrl=Yii::app()->baseUrl;
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/preview.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/externalDb.js');
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
+Yii::app()->clientScript->registerScript(
+    'newsletter-keyword-filter',
+    <<<'JS'
+jQuery(function($) {
+    $(document).on('click', '.newsletter-keywords .keyword-badge', function(event) {
+        event.preventDefault();
+        var keyword = $(this).data('keyword');
+        var $keywordInput = $('#keyword');
+        if (!$keywordInput.length) {
+            return;
+        }
+        $keywordInput.val(keyword).focus().trigger('keyup');
+    });
+});
+JS
+, CClientScript::POS_READY);
 ?>
 
 <div class="view">
@@ -83,17 +99,22 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     </div>
     <span class="small-title"><?php echo CHtml::link(CHtml::encode($data->title), array('view', 'id'=>$data->id)); ?></span><br />
     <span class='small'><i><?php echo $data->recipientCount ?> recipients |
-                           Owned by <?php echo $data->users->firstname; ?> <?php echo $data->users->lastname ?> | 
-                           <?php if($data->templates) {echo $data->templates->name; } else {echo "Unknown";} ?> Template 
+                           Owned by <?php echo $data->users->firstname; ?> <?php echo $data->users->lastname ?> |
+                           <?php if($data->templates) {echo $data->templates->name; } else {echo "Unknown";} ?> Template
                            <?php if($data->recipientListsId && isset($data->recipientLists->name)) {echo " | ".$data->recipientLists->name. " Recipient List";} ?></i></span><br />
-    <span class="small"><?php //echo CHtml::encode($data->getAttributeLabel('sendDate')); ?>
-	<?php if ($data->queued == 1 && $data->completed == 0) {
-    ?>
-    Will start sending after     
+
     <?php
-    } elseif ($data->completed == 1) {
+        $keywordList = array();
+        if (!empty($data->keywords)) {
+            $keywordList = preg_split('/\s+/', trim($data->keywords), -1, PREG_SPLIT_NO_EMPTY);
+        }
     ?>
-    Started sending after
+    
+    <span class="small"><?php //echo CHtml::encode($data->getAttributeLabel('sendDate')); ?>
+	<?php if ($data->queued == 1 && $data->completed == 0) { ?>
+        Will start sending after     
+    <?php } elseif ($data->completed == 1) { ?>
+        Started sending after
     <?php
     }
     ?>
@@ -101,9 +122,25 @@ Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/queue.js');
     </span>
     <span class='small'><?php if(Yii::app()->user->can_create) echo CHtml::link('[Create new from this..]', array('create', 'copyid'=>$data->id)); ?></span>
     &nbsp;<br />
-    <?php 
- 
-
+    <?php
+    $keywords = preg_split('/\s+/', (string)$data->keywords, -1, PREG_SPLIT_NO_EMPTY);
+    if (!empty($keywords)) {
+        echo '<div class="newsletter-keywords">';
+        $links = array();
+        foreach ($keywords as $keyword) {
+            $links[] = CHtml::link(
+                '#' . CHtml::encode($keyword),
+                '#',
+                array(
+                    'class' => 'keyword-badge',
+                    'data-keyword' => $keyword,
+                    'role' => 'button'
+                )
+            );
+        }
+        echo implode(' ', $links);
+        echo '</div>';
+    }
     ?>
 
 </div>

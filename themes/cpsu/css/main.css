@@ -631,3 +631,26 @@ div.search-form
     border-color: #d6e9c6;
     color: #3c763d;
 }
+
+.newsletter-keywords {
+    margin-top: 5px;
+}
+
+.newsletter-keywords .keyword-badge {
+    display: inline-block;
+    margin: 2px 4px 0 0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: #e0f2f8;
+    color: #0a5d7a;
+    font-size: 0.85em;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.newsletter-keywords .keyword-badge:hover,
+.newsletter-keywords .keyword-badge:focus {
+    background-color: #c9e8f1;
+    color: #083f52;
+    text-decoration: none;
+}
