@@ -4,6 +4,60 @@
 $baseUrl=Yii::app()->baseUrl;
 Yii::app()->clientScript->registerScriptFile($baseUrl.'/js/readlist.js');
 
+if (Yii::app()->user->canCreate) {
+    Yii::app()->clientScript->registerScript(
+        'newsletter-keyword-autocomplete',
+        <<<'JS'
+jQuery(function($) {
+    var $keywordInput = $('#Newsletters_keywords');
+    if (!$keywordInput.length) {
+        return;
+    }
+
+    var lookupUrl = $keywordInput.data('lookup-url');
+    if (!lookupUrl) {
+        return;
+    }
+
+    function splitKeywords(val) {
+        return val.split(/\s+/);
+    }
+
+    function extractLast(term) {
+        var parts = splitKeywords(term);
+        return parts.pop();
+    }
+
+    $keywordInput.autocomplete({
+        source: function(request, response) {
+            $.getJSON(lookupUrl, { term: extractLast(request.term) }, response);
+        },
+        search: function() {
+            var term = extractLast(this.value);
+            if (term.length < 1) {
+                return false;
+            }
+        },
+        focus: function() {
+            return false;
+        },
+        select: function(event, ui) {
+            var terms = splitKeywords(this.value);
+            terms.pop();
+            terms.push(ui.item.value);
+            terms.push('');
+            this.value = terms.join(' ');
+            return false;
+        }
+    });
+});
+JS
+        ,
+        CClientScript::POS_READY
+    );
+}
+
+
 $this->breadcrumbs=array(
 	'Newsletters'=>array('index'),
 	$model->title,
@@ -38,6 +92,12 @@ $this->menu=$menuarray;
     </div>
 <?php endif; ?>
 
+<?php if(Yii::app()->user->hasFlash('error')): ?>
+    <div class="alert alert-danger">
+        <?php echo Yii::app()->user->getFlash('error'); ?>
+    </div>
+<?php endif; ?>
+
 <?php if(Yii::app()->user->hasFlash('info')): ?>
     <div class="alert alert-info">
         <?php echo Yii::app()->user->getFlash('info'); ?>
@@ -58,6 +118,41 @@ $this->menu=$menuarray;
             <div class='emailHeadRight'>Jane Member</div>
             <div style='clear: both'></div>
         </div>
+        <div style='padding: 5px'>
+            <div class='emailHeadLeft'><b>Keywords:</b></div>
+            <div class='emailHeadRight'>
+                <?php
+                $keywords = preg_split('/\s+/', trim((string)$model->keywords), -1, PREG_SPLIT_NO_EMPTY);
+                if (!empty($keywords)) {
+                    echo '<div class="newsletter-keywords">';
+                    $keywordTags = array();
+                    foreach ($keywords as $keyword) {
+                        $keywordTags[] = CHtml::tag('span', array('class' => 'keyword-badge'), '#' . CHtml::encode($keyword));
+                    }
+                    echo implode(' ', $keywordTags);
+                    echo '</div>';
+                } else {
+                    echo '<span style="color: #777;">No keywords yet</span>';
+                }
+                ?>
+                <?php if(Yii::app()->user->canCreate): ?>
+                    <?php echo CHtml::beginForm(array('newsletters/updateKeywords', 'id'=>$model->id), 'post', array('class' => 'keyword-form', 'style' => 'margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;')); ?>
+                        <?php echo CHtml::textField(
+                            'Newsletters[keywords]',
+                            $model->keywords,
+                            array(
+                                'id' => 'Newsletters_keywords',
+                                'size' => 60,
+                                'data-lookup-url' => $this->createUrl('keywordList'),
+                                'style' => 'flex: 1 1 220px; max-width: 100%;'
+                            )
+                        ); ?>
+                        <?php echo CHtml::submitButton('Update Keywords', array('class' => 'keyword-update-button')); ?>
+                    <?php echo CHtml::endForm(); ?>
+                <?php endif; ?>
+            </div>
+            <div style='clear: both'></div>
+        </div>        
         <?php 
         if($model->queued == 1) {
         ?>            

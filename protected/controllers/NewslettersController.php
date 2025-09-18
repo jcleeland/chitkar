@@ -15,7 +15,7 @@ class NewslettersController extends Controller
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
-			'postOnly + delete', // we only allow deletion via POST request
+			'postOnly + delete, updateKeywords', // we only allow deletion via POST request
 		);
 	}
 
@@ -32,9 +32,9 @@ class NewslettersController extends Controller
 				'users'=>array(''),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create', 'update', 'preview', 'getsql', 'contentpreview', 'index', 'view', 'archive', 'nudge', 'keywordList'),
-				'users'=>array('@'),
-			),
+                                    'actions'=>array('create', 'update', 'preview', 'getsql', 'contentpreview', 'index', 'view', 'archive', 'nudge', 'keywordList', 'updateKeywords'),
+                    'users'=>array('@'),
+            ),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete','queue','unqueue'),
 				'users'=>array('@'),
@@ -86,12 +86,58 @@ class NewslettersController extends Controller
             $failquery="SELECT count(id) as total FROM outgoings WHERE newslettersId=".$id." AND sendFailures > 0 and sent = 0 ORDER BY queueDate";
             $statistics['failurereport']=Yii::app()->db->createCommand($failquery)->queryScalar();
         }
-		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+        $this->render('view',array(
+            'model'=>$this->loadModel($id),
             'content'=>$content,
             'statistics'=>$statistics,
 		));
 	}
+
+    
+    public function actionUpdateKeywords($id)
+    {
+            if(!Yii::app()->user->canCreate) {
+                    throw new CHttpException(403, 'You are not authorised to update newsletter keywords.');
+            }
+
+            if(!Yii::app()->request->isPostRequest) {
+                    throw new CHttpException(400, 'Invalid request.');
+            }
+
+            $model = $this->loadModel($id);
+
+            $keywords = null;
+            if(isset($_POST['Newsletters']) && isset($_POST['Newsletters']['keywords'])) {
+                    $keywords = $_POST['Newsletters']['keywords'];
+            } elseif(isset($_POST['keywords'])) {
+                    $keywords = $_POST['keywords'];
+            }
+
+            if($keywords === null) {
+                    Yii::app()->user->setFlash('error', 'No keywords were provided.');
+                    Yii::app()->user->setFlash('showKeywordForm', true);
+                    $this->redirect(array('view', 'id'=>$model->id));
+                    return;
+            }
+
+            $keywords = trim(preg_replace('/\s+/', ' ', $keywords));
+            $model->keywords = $keywords;
+
+            if($model->save(true, array('keywords'))) {
+                    Yii::app()->user->setFlash('success', 'Keywords updated successfully.');
+            } else {
+                    $errorMessage = 'Keywords could not be updated.';
+                    $errors = $model->getErrors('keywords');
+                    if(!empty($errors)) {
+                            $errorMessage .= ' ' . implode(' ', $errors);
+                    }
+                    Yii::app()->user->setFlash('error', $errorMessage);
+                    Yii::app()->user->setFlash('showKeywordForm', true);
+            }
+
+            $this->redirect(array('view', 'id'=>$model->id));
+            return;
+    }
 
 	/**
 	 * Creates a new model.
