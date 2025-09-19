@@ -106,6 +106,73 @@ $this->menu=$menuarray;
 
 <h1><?php echo $model->title; ?> (<?php echo $model->id ?>)</h1>
 
+
+<div id='keywordlist' style='padding: 5px'>
+    <div class='emailHeadLeft'><div style="margin: 2px 4px 0 0; padding: 5px 8px; display: inline-block"><b>Keywords:</b></div></div>
+    <div class='emailHeadRight'>
+        <?php
+        $keywords = preg_split('/\s+/', trim((string)$model->keywords), -1, PREG_SPLIT_NO_EMPTY);
+        echo '<div class="newsletter-keywords">';
+        if (!empty($keywords)) {
+            $keywordTags = array();
+            foreach ($keywords as $keyword) {
+                $keywordTags[] = CHtml::tag('span', array('class' => 'keyword-badge'), '#' . CHtml::encode($keyword));
+            }
+            echo implode(' ', $keywordTags);
+        } else {
+            echo '<span style="color: #777;">No keywords yet</span>';
+        }
+        // Insert an edit icon aligned to the right of this div using a unicode edit icon
+        if(Yii::app()->user->canCreate) {
+            echo '<span id="edit-keywords" style="float: right; margin-left: 10px; cursor: pointer;" title="Edit keywords">&#9998; Edit Keywords</span>';
+        }        
+        echo '</div>';
+
+
+        ?>
+    </div>
+    <div style='clear: both'></div>
+    <?php if(Yii::app()->user->canCreate): ?>
+        <div id="keyword-edit" style="display: none; margin-left: 10px; cursor: pointer;" title="Edit keywords">
+        <?php echo CHtml::beginForm(    
+                                    array(
+                                        'newsletters/updateKeywords', 
+                                        'id'=>$model->id), 
+                                        'post', 
+                                        array(
+                                            'class' => 'keyword-form', 
+                                            'style' => 'margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;'
+                                        )
+                                    ); 
+            ?>
+            <?php echo CHtml::textField(
+                                        'Newsletters[keywords]',
+                                        $model->keywords,
+                                        array(
+                                            'id' => 'Newsletters_keywords',
+                                            'size' => 60,
+                                            'data-lookup-url' => $this->createUrl('keywordList'),
+                                            'style' => 'flex: 1 1 220px; max-width: 100%;'
+                                            )
+                                        ); 
+            ?>
+            <?php echo CHtml::submitButton('Update Keywords', array('class' => 'keyword-update-button')); ?>
+        <?php echo CHtml::endForm(); ?>
+        </div>
+    <?php endif; ?>
+    <div style='clear: both'></div>
+    <script>
+        document.getElementById('edit-keywords')?.addEventListener('click', function() {
+            const editDiv = document.getElementById('keyword-edit');
+            if (editDiv.style.display === 'none' || editDiv.style.display === '') {
+                editDiv.style.display = 'flex';
+            } else {
+                editDiv.style.display = 'none';
+            }
+        });
+    </script>
+</div>     
+
 <div class='emailSurrounds'>
     <div class='emailInner'>
         <div class='emailHead'>
@@ -117,42 +184,7 @@ $this->menu=$menuarray;
             <div class='emailHeadLeft'><b>To:</b></div>
             <div class='emailHeadRight'>Jane Member</div>
             <div style='clear: both'></div>
-        </div>
-        <div style='padding: 5px'>
-            <div class='emailHeadLeft'><b>Keywords:</b></div>
-            <div class='emailHeadRight'>
-                <?php
-                $keywords = preg_split('/\s+/', trim((string)$model->keywords), -1, PREG_SPLIT_NO_EMPTY);
-                if (!empty($keywords)) {
-                    echo '<div class="newsletter-keywords">';
-                    $keywordTags = array();
-                    foreach ($keywords as $keyword) {
-                        $keywordTags[] = CHtml::tag('span', array('class' => 'keyword-badge'), '#' . CHtml::encode($keyword));
-                    }
-                    echo implode(' ', $keywordTags);
-                    echo '</div>';
-                } else {
-                    echo '<span style="color: #777;">No keywords yet</span>';
-                }
-                ?>
-                <?php if(Yii::app()->user->canCreate): ?>
-                    <?php echo CHtml::beginForm(array('newsletters/updateKeywords', 'id'=>$model->id), 'post', array('class' => 'keyword-form', 'style' => 'margin-top: 5px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;')); ?>
-                        <?php echo CHtml::textField(
-                            'Newsletters[keywords]',
-                            $model->keywords,
-                            array(
-                                'id' => 'Newsletters_keywords',
-                                'size' => 60,
-                                'data-lookup-url' => $this->createUrl('keywordList'),
-                                'style' => 'flex: 1 1 220px; max-width: 100%;'
-                            )
-                        ); ?>
-                        <?php echo CHtml::submitButton('Update Keywords', array('class' => 'keyword-update-button')); ?>
-                    <?php echo CHtml::endForm(); ?>
-                <?php endif; ?>
-            </div>
-            <div style='clear: both'></div>
-        </div>        
+        </div>       
         <?php 
         if($model->queued == 1) {
         ?>            

@@ -654,3 +654,35 @@ div.search-form
     color: #083f52;
     text-decoration: none;
 }
+
+.keyword-editor-controls {
+    margin-top: 6px;
+}
+
+.keyword-editor-controls .keyword-toggle-button {
+    background: none;
+    border: none;
+    color: #0a5d7a;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85em;
+    text-decoration: underline;
+}
+
+.keyword-editor-controls .keyword-toggle-button:hover,
+.keyword-editor-controls .keyword-toggle-button:focus {
+    text-decoration: none;
+}
+
+.keyword-editor {
+    margin-top: 8px;
+}
+
+.keyword-editor .keyword-input {
+    width: 60%;
+    max-width: 320px;
+}
+
+.keyword-editor .keyword-save-button {
+    margin-left: 6px;
+}

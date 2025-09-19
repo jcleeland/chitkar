@@ -57747,3 +57747,669 @@ LINKS[19/09/2025 08:48:02] Records:0 Saves:0
 UNSUBSCRIBES[19/09/2025 08:48:02] Records: 383 Saves:0 Errors:
 
 
+READS[19/09/2025 09:22:01] Records:79 Saves:15
+[9402-1526741 read updated] [9402-1416543 read updated] [9402-1414902 read updated] [9402-1523181 read updated] [9398-1518916 read updated] [9389-1428105 read updated] [9398-1411990 read updated] [9398-1425617 read updated] [9400-1507677 read updated] [9402-1517117 read updated] [9398-1428105 read updated] [9398-1514233 read updated] [9394-1515382 read updated] [9398-1515697 read updated] [9402-1524849 read updated] 
+ Discards:64
+[9398-1436846 read ignored] [9396-1521329 read ignored] [9398-1514312 read ignored] [9398-1522106 read ignored] [9283-1525202 read ignored] [9402-1426823 read ignored] [9402-1505315 read ignored] [9402-1526039 read ignored] [9402-1524124 read ignored] [9402-1416543 read ignored] [9398-1526853 read ignored] [9398-1527109 read ignored] [9398-1526354 read ignored] [9402-1523494 read ignored] [9402-1523494 read ignored] [9402-1411441 read ignored] [9402-1411441 read ignored] [9402-1523122 read ignored] [9396-1417064 read ignored] [9396-1417064 read ignored] [9396-1378138 read ignored] [9398-1393261 read ignored] [9398-1393261 read ignored] [9298-1526144 read ignored] [9398-1393261 read ignored] [9401-1503862 read ignored] [9402-1508227 read ignored] [9398-1411990 read ignored] [9398-1503533 read ignored] [5424-1510811 read ignored] [5424-1510811 read ignored] [9398-1411990 read ignored] [9398-1526008 read ignored] [9400-1507677 read ignored] [9402-1404264 read ignored] [9402-1523544 read ignored] [9402-1517117 read ignored] [9402-1426823 read ignored] [9270-1515862 read ignored] [9398-1513829 read ignored] [9219-1398334 read ignored] [9398-1424502 read ignored] [9398-1424502 read ignored] [9398-1424502 read ignored] [9398-1424502 read ignored] [9398-1515299 read ignored] [9398-1526417 read ignored] [9402-1517117 read ignored] [9402-1370684 read ignored] [9290-1524659 read ignored] [9026-1398334 read ignored] [9367-1510471 read ignored] [9367-1510471 read ignored] [9402-1523544 read ignored] [9402-1523544 read ignored] [9299-1404033 read ignored] [9398-1515299 read ignored] [9399-1423844 read ignored] [9398-1515299 read ignored] [9396-1502775 read ignored] [9396-1525051 read ignored] [9396-1525051 read ignored] [5575-1416253 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:22:02] Records:89 Saves:12
+[9400-1519119 link updated][9402-1426823 link updated][9402-1428437 link updated][9402-1523181 link updated][9402-1524124 link updated][9398-1518916 link updated][9402-1429451 link updated][9402-1523122 link updated][9398-1428105 link updated][9402-1517117 link updated][9402-1431462 link updated][9402-1519941 link updated]
+ Discards:77
+[9400-1519119 link ignored, already recorded][9400-1519119 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1428437 link ignored, already recorded][9402-1428437 link ignored, already recorded][9402-1523181 link ignored, already recorded][9402-1523181 link ignored, already recorded][9402-1524124 link ignored, already recorded][9402-1524124 link ignored, already recorded][9398-1518916 link ignored, already recorded][9402-1426823 link ignored, already recorded][9398-1518916 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1514040 link ignored, already recorded][9402-1514040 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1514040 link ignored, already recorded][6676-1374320 link ignored, already recorded][6676-1374320 link ignored, already recorded][9402-1426823 link ignored, already recorded][8672-${@var_dump(md5(455772090))} link ignored, possibly injection attack, or maybe someone using the CC internal email] [www.parliament.vic.gov.au/members/-[unknown] link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-/*1*/{{881986272+816912081}} link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-&#039;-var_dump(md5(212139700))-&#039; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-${811427165+945584519} link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}
+expr 894490559 + 851838075
+ link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-${(957197688+854748229)?c} link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}|expr 940137984 + 926049502  link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-#set($c=808691838+905221192)${c}$c link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}$(expr 871863116 + 929977617) link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-${856255714+952249398} link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-&lt;%- 866275627+918178176 %&gt; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&amp;set /A 838683327+866759654 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-expr 871246142 + 848461964 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and/**/extractvalue(1,concat(char(126),md5(1357686140)))and&#039; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&quot;and/**/extractvalue(1,concat(char(126),md5(1025432436)))and&quot; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-extractvalue(1,concat(char(126),md5(1979575972))) link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and(select&#039;1&#039;from/**/cast(md5(1252518624)as/**/int))&gt;&#039;0 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}/**/and/**/cast(md5(&#039;1053362159&#039;)as/**/int)&gt;0 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-convert(int,sys.fn_sqlvarbasetostr(HashBytes(&#039;MD5&#039;,&#039;1982840336&#039;))) link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and/**/convert(int,sys.fn_sqlvarbasetostr(HashBytes(&#039;MD5&#039;,&#039;1103102322&#039;)))&gt;&#039;0 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}鎈&#039;&quot;\( link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;&quot;\( link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and&#039;i&#039;=&#039;i link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and&#039;c&#039;=&#039;w link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&quot;and&quot;e&quot;=&quot;e link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&quot;and&quot;b&quot;=&quot;y link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and(select*from(select+sleep(0))a/**/union/**/select+1)=&#039; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and(select*from(select+sleep(2))a/**/union/**/select+1)=&#039; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&quot;and(select*from(select+sleep(0))a/**/union/**/select+1)=&quot; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&quot;and(select*from(select+sleep(2))a/**/union/**/select+1)=&quot; link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;/**/and(select&#039;1&#039;from/**/pg_sleep(0)) link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;/**/and(select&#039;1&#039;from/**/pg_sleep(2)) link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and(select+1)&gt;0waitfor/**/delay&#039;0 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;and(select+1)&gt;0waitfor/**/delay&#039;0 link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;/**/and/**/DBMS_PIPE.RECEIVE_MESSAGE(&#039;c&#039;,0)=&#039;c link ignored, possibly injection attack, or maybe someone using the CC internal email] [8672-{RID}&#039;/**/and/**/DBMS_PIPE.RECEIVE_MESSAGE(&#039;x&#039;,2)=&#039;x link ignored, possibly injection attack, or maybe someone using the CC internal email] [9402-1426823 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1426823 link ignored, already recorded][9398-1428105 link ignored, already recorded][9398-1428105 link ignored, already recorded][9402-1431462 link ignored, already recorded][9402-1431462 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1426823 link ignored, already recorded][9398-1428105 link ignored, already recorded][9402-1426823 link ignored, already recorded][9402-1519941 link ignored, already recorded][9402-1519941 link ignored, already recorded][8721-1430430 link ignored, already recorded][8721-1430430 link ignored, already recorded][8721-1430430 link ignored, already recorded][Empty or unmatchable record]
+ Errors:Read updated as wellRead updated as wellRead updated as well[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:22:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:24:01] Records:2 Saves:0
+
+ Discards:2
+[9398-1425053 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:24:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:24:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:26:01] Records:4 Saves:0
+
+ Discards:4
+[9402-1426823 read ignored] [9396-1427743 read ignored] [9398-1425053 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:26:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:26:01] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:28:02] Records:6 Saves:0
+
+ Discards:6
+[9365-1511110 read ignored] [9398-1425053 read ignored] [9398-1393261 read ignored] [9398-1425053 read ignored] [9398-1393261 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:28:03] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:28:03] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:30:01] Records:4 Saves:0
+
+ Discards:4
+[9402-1527329 read ignored] [9399-1423844 read ignored] [9402-1405275 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:30:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:30:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:32:01] Records:2 Saves:0
+
+ Discards:2
+[9402-1520311 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:32:02] Records:5 Saves:1
+[9402-1409800 link updated]
+ Discards:4
+[9402-1520311 link ignored, already recorded][9402-1409800 link ignored, already recorded][9402-1409800 link ignored, already recorded][Empty or unmatchable record]
+ Errors:Read updated as well[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:32:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:34:01] Records:2 Saves:0
+
+ Discards:2
+[9398-1525361 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:34:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:34:03] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:36:01] Records:4 Saves:1
+[9093-1432680 read updated] 
+ Discards:3
+[9398-1411990 read ignored] [7203-1518240 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:36:02] Records:3 Saves:0
+
+ Discards:3
+[9402-1523544 link ignored, already recorded][9402-1523544 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:36:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:38:01] Records:4 Saves:1
+[9402-1516464 read updated] 
+ Discards:3
+[9398-1425053 read ignored] [9398-1506198 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:38:02] Records:2 Saves:0
+
+ Discards:2
+[9402-1523544 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:38:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:40:01] Records:8 Saves:3
+[9402-1510404 read updated] [9402-1424614 read updated] [9402-1517618 read updated] 
+ Discards:5
+[9402-1510404 read ignored] [9402-1424614 read ignored] [9402-1517618 read ignored] [9398-1393261 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:40:02] Records:2 Saves:1
+[9402-1510404 link updated]
+ Discards:1
+[Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:40:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:42:01] Records:3 Saves:0
+
+ Discards:3
+[9398-1515299 read ignored] [9398-1515299 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:42:01] Records:2 Saves:0
+
+ Discards:2
+[9402-1526795 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:42:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:44:01] Records:3 Saves:0
+
+ Discards:3
+[9402-1514878 read ignored] [9398-1423714 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:44:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:44:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:46:01] Records:5 Saves:0
+
+ Discards:5
+[9398-1525113 read ignored] [9402-1434475 read ignored] [9391-1520645 read ignored] [9398-1515299 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:46:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:46:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:48:01] Records:3 Saves:0
+
+ Discards:3
+[9398-1501822 read ignored] [9398-1515299 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:48:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:48:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:50:01] Records:5 Saves:0
+
+ Discards:5
+[9396-1436157 read ignored] [9398-1515299 read ignored] [9299-1404033 read ignored] [9386-1501426 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:50:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:50:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:52:01] Records:3 Saves:1
+[9398-1514114 read updated] 
+ Discards:2
+[9386-1501426 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:52:01] Records:4 Saves:1
+[9386-1501426 link updated]
+ Discards:3
+[9386-1501426 link ignored, already recorded][9386-1501426 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 09:52:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:54:01] Records:2 Saves:1
+[9396-1522299 read updated] 
+ Discards:1
+[Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:54:03] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:54:03] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:56:02] Records:2 Saves:0
+
+ Discards:2
+[9257-1525450 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:56:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:56:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 09:58:01] Records:4 Saves:0
+
+ Discards:4
+[9402-1523494 read ignored] [9402-1523494 read ignored] [9398-1521672 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 09:58:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 09:58:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:00:01] Records:4 Saves:0
+
+ Discards:4
+[9398-1521672 read ignored] [9398-1527539 read ignored] [9398-1521672 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:00:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:00:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:02:02] Records:2 Saves:0
+
+ Discards:2
+[9398-1521672 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:02:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:02:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:04:01] Records:2 Saves:0
+
+ Discards:2
+[9398-1425053 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:04:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:04:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:06:01] Records:5 Saves:0
+
+ Discards:5
+[9398-1425053 read ignored] [9351-1527141 read ignored] [9402-1436096 read ignored] [9230-1435708 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:06:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:06:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:08:01] Records:5 Saves:0
+
+ Discards:5
+[9398-1393261 read ignored] [9370-1432729 read ignored] [9398-1523396 read ignored] [9400-1516642 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:08:02] Records:2 Saves:0
+
+ Discards:2
+[9402-1523544 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 10:08:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:10:01] Records:5 Saves:0
+
+ Discards:5
+[9230-1435708 read ignored] [9230-1435708 read ignored] [9402-1523544 read ignored] [9365-1517117 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:10:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:10:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:12:01] Records:5 Saves:0
+
+ Discards:5
+[9402-1517117 read ignored] [9349-1512101 read ignored] [9402-1517117 read ignored] [9402-1523544 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:12:02] Records:3 Saves:0
+
+ Discards:3
+[9402-1517117 link ignored, already recorded][9402-1517117 link ignored, already recorded][Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 10:12:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:14:01] Records:3 Saves:0
+
+ Discards:3
+[9398-1393261 read ignored] [9384-1520491 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:14:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:14:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:16:01] Records:3 Saves:0
+
+ Discards:3
+[9398-1525035 read ignored] [9398-1521510 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:16:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:16:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:18:01] Records:3 Saves:1
+[9402-1436877 read updated] 
+ Discards:2
+[9402-1436877 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:18:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:18:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:20:01] Records:3 Saves:0
+
+ Discards:3
+[9300-1405845 read ignored] [9402-1523544 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:20:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:20:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:22:01] Records:6 Saves:1
+[9402-1501279 read updated] 
+ Discards:5
+[9398-1425053 read ignored] [9402-1524124 read ignored] [9398-1508640 read ignored] [9402-1517601 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:22:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:22:01] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:24:02] Records:6 Saves:1
+[9398-1420986 read updated] 
+ Discards:5
+[9402-1524156 read ignored] [9398-1511976 read ignored] [9398-1511976 read ignored] [9398-1393261 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:24:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:24:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:26:02] Records:2 Saves:0
+
+ Discards:2
+[9400-1515225 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:26:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:26:03] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:28:01] Records:2 Saves:0
+
+ Discards:2
+[9283-1508142 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:28:01] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:28:01] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:30:02] Records:5 Saves:0
+
+ Discards:5
+[9398-1515299 read ignored] [9283-1405845 read ignored] [9398-1519617 read ignored] [9362-1524477 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:30:02] Records:0 Saves:0
+
+ Discards:0
+
+ Errors:No links file to download
+
+
+
+
+UNSUBSCRIBES[19/09/2025 10:30:02] Records: 383 Saves:0 Errors:
+
+
+READS[19/09/2025 10:32:02] Records:5 Saves:1
+[9273-1524477 read updated] 
+ Discards:4
+[9398-1361192 read ignored] [9283-1526172 read ignored] [9398-1435933 read ignored] [Empty record]
+ Errors:[FILE DELETED]
+
+
+LINKS[19/09/2025 10:32:02] Records:2 Saves:1
+[9362-1524477 link updated]
+ Discards:1
+[Empty or unmatchable record]
+ Errors:[FILE DELETED]
+
+
+UNSUBSCRIBES[19/09/2025 10:32:02] Records: 383 Saves:0 Errors:
+
+
