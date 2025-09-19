@@ -107,9 +107,9 @@ $this->menu=$menuarray;
 <h1><?php echo $model->title; ?> (<?php echo $model->id ?>)</h1>
 
 
-<div id='keywordlist' style='padding: 5px'>
+<div id='keywordlist' class='emailSurrounds' style='padding: 5px; margin-bottom: 1em;'>
     <div class='emailHeadLeft'><div style="margin: 2px 4px 0 0; padding: 5px 8px; display: inline-block"><b>Keywords:</b></div></div>
-    <div class='emailHeadRight'>
+    <div class='emailHeadRight' style="background-color: inherit">
         <?php
         $keywords = preg_split('/\s+/', trim((string)$model->keywords), -1, PREG_SPLIT_NO_EMPTY);
         echo '<div class="newsletter-keywords">';
