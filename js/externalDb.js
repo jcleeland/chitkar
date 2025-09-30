@@ -12,32 +12,35 @@
 * 
 * @returns {jQuery.fn.init}
 */
-function validateSql() {
+function validateSql(callback) {
     console.log('Testing SQL');
-    console.log($('#test_sql').val());
+    //console.log($('#test_sql').val());
     
     $('#sqlOK').val(0);
     $('#testsql_results').html("<center>Testing List validity...</center>");
     var postdata={sql:$('#test_sql').val()};
     jQuery.ajax({
         type: 'POST',
-        async: false,
+        async: true,
         url: 'index.php?r=ExternalDb/checkValidSql',
         data: postdata,
-        cache: false,
-        success:function(output) {
+        cache: false
+    }).done(function(output) {
             if(output=='0') {
                 $('#sqlOK').val('1');
                 $('#testsql_results').html($('#testsql_results').html()+'<center>Tested OK</center>');    
             } else {
                 $('#sqlOK').val(0);
-                $('#testsql_results').html("<center><strong style='color: red'>Invalid SQL</strong><br />You will need to check and correct any errors before continuing. The error message was '<i>"+output+"</i>'</center>");
+                $('#testsql_results').html(
+                    "<center><strong style='color: red'>Invalid SQL</strong><br />" +
+                    "You will need to check and correct any errors before continuing. The error message was '<i>"+output+"</i>'</center>"
+                );
             }
-        },
+            if (callback) callback();
     });        
 }
 
-function runSql() {
+function runSql(callback) {
     $('#testsql_results').html('<center>SQL Tested OK<br />Running SQL...</center>');
     var postdata={sql:$('#test_sql').val()};
     if(!postdata) {
@@ -45,14 +48,28 @@ function runSql() {
     } else {
         jQuery.ajax({
             type: 'POST',
-            async: false,
+            async: true,
             url:'index.php?r=ExternalDb',
             data:postdata,
-            cache:false,
-            success:function(html){
+            cache:false
+        }).done(function(html) {
+            $('#testsql_results').html(
+                "<center style='color: green'>Valid SQL</center>"+html
+            );
+            if(callback) callback();
+        }).fail(function (xhr, status, error) {
+            $('#testsql_results').html(
+                "<center><strong style='color: red'>Error running SQL</strong><br />" +
+                "Status: " + status + "<br />" +
+                "Message: " + error + "</center>"
+            );
+        });
+
+/*            success:function(html){
                 $('#testsql_results').html("<center style='color: green'>Valid SQL</center>"+html);
             }
         });
+*/
     }
 
 }
@@ -135,8 +152,17 @@ $(document).ready(function() {
         testSQLbutton.dialog("open");
         $('#testsql_results').html("<center>Testing SQL validity...</center>");
         
-        validateSql();
-        if($('#sqlOK').val()==1) {
+        //validateSql();
+
+        validateSql(function() {
+            if ($('#sqlOK').val() == 1) {
+                $('#testsql_results').html('Finished validity testing. Executing SQL.');
+                runSql();
+            } else {
+                $('#testsql_results').html('Validity testing did not succeed…');
+            }
+        });
+/*        if($('#sqlOK').val()==1) {
             $('#testsql_results').html('Finished validity testing. Executing SQL.');
             runSql();
             if($('#testsqlcount')) {
@@ -145,9 +171,10 @@ $(document).ready(function() {
                 }
             }
         } else {
-            $('#testsql_results').html('Validity testing did not succeed. SQL `'+$('test_sql').val()+'` returned nothing.');
+            $('#testsql_results').html('Validity testing did not succeed.<br />SQL `<span class="font-size: 9px !important">'+$('#test_sql').val()+'</span>` returned nothing.');
 
-        }
+        } 
+*/
         return false; 
     }); 
     
@@ -162,7 +189,7 @@ $(document).ready(function() {
         * 
         */
         jQuery.ajax({
-            async: false,
+            async: true,
             url:'index.php?r=newsletters/getsql&id='+$(this).attr('id'),
             cache:false,
             success:function(html){

@@ -46,14 +46,15 @@ $(document).ready(function() {
        $("#step3").hide(); 
     });
     
-    $('#reviewlist').click(function() {
-        validateSql();
-        if($('#sqlOK').val()=='1') {
-            $("#step3").hide();
-            $("#step4").show();
-        } else {
-            alert("Your SQL does not validate. You need to correct it. Use the Test SQL button to review and find a description of the error.");
-        }
+    $('#reviewlist').click(function () {
+        validateSql(function () {
+            if ($('#sqlOK').val() == '1') {
+                $("#step3").hide();
+                $("#step4").show();
+            } else {
+                alert("Your SQL does not validate. You need to correct it. Use the Test SQL button to review and find a description of the error.");
+            }
+        });
     });
     
     $('#returnsql').click(function(){

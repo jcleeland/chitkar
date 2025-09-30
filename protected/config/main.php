@@ -72,7 +72,7 @@ return array(
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => 'Maniac_xd250',
-			'charset' => 'utf8',
+			'charset' => 'utf8mb4', // Was 'utf8'
             'initSQLs'=>array("SET sql_mode=(SELECT REPLACE(@@sql_mode,'NO_ZERO_DATE',''));"),
 		),
 		'errorHandler'=>array(

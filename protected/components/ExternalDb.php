@@ -94,35 +94,59 @@
     //Connection string to database
     
     function execute($sql) {
-        //Settings - external_db_ip, external_db_port, external_db_name, external_db_user, external_db_passw
-        $externaldbip=Yii::app()->dbConfig->getValue('external_db_ip');
-        $externaldbport=Yii::app()->dbConfig->getValue('external_db_port');
-        $externaldbname=Yii::app()->dbConfig->getValue('external_db_name');
-        $externaldbuser=Yii::app()->dbConfig->getValue('external_db_user');
-        $externaldbpass=Yii::app()->dbConfig->getValue('external_db_pass');
+        $externaldbip   = Yii::app()->dbConfig->getValue('external_db_ip');
+        $externaldbport = Yii::app()->dbConfig->getValue('external_db_port');
+        $externaldbname = Yii::app()->dbConfig->getValue('external_db_name');
+        $externaldbuser = Yii::app()->dbConfig->getValue('external_db_user');
+        $externaldbpass = Yii::app()->dbConfig->getValue('external_db_pass');
 
-        $dblink = pg_connect("host=".$externaldbip." port=".$externaldbport." dbname=".$externaldbname." user=".$externaldbuser." password=".$externaldbpass) or die("OMS Connection Failed");
-        //$dblink = pg_connect($this->odbc_dsn, $this->odbcuser, $this->odbcpass);
-        @$result= pg_query($dblink, $sql);
-        if($result===false) {
-            $errormsg=pg_last_error($dblink);
-            pg_close($dblink);
-            return array("error"=>$errormsg, "data"=>array());
+        $connectString = "host={$externaldbip} port={$externaldbport} dbname={$externaldbname} user={$externaldbuser} password={$externaldbpass}";
+        error_log("ExternalDb: connecting with DSN [$connectString]");
+
+        $dblink = pg_connect($connectString);
+
+        if (!$dblink) {
+            $err = pg_last_error();
+            error_log("ExternalDb: connection failed: $err");
+            return array("error" => "Connection failed: $err", "data" => array());
         }
-        $output=array();
-        while ($row=pg_fetch_array($result, NULL, PGSQL_ASSOC)) {
-            $output[]= $row;
+
+        try {
+            $t0 = microtime(true);
+            $result = pg_query($dblink, $sql);
+            $t1 = microtime(true);
+
+            if ($result === false) {
+                $err = pg_last_error($dblink);
+                error_log("ExternalDb: query failed after " . round(($t1 - $t0) * 1000, 1) . "ms: $err");
+                return array("error" => $err, "data" => array());
+            }
+
+            error_log("ExternalDb: query ok in " . round(($t1 - $t0) * 1000, 1) . "ms");
+
+            $output = array();
+            while ($row = pg_fetch_array($result, NULL, PGSQL_ASSOC)) {
+                $output[] = $row;
+            }
+            return array("error" => 0, "data" => $output);
+            
+        } catch (Exception $e) {
+            // Catch any unexpected exceptions
+            error_log("ExternalDb: exception while executing query: " . $e->getMessage());
+            return array("error" => $e->getMessage(), "data" => array());
+
+        } finally {
+            // this ALWAYS runs, even if pg_query throws or you return early
+            if ($dblink) {
+                pg_close($dblink);
+            }
         }
-        //while (odbc_fetch_row($result)) {
-        //    $output[]=odbc_result($result, 1);
-        //}
-        pg_close($dblink);
-        return array("error"=>0, "data"=>$output);
     }
+
     
     //die("ExternalDb has been loaded");
     function getFields() {
-        return $fields;
+        return $this->fields;
     }
     
     function getSQL($sql) {
