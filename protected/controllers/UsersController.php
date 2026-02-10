@@ -36,7 +36,7 @@ class UsersController extends Controller
 				'roles'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete','togglePermission'),
 				'roles'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -64,6 +64,7 @@ class UsersController extends Controller
 	{
 		$model=new Users;
         $model->setScenario('create');
+		$model->enabled = 1; // New users are enabled by default
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
         
@@ -137,10 +138,8 @@ class UsersController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Users');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
+		// Redirect the Users index to the admin grid for easier management
+		$this->redirect(array('admin'));
 	}
 
 	/**
@@ -156,6 +155,37 @@ class UsersController extends Controller
 		$this->render('admin',array(
 			'model'=>$model,
 		));
+	}
+
+	/**
+	 * AJAX endpoint to toggle a boolean permission flag (including enabled) for a user.
+	 */
+	public function actionTogglePermission()
+	{
+		$request = Yii::app()->request;
+		if(!$request->isPostRequest || !$request->isAjaxRequest) {
+			throw new CHttpException(400,'Invalid request.');
+		}
+
+		$id = $request->getPost('id');
+		$attr = $request->getPost('attr');
+		$value = $request->getPost('value');
+
+		$allowedAttrs = array('enabled','can_create','can_queue','can_delete','can_control','can_admin');
+		if(!in_array($attr, $allowedAttrs, true)) {
+			throw new CHttpException(400,'Invalid attribute.');
+		}
+
+		$model = $this->loadModel($id);
+		$model->$attr = (int)$value ? 1 : 0;
+		$success = $model->save(false, array($attr));
+
+		header('Content-type: application/json');
+		echo CJSON::encode(array(
+			'success' => $success,
+			'value' => (int)$model->$attr,
+		));
+		Yii::app()->end();
 	}
 
 	/**

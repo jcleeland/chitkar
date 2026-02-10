@@ -34,6 +34,10 @@ class UserIdentity extends CUserIdentity
             } else if (!$user->validatePassword($this->password)) 
             {
                 $this->errorCode=self::ERROR_PASSWORD_INVALID;
+			} else if (!$user->enabled) 
+			{
+				// User exists and password is correct, but account is disabled
+				$this->errorCode=self::ERROR_USERNAME_INVALID;
             } else
             {
                 $this->_id=$user->id;

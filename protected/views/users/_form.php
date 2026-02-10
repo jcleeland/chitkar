@@ -57,6 +57,12 @@ $yesNo=array('0'=>'No', '1'=>'Yes');
 		<?php echo $form->error($model,'lastname'); ?>
 	</div>
 
+	<div class="row" style='float: left; width: 150px'>
+		<?php echo $form->labelEx($model,'enabled'); ?>
+		<?php echo $form->dropDownList($model, 'enabled', $yesNo) ?>
+		<?php echo $form->error($model,'enabled'); ?>
+	</div>
+
     <div class="row" style='float: left; width: 150px'>
         <?php echo $form->labelEx($model,'can_create'); ?>
         <?php echo $form->dropDownList($model, 'can_create', $yesNo) ?>

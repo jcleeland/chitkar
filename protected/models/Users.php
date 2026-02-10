@@ -10,6 +10,7 @@
  * @property string $email
  * @property string $firstname
  * @property string $lastname
+ * @property integer $enabled
  * @property string $created
  * @property string $modified
  */
@@ -45,9 +46,9 @@ class Users extends CActiveRecord
 			array('username, password_first, password_repeat, email, firstname, lastname', 'length', 'max'=>128),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, username, email, firstname, lastname, created, modified', 'safe', 'on'=>'search'),
+			array('id, username, email, firstname, lastname, enabled, created, modified', 'safe', 'on'=>'search'),
             //Make sure these fields have a rule, or else they won't save
-            array('password_repeat, password_first, can_create, can_queue, can_delete, can_control, can_admin', 'safe'),
+			array('password_repeat, password_first, can_create, can_queue, can_delete, can_control, can_admin, enabled', 'safe'),
 		);
 	}
 
@@ -77,6 +78,7 @@ class Users extends CActiveRecord
 			'email' => 'Email',
 			'firstname' => 'Firstname',
 			'lastname' => 'Lastname',
+			'enabled' => 'Enabled',
             'can_create' => 'Create news',
             'can_queue' => 'Queue news',
             'can_delete' => 'Delete news',
@@ -116,6 +118,7 @@ class Users extends CActiveRecord
 		$criteria->compare('email',$this->email,true);
 		$criteria->compare('firstname',$this->firstname,true);
 		$criteria->compare('lastname',$this->lastname,true);
+		$criteria->compare('enabled',$this->enabled);
 		$criteria->compare('created',$this->created,true);
 		$criteria->compare('modified',$this->modified,true);
 

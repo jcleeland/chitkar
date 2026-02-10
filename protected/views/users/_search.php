@@ -37,6 +37,11 @@
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'enabled'); ?>
+		<?php echo $form->textField($model,'enabled'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'created'); ?>
 		<?php echo $form->textField($model,'created'); ?>
 	</div>

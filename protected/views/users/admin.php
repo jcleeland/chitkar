@@ -50,6 +50,48 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'email',
 		'firstname',
 		'lastname',
+		array(
+			'name'=>'enabled',
+			'header'=>'Enabled',
+			'type'=>'raw',
+			'filter'=>array(0=>'No',1=>'Yes'),
+			'value'=>'CHtml::checkBox("enabled_".$data->id, (bool)$data->enabled, array("class"=>"perm-toggle","data-id"=>$data->id,"data-attr"=>"enabled"))',
+		),
+		array(
+			'name'=>'can_create',
+			'header'=>'Create',
+			'type'=>'raw',
+			'filter'=>array(0=>'No',1=>'Yes'),
+			'value'=>'CHtml::checkBox("can_create_".$data->id, (bool)$data->can_create, array("class"=>"perm-toggle","data-id"=>$data->id,"data-attr"=>"can_create"))',
+		),
+		array(
+			'name'=>'can_queue',
+			'header'=>'Queue',
+			'type'=>'raw',
+			'filter'=>array(0=>'No',1=>'Yes'),
+			'value'=>'CHtml::checkBox("can_queue_".$data->id, (bool)$data->can_queue, array("class"=>"perm-toggle","data-id"=>$data->id,"data-attr"=>"can_queue"))',
+		),
+		array(
+			'name'=>'can_delete',
+			'header'=>'Delete',
+			'type'=>'raw',
+			'filter'=>array(0=>'No',1=>'Yes'),
+			'value'=>'CHtml::checkBox("can_delete_".$data->id, (bool)$data->can_delete, array("class"=>"perm-toggle","data-id"=>$data->id,"data-attr"=>"can_delete"))',
+		),
+		array(
+			'name'=>'can_control',
+			'header'=>'Control',
+			'type'=>'raw',
+			'filter'=>array(0=>'No',1=>'Yes'),
+			'value'=>'CHtml::checkBox("can_control_".$data->id, (bool)$data->can_control, array("class"=>"perm-toggle","data-id"=>$data->id,"data-attr"=>"can_control"))',
+		),
+		array(
+			'name'=>'can_admin',
+			'header'=>'Admin',
+			'type'=>'raw',
+			'filter'=>array(0=>'No',1=>'Yes'),
+			'value'=>'CHtml::checkBox("can_admin_".$data->id, (bool)$data->can_admin, array("class"=>"perm-toggle","data-id"=>$data->id,"data-attr"=>"can_admin"))',
+		),
 		/*
 		'created',
 		'modified',
@@ -59,3 +101,25 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		),
 	),
 )); ?>
+
+<?php
+$toggleUrl = $this->createUrl('togglePermission');
+Yii::app()->clientScript->registerScript('user-permission-toggle', "
+$(document).on('change', '.perm-toggle', function() {
+	var checkbox = $(this);
+	var id = checkbox.data('id');
+	var attr = checkbox.data('attr');
+	var value = checkbox.is(':checked') ? 1 : 0;
+	$.ajax({
+		type: 'POST',
+		url: '$toggleUrl',
+		data: {id: id, attr: attr, value: value},
+		error: function() {
+			alert('Error updating permission.');
+			// Revert checkbox state on error
+			checkbox.prop('checked', !checkbox.is(':checked'));
+		}
+	});
+});
+");
+?>

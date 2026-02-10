@@ -257,6 +257,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(128) NOT NULL,
   `firstname` varchar(128) NOT NULL,
   `lastname` varchar(128) NOT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT '1',
   `can_create` int(11) NOT NULL,
   `can_queue` int(11) NOT NULL,
   `can_delete` int(11) NOT NULL,
@@ -271,6 +272,6 @@ CREATE TABLE IF NOT EXISTS `users` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
-INSERT INTO `users` (`id`, `username`, `password`, `email`, `firstname`, `lastname`, `can_create`, `can_queue`, `can_delete`, `can_control`, `can_admin`, `created`, `modified`) VALUES
-(1, 'admin', '$2a$13$QW5Ih.OGfrfqdx7vNsJuG.63R27iCnBHMb79yEWPZfuO2FhNqCnCS', 'admin@chitkar.com', 'Default', 'Administrator', 1, 1, 1, 1, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+INSERT INTO `users` (`id`, `username`, `password`, `email`, `firstname`, `lastname`, `enabled`, `can_create`, `can_queue`, `can_delete`, `can_control`, `can_admin`, `created`, `modified`) VALUES
+(1, 'admin', '$2a$13$QW5Ih.OGfrfqdx7vNsJuG.63R27iCnBHMb79yEWPZfuO2FhNqCnCS', 'admin@chitkar.com', 'Default', 'Administrator', 1, 1, 1, 1, 1, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 

@@ -13,3 +13,5 @@ tmp/remoteStats.log
 tmp/statslock.txt
 tmp/unsubscribe.ctk
 tmp/reads_temp.ctk
+protected/runtime/application.log.5
+website/links.ctk

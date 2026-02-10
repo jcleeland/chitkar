@@ -286,7 +286,7 @@ class OutgoingsController extends Controller
         $now=date("Y-m-d H:i:s");
         $jobs=Outgoings::model()->findAll('sendDate <:now AND sent != 1 ORDER BY id ASC', array(':now'=>$now));
         
-        $fromemail='news@cpsuvic.org'; //TODO: Replace with database configuration
+        $fromemail='news@news.cpsuvic.org'; //TODO: Replace with database configuration
         $fromname="CPSU News Server";
                 
         $mail = new YiiMailer();

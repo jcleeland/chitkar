@@ -685,8 +685,11 @@ class NewslettersController extends Controller
                         }
                     }
 
+                    // Safely encode the destination URL
+                    $encodedUrl = rawurlencode($url);
+
                     // Rewrite the URL for tracking
-                    return "<a{$matches[1]}href=\"{$publicweburl}links.php?URL=$url&nid={$newsletter->id}&rid={RID}\"";
+                    return "<a{$matches[1]}href=\"{$publicweburl}links%2Ephp?URL=$encodedUrl&nid={$newsletter->id}&rid={RID}\"";
                 },
                 $newsletterhtml
             );
